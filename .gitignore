@@ -1,0 +1,22 @@
+# -*- mode: gitignore; -*-
+.cache
+.lsp-session-v1
+.mc-lists.el
+package-quickstart.el
+tutorial/
+elpa/
+eln-cache/
+eshell/history
+eshell/lastdir
+devdocs/
+saveplace
+savehist
+projects
+recentf
+*.elc
+*.el~
+eaf/
+auto-save-list/
+transient/
+site-lisp/
+elisp/
