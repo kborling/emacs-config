@@ -19,6 +19,7 @@
 ;; Auto-revert mode
 (setopt auto-revert-interval 0.5)
 (setopt auto-revert-verbose t)
+
 (add-hook 'after-init-hook #'global-auto-revert-mode)
 
 ;; Backup stored in /tmp
@@ -105,8 +106,6 @@
 (setq electric-quote-replace-double t)
 (electric-pair-mode -1)
 (electric-quote-mode -1)
-;; I don't like auto indents in Org and related.  They are okay for
-;; programming.
 (electric-indent-mode -1)
 (add-hook 'prog-mode-hook #'electric-indent-local-mode)
 
@@ -122,6 +121,7 @@
 
 (setq package-archives
       '(("elpa" . "https://elpa.gnu.org/packages/")
+        ("elpa-devel" . "https://elpa.gnu.org/devel/")
         ("org" . "https://orgmode.org/elpa/")
         ("nongnu" . "https://elpa.nongnu.org/nongnu/")
         ("melpa" . "https://melpa.org/packages/")))
@@ -130,6 +130,9 @@
 (setq package-archive-priorities
       '(("elpa" . 2)
         ("nongnu" . 1)))
+
+(setq package-pinned-packages
+      '((corfu . "elpa-devel")))
 
 (package-initialize)
 (unless package-archive-contents
@@ -300,24 +303,17 @@
   :custom
   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)                 ;; Enable auto completion
-  ;; (corfu-auto-delay 0)
-  ;; (corfu-auto-prefix 1)
   (corfu-separator ?\s)          ;; Orderless field separator
   (corfu-quit-no-match 'separator) ; Don't quit if there is `corfu-separator' inserted
-  ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-  ;; (corfu-preselect-first nil)    ;; Disable candidate preselection
-  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
   (corfu-echo-documentation nil) ;; Disable documentation in the echo area
-  ;; (corfu-scroll-margin 5)        ;; Use scroll margin
-
-  ;; (corfu-min-width 80)
-  ;; (corfu-max-width corfu-min-width)     ; Always have the same width
-  ;; (corfu-count 14)
   (corfu-scroll-margin 4)
 
   :config
+  (corfu-popupinfo-mode 1)
+  (setq corfu-popupinfo-delay 0.0)
+  ;; (corfu-indexed-mode 1)
+  (corfu-history-mode 1)
+
   (define-key corfu-map (kbd "<tab>") #'corfu-complete)
 
   (defun contrib/corfu-enable-always-in-minibuffer ()
@@ -334,30 +330,8 @@ Useful for prompts such as `eval-expression' and `shell-command'."
       (apply #'consult-completion-in-region completion-in-region--data)))
   (define-key corfu-map "\M-m" #'corfu-move-to-minibuffer))
 
-(use-package corfu-doc
-  :after corfu
-  :config
-  (define-key corfu-map (kbd "M-p") #'corfu-doc-scroll-down) ;; corfu-next
-  (define-key corfu-map (kbd "M-n") #'corfu-doc-scroll-up)  ;; corfu-previous
-  ;; (setq corfu-doc-display-within-parent-frame nil)
-  (add-hook 'corfu-mode-hook #'corfu-doc-mode))
-
 ;; Add extensions
 (use-package cape
-  ;; Bind dedicated completion commands
-  ;; Alternative prefix keys: C-c p, M-p, M-+, ...
-  :bind (("C-c p p" . completion-at-point) ;; capf
-         ("C-c p t" . complete-tag)        ;; etags
-         ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
-         ("C-c p h" . cape-history)
-         ("C-c p f" . cape-file)
-         ("C-c p k" . cape-keyword)
-         ("C-c p s" . cape-symbol)
-         ("C-c p a" . cape-abbrev)
-         ("C-c p i" . cape-ispell)
-         ("C-c p l" . cape-line)
-         ("C-c p w" . cape-dict))
-  :init
   ;; Add `completion-at-point-functions', used by `completion-at-point'.
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   (add-to-list 'completion-at-point-functions #'cape-file)
@@ -381,13 +355,6 @@ Useful for prompts such as `eval-expression' and `shell-command'."
 
   ;; Setup completion at point
   (defun tempel-setup-capf ()
-    ;; Add the Tempel Capf to `completion-at-point-functions'.
-    ;; `tempel-expand' only triggers on exact matches. Alternatively use
-    ;; `tempel-complete' if you want to see all matches, but then you
-    ;; should also configure `tempel-trigger-prefix', such that Tempel
-    ;; does not trigger too often when you don't expect it. NOTE: We add
-    ;; `tempel-expand' *before* the main programming mode Capf, such
-    ;; that it will be tried first.
     (setq-local completion-at-point-functions
                 (cons #'tempel-expand
                       completion-at-point-functions)))
@@ -856,8 +823,6 @@ Useful for prompts such as `eval-expression' and `shell-command'."
   (setq prefix-help-command #'embark-prefix-help-command)
 
   :config
-  ;; (define-key embark-symbol-map "D" #'devdocs-lookup)
-  ;; (define-key embark-function-map "D" #'devdocs-lookup)
 
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
@@ -1231,19 +1196,6 @@ Useful for prompts such as `eval-expression' and `shell-command'."
   (setq org-export-backends '(html texinfo md))
   )
 
-;; Org-Mode Snippets
-
-(define-skeleton org-header-skeleton
-  "Header info for a emacs-org file."
-  "Title: "
-  "#+TITLE: " str " \n"
-  "#+AUTHOR: " user-full-name "\n"
-  "#+EMAIL: " user-mail-address "\n"
-  "#+DATE: " (format-time-string "%Y-%m-%d") "\n"
-  "-----"
-  )
-(global-set-key [C-S-f1] 'org-header-skeleton)
-
 ;; Org Files
 
 (defun todo-visit ()
@@ -1461,17 +1413,6 @@ The cursor becomes a blinking bar, per `kdb/cursor-type-mode'."
 
   :bind ("C-c m" . kdb/olivetti-mode))
 
-;; Custom Files ===================================== ;;
-;; (add-to-list 'load-path "~/.emacs.d/elisp")
-;; ;; Custom elisp files
-;; (mapc 'load (file-expand-wildcards "~/.emacs.d/elisp/*.el"))
-;; (defun load-directory (dir)
-;;   "Load custom elisp files from specified DIR."
-;;   (let ((load-it (lambda (f)
-;; 		               (load-file (concat (file-name-as-directory dir) f)))
-;; 		             ))
-;; 	  (mapc load-it (directory-files dir nil "\\.el$"))))
-
 ;; Custom ========================================= ;;
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -1485,7 +1426,7 @@ The cursor becomes a blinking bar, per `kdb/cursor-type-mode'."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(corfu-popupinfo ((t (:inherit corfu-default :height 1.0)))))
 
 ;; Local Variables:
 ;; no-byte-compile: t
