@@ -215,7 +215,7 @@
   :ensure t
   :config
   (when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize)))
+    (exec-path-from-shell-initialize)))
 
 ;; Diminish ======================================= ;;
 
@@ -332,6 +332,7 @@ Useful for prompts such as `eval-expression' and `shell-command'."
 
 ;; Add extensions
 (use-package cape
+  :config
   ;; Add `completion-at-point-functions', used by `completion-at-point'.
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   (add-to-list 'completion-at-point-functions #'cape-file)
@@ -726,7 +727,7 @@ Useful for prompts such as `eval-expression' and `shell-command'."
          ;; M-g bindings (goto-map)
          ;; M-g bindings (goto-map)
          ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g f" . consult-flycheck)               ;; Alternative: consult-flycheck
          ("M-g g" . consult-goto-line)             ;; orig. goto-line
          ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
          ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
@@ -848,82 +849,68 @@ Useful for prompts such as `eval-expression' and `shell-command'."
   (add-hook 'eglot--managed-mode-hook #'eldoc-box-hover-mode t)
   )
 
-;; Eglot ============================================= ;;
-(use-package eglot
-  :ensure t
-  :config
-  ;; (add-to-list 'eglot-stay-out-of 'flymake)
-  ;; Keybindings
-  (define-key eglot-mode-map (kbd "C-c c r") 'eglot-rename)
-  (define-key eglot-mode-map (kbd "C-c c f") 'eglot-format-buffer)
-  (define-key eglot-mode-map (kbd "C-c c o") 'eglot-code-action-organize-imports)
-  (define-key eglot-mode-map (kbd "C-c c a") 'eglot-code-actions)
-  (define-key eglot-mode-map (kbd "C-c c q") 'eglot-code-action-quickfix)
-  (define-key eglot-mode-map (kbd "C-c c e") 'eglot-code-action-extract)
-  (define-key eglot-mode-map (kbd "C-c c j") 'eglot-code-action-inline)
-  (define-key eglot-mode-map (kbd "C-c c k") 'eglot-code-action-rewrite)
+;; LSP Mode =========================================== ;;
 
-  (define-key eglot-mode-map (kbd "C-c c i") 'eglot-find-implementation)
-  (define-key eglot-mode-map (kbd "C-c c d") 'eglot-find-declaration)
-  (define-key eglot-mode-map (kbd "C-c c t") 'eglot-find-typeDefinition)
-  (define-key eglot-mode-map (kbd "C-c c h") 'eldoc))
-  ;; (define-key eglot-mode-map (kbd "C-c c d") 'xref-find-definitions))
-
-;; Language Servers
-;; (add-to-list 'eglot-server-programs '(csharp-mode . ("/run/current-system/sw/bin/omnisharp" "-lsp")))
-(add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
-;; (add-to-list 'eglot-server-programs '(web-mode . ("typescript-language-server" "--stdio")))
-
-;; Automatically start
-(add-hook 'typescript-mode-hook 'eglot-ensure)
-;; (add-hook 'web-mode-hook 'eglot-ensure)
-;; (add-hook 'csharp-mode-hook 'eglot-ensure)
-;; (add-hook 'rust-mode-hook 'eglot-ensure)
-(use-package consult-eglot)
-
-;; Flymake ========================================= ;;
-(use-package flymake
-  :config
-  (setq flymake-fringe-indicator-position 'left-fringe)
-  (setq flymake-suppress-zero-counters t)
-  (setq flymake-start-on-flymake-mode t)
-  (setq flymake-no-changes-timeout nil)
-  (setq flymake-start-on-save-buffer t)
-  ;; (setq flymake-no-changes-timeout 0.1)
-  (setq flymake-proc-compilation-prevents-syntax-check t)
-  (setq flymake-wrap-around nil)
-  (setq flymake-mode-line-format
-        '("" flymake-mode-line-exception flymake-mode-line-counters))
-  (setq flymake-mode-line-counter-format
-        '(" " flymake-mode-line-error-counter
-          flymake-mode-line-warning-counter
-          flymake-mode-line-note-counter ""))
-
-  (define-key ctl-x-x-map "m" #'flymake-mode) ; C-x x m
-  (let ((map flymake-mode-map))
-    (define-key map (kbd "C-c f s") #'flymake-start)
-    (define-key map (kbd "C-c f d") #'flymake-show-buffer-diagnostics) ; Emacs28
-    (define-key map (kbd "C-c f D") #'flymake-show-project-diagnostics) ; Emacs28
-    (define-key map (kbd "C-c f n") #'flymake-goto-next-error)
-    (define-key map (kbd "C-c f p") #'flymake-goto-prev-error))
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
   :init
-  (add-hook 'prog-mode-hook 'flymake-mode)
-  (add-hook 'text-mode-hook 'flymake-mode)
-  (add-hook 'flymake-mode-hook
-            (lambda ()
-              (setq eldoc-documentation-functions
-                    (cons 'flymake-eldoc-function
-                          (delq 'flymake-eldoc-function eldoc-documentation-functions))))))
-
-(use-package eslint-flymake
-  :load-path "~/.emacs.d/elisp/eslint-flymake")
-
-(use-package flymake-eslint
-  :after flymake
+  (setq lsp-keymap-prefix "C-c c")
   :config
-  (add-hook 'typescript-mode-hook
-            (lambda ()
-              (flymake-eslint-enable))))
+  (lsp-enable-which-key-integration t)
+  (setq lsp-log-io nil) ; if set to true can cause a performance hit
+  (setq lsp-headerline-breadcrumb-enable nil)
+  (defun corfu-lsp-setup ()
+    (setq-local completion-styles '(orderless)
+                completion-category-defaults nil))
+  (add-hook 'lsp-mode-hook #'corfu-lsp-setup)
+  ;; Fix for completions with corfu
+  (setq lsp-completion-provider :none)
+  (defun lsp-mode-use-orderless ()
+    "Set LSP mode to use orderless."
+    (setf (alist-get 'styles
+		                 (alist-get 'lsp-capf completion-category-defaults))
+	        '(orderless)))
+
+  ;; (setq lsp-eslint-server-command '("vscode-eslint-language-server" "--stdio"))
+  (setq lsp-eslint-auto-fix-on-save t)
+
+  :hook
+  (lsp-completion-mode . lsp-mode-use-orderless)
+  )
+
+(use-package lsp-ui
+  :hook (lsp-mode . lsp-ui-mode)
+  :custom
+  (lsp-ui-doc-position 'bottom))
+
+(use-package consult-lsp)
+(define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)
+
+;; Flycheck ========================================= ;;
+
+(use-package consult-flycheck)
+
+(use-package flycheck
+  :after org
+  :hook
+  (org-src-mode . disable-flycheck-for-elisp)
+  :custom
+  (flycheck-emacs-lisp-initialize-packages t)
+  (flycheck-display-errors-delay 0.1)
+  :config
+  (global-flycheck-mode)
+  (flycheck-set-indication-mode 'left-margin)
+
+  (setq flycheck-javascript-eslint-executable "eslint_d")
+
+  (defun disable-flycheck-for-elisp ()
+    (setq-local flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
+
+  (add-to-list 'flycheck-checkers 'proselint)
+  (setq-default flycheck-disgabled-checkers '(haskell-stack-ghc)))
+
+(use-package flycheck-inline
+  :config (global-flycheck-inline-mode))
 
 ;; Emmet Mode ====================================== ;;
 
@@ -933,6 +920,19 @@ Useful for prompts such as `eval-expression' and `shell-command'."
   :bind (:map emmet-mode-keymap
               ("<C-tab>" . emmet-expand-line))
   :hook ((css-mode web-mode html-mode vue-mode) . emmet-mode))
+
+;; Eslint ========================================== ;;
+
+;; (use-package eslintd-fix
+;;   :config
+;;   ;; (setq eslintd-fix-executable "~/Projects/angular-tests/node_modules/.bin/eslint_d")
+;;   (add-hook 'js2-mode-hook 'eslintd-fix-mode)
+;;   (add-hook 'typescript-mode-hook 'eslintd-fix-mode))
+
+;; Lua Mode ======================================== ;;
+
+(use-package lua-mode
+  :mode ("\\.lua\\'"))
 
 ;; Web Mode ======================================== ;;
 
@@ -967,8 +967,8 @@ Useful for prompts such as `eval-expression' and `shell-command'."
 ;; Typescript Mode ================================= ;;
 
 (use-package typescript-mode
-  :mode "\\.ts\\'")
-;; :hook (typescript-mode . lsp-deferred)
+  :mode "\\.ts\\'"
+  :hook (typescript-mode . lsp-deferred))
 ;; :config
 ;; (setq typescript-indent-level 4))
 
@@ -1420,7 +1420,7 @@ The cursor becomes a blinking bar, per `kdb/cursor-type-mode'."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(wrap-region exec-path-from-shell desktop-environment flymake-mode eldoc-box editorconfig tempel yasnippet-snippets yas-snippet consult-dash dash-docs consult-eglot cape embark-consult embark tree-sitter-indent tree-sitter-langs tree-sitter ef-themes vterm json-mode yaml-mode orderless marginalia vertico olivetti ob-restclient restclient slime rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
+   '(flycheck-inline consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel yasnippet-snippets yas-snippet consult-dash dash-docs cape embark-consult embark tree-sitter-indent tree-sitter-langs tree-sitter ef-themes vterm json-mode yaml-mode orderless marginalia vertico olivetti ob-restclient restclient slime rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
