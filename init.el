@@ -80,8 +80,6 @@
 ;; Delete marked region when input
 (add-hook 'after-init-hook #'delete-selection-mode)
 
-(setq icomplete-compute-delay 0)
-
 (autoload 'zap-up-to-char "misc"
   "Kill up to, but not including ARGth occurrence of CHAR." t)
 
@@ -188,8 +186,11 @@
 ;;     (font-spec :name "LiberationMono Nerd Font" :size 12) nil)
 
 ;; Custom themes
+(use-package uwu-theme
+  :config
+  (setq uwu-distinct-line-numbers 'nil))
 (use-package ef-themes)
-(load-theme 'ef-tritanopia-dark t)
+(load-theme 'uwu t)
 
 ;; Frame ============================================== ;;
 
@@ -278,6 +279,7 @@
          ("C-c g f" . magit-fetch-all)
          ("C-c g b" . magit-branch)
          ("C-c g d" . magit-diff)
+         ;; ("C-c g r" . magit-remote)
          ("C-c g z" . magit-stash)
          ("C-c g Z" . magit-apply)
          ))
@@ -316,13 +318,13 @@
 
   (define-key corfu-map (kbd "<tab>") #'corfu-complete)
 
-  (defun contrib/corfu-enable-always-in-minibuffer ()
-    "Enable Corfu in the minibuffer if Vertico is not active.
-Useful for prompts such as `eval-expression' and `shell-command'."
-    (unless (bound-and-true-p vertico--input)
-      (corfu-mode 1)))
+;;   (defun contrib/corfu-enable-always-in-minibuffer ()
+;;     "Enable Corfu in the minibuffer if Vertico is not active.
+;; Useful for prompts such as `eval-expression' and `shell-command'."
+;;     (unless (bound-and-true-p vertico--input)
+;;       (corfu-mode 1)))
 
-  (add-hook 'minibuffer-setup-hook #'contrib/corfu-enable-always-in-minibuffer 1)
+;;   (add-hook 'minibuffer-setup-hook #'contrib/corfu-enable-always-in-minibuffer 1)
 
   (defun corfu-move-to-minibuffer ()
     (interactive)
@@ -589,6 +591,17 @@ Useful for prompts such as `eval-expression' and `shell-command'."
 ;; Vterm ================================================ ;;
 (use-package vterm
   :ensure t)
+
+;; FIDO/IComplete ===================================== ;;
+
+;; (fido-mode)
+;; (fido-vertical-mode 1)
+;; (setq icomplete-compute-delay 0)
+
+;; ;; (setq icomplete-in-buffer 1)
+;; ;; (define-key map (kbd "RET") 'icomplete-vertical-goto-last)
+
+;; (global-set-key (kbd "C-=") 'fido-vertical-mode)
 
 ;; Vertico =========================================== ;;
 (use-package vertico
@@ -874,6 +887,20 @@ Useful for prompts such as `eval-expression' and `shell-command'."
   ;; (setq lsp-eslint-server-command '("vscode-eslint-language-server" "--stdio"))
   (setq lsp-eslint-auto-fix-on-save t)
 
+  :custom
+  ;; Rust settings
+  (lsp-rust-analyzer-cargo-watch-command "clippy")
+  (lsp-eldoc-render-all t)
+  (lsp-idle-delay 0.6)
+  ;; enable / disable the hints as you prefer:
+  (lsp-rust-analyzer-server-display-inlay-hints t)
+  (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
+  (lsp-rust-analyzer-display-chaining-hints t)
+  (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
+  (lsp-rust-analyzer-display-closure-return-type-hints t)
+  (lsp-rust-analyzer-display-parameter-hints nil)
+  (lsp-rust-analyzer-display-reborrow-hints nil)
+
   :hook
   (lsp-completion-mode . lsp-mode-use-orderless)
   )
@@ -881,7 +908,11 @@ Useful for prompts such as `eval-expression' and `shell-command'."
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
   :custom
-  (lsp-ui-doc-position 'bottom))
+  (lsp-ui-doc-position 'bottom)
+
+  (lsp-ui-peek-always-show t)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-doc-enable nil))
 
 (use-package consult-lsp)
 (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)
@@ -937,7 +968,7 @@ Useful for prompts such as `eval-expression' and `shell-command'."
 ;; Web Mode ======================================== ;;
 
 (use-package web-mode
-  :mode ("\\.html\\'" "\\.css\\'" "\\.tsx\\'" "\\.cshtml\\'"))
+  :mode ("\\.html\\'" "\\.css\\'" "\\.tsx\\'" "\\.cshtml\\'" "\\.astro\\'"))
 
 ;; Javascript Mode ================================= ;;
 
@@ -988,6 +1019,10 @@ Useful for prompts such as `eval-expression' and `shell-command'."
 
 (add-hook 'typescript-mode-hook #'setup-tide-mode)
 
+(use-package ob-typescript
+  :after org)
+
+
 ;; EditorConfig ======================================== ;;
 
 (use-package editorconfig
@@ -1032,6 +1067,41 @@ Useful for prompts such as `eval-expression' and `shell-command'."
   (setq rust-format-on-save t)
   (define-key rust-mode-map (kbd "C-c C-c") 'rust-run)
   )
+
+(use-package rustic
+  :ensure
+  :bind (:map rustic-mode-map
+              ("M-j" . lsp-ui-imenu)
+              ("M-?" . lsp-find-references)
+              ("C-c C-c l" . flycheck-list-errors)
+              ("C-c C-c a" . lsp-execute-code-action)
+              ("C-c C-c r" . lsp-rename)
+              ("C-c C-c q" . lsp-workspace-restart)
+              ("C-c C-c Q" . lsp-workspace-shutdown)
+              ("C-c C-c s" . lsp-rust-analyzer-status))
+  :config
+  ;; uncomment for less flashiness
+  ;; (setq lsp-eldoc-hook nil)
+  ;; (setq lsp-enable-symbol-highlighting nil)
+  ;; (setq lsp-signature-auto-activate nil)
+
+  ;; comment to disable rustfmt on save
+  (setq rustic-format-on-save t)
+  (add-hook 'rustic-mode-hook 'kdb/rustic-mode-hook))
+
+(defun kdb/rustic-mode-hook ()
+  ;; so that run C-c C-c C-r works without having to confirm, but don't try to
+  ;; save rust buffers that are not file visiting. Once
+  ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
+  ;; no longer be necessary.
+  (when buffer-file-name
+    (setq-local buffer-save-without-query t))
+  (add-hook 'before-save-hook 'lsp-format-buffer nil t))
+
+;; Go ============================================ ;;
+
+(use-package go-mode
+  :mode ("\\.go\\'"))
 
 ;; Elisp ========================================= ;;
 
@@ -1220,15 +1290,15 @@ Useful for prompts such as `eval-expression' and `shell-command'."
 ;; Config ======================================= ;;
 
 (defun config-visit ()
-  "Load ~/.emacs.custom/init.el for editing."
+  "Load ~/.emacs.d/init.el for editing."
   (interactive)
-  (find-file "~/.emacs.custom/init.el"))
+  (find-file "~/.emacs.d/init.el"))
 (global-set-key (kbd "C-c e v") 'config-visit)
 
 (defun config-reload ()
   "Reload ~/.emacs.custom/init.el at runtime."
   (interactive)
-  (load-file (expand-file-name "~/.emacs.custom/init.el")))
+  (load-file (expand-file-name "~/.emacs.d/init.el")))
 (global-set-key (kbd "C-c e r") 'config-reload)
 
 ;; Buffers ======================================== ;;
@@ -1350,7 +1420,6 @@ Useful for prompts such as `eval-expression' and `shell-command'."
 (setq
  browse-url-browser-function 'eww-browse-url ; Use eww as the default browser
  shr-use-fonts  nil                          ; No special fonts
- shr-use-colors nil                          ; No colours
  shr-indentation 2                           ; Left-side margin
  shr-width 120                                ; Fold text to 70 columns
  shr-use-colors nil             ; t is bad for accessibility
@@ -1420,7 +1489,7 @@ The cursor becomes a blinking bar, per `kdb/cursor-type-mode'."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(flycheck-inline consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel yasnippet-snippets yas-snippet consult-dash dash-docs cape embark-consult embark tree-sitter-indent tree-sitter-langs tree-sitter ef-themes vterm json-mode yaml-mode orderless marginalia vertico olivetti ob-restclient restclient slime rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
+   '(uwu-theme rustic go-mode ob-typescript flycheck-inline corfu consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel yasnippet-snippets yas-snippet consult-dash dash-docs cape embark-consult embark tree-sitter-indent tree-sitter-langs tree-sitter ef-themes vterm json-mode yaml-mode orderless marginalia olivetti vertico ob-restclient restclient slime rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

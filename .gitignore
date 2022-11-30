@@ -2,6 +2,7 @@
 .cache
 .lsp-session-v1
 .mc-lists.el
+tramp
 package-quickstart.el
 tutorial/
 elpa/
