@@ -1352,7 +1352,9 @@
           "Output\\*$"
           "\\*Async Shell Command\\*"
           "\\*Compile-Log\\*"
-          "\\*rustfmt\\*"
+          "^\\*cargo"
+          "^\\*rust"
+          "^\\*lsp"
           help-mode
           compilation-mode))
   (popper-mode +1)
