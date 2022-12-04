@@ -989,8 +989,7 @@
                              (setup-tide-mode)))
   )
 
-(use-package js2-refactor
-  :mode ("\\.js\\'" "\\.ts\\'"))
+(use-package js2-refactor)
 (use-package xref-js2
   :config
   (js2r-add-keybindings-with-prefix "C-c C-r"))
@@ -1005,7 +1004,6 @@
 
 (use-package tide
   :ensure t
-  :mode "\\.ts\\'"
   :bind (("C-c C-." . tide-documentation-at-point))
   :diminish)
 
@@ -1069,7 +1067,6 @@
 
 (use-package rustic
   :ensure t
-  :mode ("\\.rs\\'")
   :bind (:map rustic-mode-map
               ("M-j" . lsp-ui-imenu)
               ("M-?" . lsp-find-references)
