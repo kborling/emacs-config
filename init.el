@@ -166,6 +166,7 @@
   (define-key map (kbd "C-M-r") #'isearch-backward)
   ;; Open applications
   (define-key map (kbd "C-c o e") #'eshell)
+  (define-key map (kbd "C-c o t") #'vterm)
   (define-key map (kbd "C-c o d") #'dired)
   (define-key map (kbd "C-c o f") #'treemacs)
   )
@@ -179,11 +180,9 @@
 (set-face-attribute 'italic nil
                     :family "Comic Code" :weight 'regular :slant 'italic)
 (set-face-attribute 'variable-pitch nil
-                    :family "Cantarell" :height 130 :weight 'regular)
+                    :family "Cantarell" :height 150 :weight 'regular)
 (set-fontset-font t 'unicode
                   (font-spec :name "Inconsolata Light" :size 16) nil)
-;; (set-fontset-font t '(#xe000 . #xffdd)
-;;     (font-spec :name "LiberationMono Nerd Font" :size 12) nil)
 
 ;; Custom themes
 (use-package uwu-theme
@@ -318,13 +317,13 @@
 
   (define-key corfu-map (kbd "<tab>") #'corfu-complete)
 
-;;   (defun contrib/corfu-enable-always-in-minibuffer ()
-;;     "Enable Corfu in the minibuffer if Vertico is not active.
-;; Useful for prompts such as `eval-expression' and `shell-command'."
-;;     (unless (bound-and-true-p vertico--input)
-;;       (corfu-mode 1)))
+  ;;   (defun contrib/corfu-enable-always-in-minibuffer ()
+  ;;     "Enable Corfu in the minibuffer if Vertico is not active.
+  ;; Useful for prompts such as `eval-expression' and `shell-command'."
+  ;;     (unless (bound-and-true-p vertico--input)
+  ;;       (corfu-mode 1)))
 
-;;   (add-hook 'minibuffer-setup-hook #'contrib/corfu-enable-always-in-minibuffer 1)
+  ;;   (add-hook 'minibuffer-setup-hook #'contrib/corfu-enable-always-in-minibuffer 1)
 
   (defun corfu-move-to-minibuffer ()
     (interactive)
@@ -887,19 +886,19 @@
   ;; (setq lsp-eslint-server-command '("vscode-eslint-language-server" "--stdio"))
   (setq lsp-eslint-auto-fix-on-save t)
 
-  :custom
+  ;; :custom
   ;; Rust settings
-  (lsp-rust-analyzer-cargo-watch-command "clippy")
-  (lsp-eldoc-render-all t)
-  (lsp-idle-delay 0.6)
-  ;; enable / disable the hints as you prefer:
-  (lsp-rust-analyzer-server-display-inlay-hints t)
-  (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
-  (lsp-rust-analyzer-display-chaining-hints t)
-  (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
-  (lsp-rust-analyzer-display-closure-return-type-hints t)
-  (lsp-rust-analyzer-display-parameter-hints nil)
-  (lsp-rust-analyzer-display-reborrow-hints nil)
+  ;; (lsp-rust-analyzer-cargo-watch-command "clippy")
+  ;; (lsp-eldoc-render-all t)
+  ;; (lsp-idle-delay 0.6)
+  ;; ;; enable / disable the hints as you prefer:
+  ;; (lsp-rust-analyzer-server-display-inlay-hints t)
+  ;; (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
+  ;; (lsp-rust-analyzer-display-chaining-hints t)
+  ;; (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
+  ;; (lsp-rust-analyzer-display-closure-return-type-hints t)
+  ;; (lsp-rust-analyzer-display-parameter-hints nil)
+  ;; (lsp-rust-analyzer-display-reborrow-hints nil)
 
   :hook
   (lsp-completion-mode . lsp-mode-use-orderless)
@@ -914,8 +913,9 @@
   (lsp-ui-sideline-show-hover t)
   (lsp-ui-doc-enable nil))
 
-(use-package consult-lsp)
-(define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)
+(use-package consult-lsp
+  :custom
+  (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols))
 
 ;; Flycheck ========================================= ;;
 
@@ -989,11 +989,11 @@
                              (setup-tide-mode)))
   )
 
-(use-package js2-refactor)
+(use-package js2-refactor
+  :mode ("\\.js\\'" "\\.ts\\'"))
 (use-package xref-js2
   :config
-  (js2r-add-keybindings-with-prefix "C-c C-r")
-  )
+  (js2r-add-keybindings-with-prefix "C-c C-r"))
 
 ;; Typescript Mode ================================= ;;
 
@@ -1005,6 +1005,7 @@
 
 (use-package tide
   :ensure t
+  :mode "\\.ts\\'"
   :bind (("C-c C-." . tide-documentation-at-point))
   :diminish)
 
@@ -1038,21 +1039,19 @@
   :diminish
   :config
   (global-tree-sitter-mode)
-  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
-  )
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
 (use-package tree-sitter-langs
   :ensure t
-  :after tree-sitter
-  )
+  :after tree-sitter)
 (use-package tree-sitter-indent
   :ensure t
-  :after tree-sitter
-  )
+  :after tree-sitter)
 
 ;; Csharp ========================================== ;;
 
 ;; (use-package csharp-mode
 ;;   :ensure t
+;;   :mode ("\\.cs\\'" "\\.cshtml\\'")
 ;;   :config
 ;;   (add-to-list 'auto-mode-alist '("\\.cs\\'" . csharp-tree-sitter-mode)))
 
@@ -1069,7 +1068,8 @@
   )
 
 (use-package rustic
-  :ensure
+  :ensure t
+  :mode ("\\.rs\\'")
   :bind (:map rustic-mode-map
               ("M-j" . lsp-ui-imenu)
               ("M-?" . lsp-find-references)
@@ -1107,26 +1107,30 @@
 
 ;; (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
 
-(use-package slime
-  :ensure t
-  :config
-  ;; (setq inferior-lisp-program "/usr/bin/sbcl")
-  (setq slime-contribs '(slime-fancy)))
+;; (use-package slime
+;;   :ensure t
+;;   :config
+;;   (setq inferior-lisp-program (if (equal system-type 'darwin) "/opt/homebrew/bin/sbcl" "/usr/bin/sbcl"))
+;;   ;; (setq inferior-lisp-program "/usr/bin/sbcl")
+;;   (setq slime-contribs '(slime-fancy)))
 
 (use-package package-lint)
 
 ;; YAML ========================================== ;;
 
-(use-package yaml-mode)
+(use-package yaml-mode
+  :mode ("\\.yaml\\'"))
 
 ;; JSON ========================================== ;;
 
-(use-package json-mode)
+(use-package json-mode
+  :mode ("\\.json\\'"))
 
 ;; Restclient ==================================== ;;
 
 (use-package restclient)
 (use-package ob-restclient)
+;; :mode ("\\.org\\'"))
 
 ;; Dev Docs ======================================= ;;
 
@@ -1145,24 +1149,6 @@
 ;;   :config
 ;;   ;; Use the symbol at point as initial search term
 ;;   (consult-customize consult-dash :initial (thing-at-point 'symbol)))
-
-;; Emacs Application Framework ===================== ;;
-
-;; (use-package eaf
-;;   :load-path "~/.emacs.d/site-lisp/emacs-application-framework"
-;;   :custom
-;;   ; See https://github.com/emacs-eaf/emacs-application-framework/wiki/Customization
-;;   (eaf-browser-continue-where-left-off t)
-;;   (eaf-browser-enable-adblocker t)
-;;   :config
-;;   (require 'eaf-pdf-viewer)
-;;   (require 'eaf-browser)
-;;   (setq browse-url-browser-function 'eaf-open-browser)
-;;   (setq eaf-browse-blank-page-url "https://duckduckgo.com")
-;;   (defalias 'browse-web #'eaf-open-browser)
-;;   (eaf-bind-key scroll_up "C-n" eaf-pdf-viewer-keybinding)
-;;   (eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
-;;   (eaf-bind-key nil "M-q" eaf-browser-keybinding)) ;; unbind, see more in the Wiki
 
 ;; Ansi-term ====================================== ;;
 
@@ -1211,14 +1197,6 @@
 
 ;; (add-hook 'org-mode-hook 'org-indent-mode)
 
-(setq org-confirm-babel-evaluate nil)
-
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((emacs-lisp . t)
-   (shell . t)
-   (python . t)))
-
 (use-package org
   :pin org
   :commands (org-capture org-agenda)
@@ -1256,17 +1234,22 @@
   (setq org-src-tab-acts-natively t)
   (setq org-edit-src-content-indentation 0)
 
+  ;; (org-babel-do-load-languages
+  ;;  'org-babel-load-languages
+  ;;  '((emacs-lisp . t)
+  ;;    (shell . t)
+  ;;    (python . t)))
+
   ;; export
   (setq org-export-with-toc t)
   (setq org-export-headline-levels 8)
   (setq org-export-dispatch-use-expert-ui nil)
   (setq org-html-htmlize-output-type nil)
   (setq org-html-head-include-default-style nil)
-  (setq org-html-head-include-scripts nil)
-  (require 'ox-texinfo)
-  (require 'ox-md)
-  (setq org-export-backends '(html texinfo md))
-  )
+  (setq org-html-head-include-scripts nil))
+;; (require 'ox-texinfo)
+;; (require 'ox-md)
+;; (setq org-export-backends '(html texinfo md)))
 
 ;; Org Files
 
@@ -1352,6 +1335,7 @@
           "Output\\*$"
           "\\*Async Shell Command\\*"
           "\\*Compile-Log\\*"
+          "\\*Warnings\\*"
           "^\\*cargo"
           "^\\*rust"
           "^\\*lsp"
@@ -1467,6 +1451,8 @@
  eww-form-checkbox-symbol "[ ]")
 
 ;; Olivetti ========================================== ;;
+(defvar-local old-mode-line-format nil)
+
 (use-package olivetti
   :ensure
   :diminish
@@ -1476,51 +1462,39 @@
   (setq olivetti-recall-visual-line-mode-entry-state t)
 
   (define-minor-mode kdb/olivetti-mode
-    "Toggle buffer-local `olivetti-mode' with additional parameters.
-
-Fringes are disabled.  The modeline is hidden, except for
-`prog-mode' buffers (see `kdb/hidden-mode-line-mode').  The
-default typeface is set to a proportionately-spaced family,
-except for programming modes (see `kdb/variable-pitch-mode').
-The cursor becomes a blinking bar, per `kdb/cursor-type-mode'."
+    "Toggle buffer-local `olivetti-mode' with additional parameters."
     :init-value nil
     :global nil
     (if kdb/olivetti-mode
         (progn
           (olivetti-mode 1)
           (set-window-fringes (selected-window) 0 0)
-          ;; (kdb/variable-pitch-mode 1)
-          ;; (kdb/cursor-type-mode 1)
           (unless (derived-mode-p 'prog-mode)
-            (kdb/hidden-mode-line-mode 1))
-          (window-divider-mode 1))
+            (setq mode-line-format nil)))
       (olivetti-mode -1)
       (set-window-fringes (selected-window) nil) ; Use default width
-      ;; (kdb/variable-pitch-mode -1)
-      ;; (kdb/cursor-type-mode -1)
       (unless (derived-mode-p 'prog-mode)
-        (kdb/hidden-mode-line-mode -1))
-      (window-divider-mode -1)))
+        (setq mode-line-format old-mode-line-format))))
 
   :bind ("C-c m" . kdb/olivetti-mode))
 
 ;; Macos ========================================== ;;
 
-(when (equal system-type 'darwin)
-  (setq mac-command-modifier 'meta)
-  (setq mac-option-modifier 'none)
-  ;; Make mouse wheel / trackpad scrolling less jerky
-  (setq mouse-wheel-scroll-amount '(1
-                                    ((shift) . 5)
-                                    ((control))))
-  (dolist (multiple '("" "double-" "triple-"))
-    (dolist (direction '("right" "left"))
-      (global-set-key (read-kbd-macro (concat "<" multiple "wheel-" direction ">")) 'ignore)))
-  (global-set-key (kbd "M-`") 'ns-next-frame)
-  (global-set-key (kbd "M-h") 'ns-do-hide-emacs)
-  (global-set-key (kbd "M-˙") 'ns-do-hide-others)
-  (global-set-key (kbd "M-ˍ") 'ns-do-hide-others) ;; what describe-key reports for cmd-option-h
-  )
+;; (when (equal system-type 'darwin)
+;;   (setq mac-command-modifier 'meta)
+;;   (setq mac-option-modifier 'none)
+;;   ;; Make mouse wheel / trackpad scrolling less jerky
+;;   (setq mouse-wheel-scroll-amount '(1
+;;                                     ((shift) . 5)
+;;                                     ((control))))
+;;   (dolist (multiple '("" "double-" "triple-"))
+;;     (dolist (direction '("right" "left"))
+;;       (global-set-key (read-kbd-macro (concat "<" multiple "wheel-" direction ">")) 'ignore)))
+;;   (global-set-key (kbd "M-`") 'ns-next-frame)
+;;   (global-set-key (kbd "M-h") 'ns-do-hide-emacs)
+;;   (global-set-key (kbd "M-˙") 'ns-do-hide-others)
+;;   (global-set-key (kbd "M-ˍ") 'ns-do-hide-others) ;; what describe-key reports for cmd-option-h
+;;   )
 
 ;; Custom ========================================= ;;
 (custom-set-variables

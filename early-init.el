@@ -1,7 +1,5 @@
 ;;; early-init.el --- Early Init File -*- lexical-binding: t -*-
 
-;; Copyright (c) 2020-2022  Protesilaos Stavrou <info@protesilaos.com>
-
 ;; Author: Kevin Borling <kborling@protonmail.com>
 ;; Version: 0.1.0
 ;; Package-Requires: ((emacs "28.1"))
@@ -28,8 +26,6 @@
 ;; `package-initialize'.  Starting with Emacs 27, the default
 ;; behaviour is to start the package manager before loading the init
 ;; file.
-;;
-;; See my dotfiles: https://git.sr.ht/~protesilaos/dotfiles
 
 ;;; Code:
 
@@ -70,8 +66,6 @@
 ;; Allow loading from the package cache
 (setq package-quickstart t)
 
-(setq native-comp-async-report-warnings-errors 'silent) ; emacs28 with native compilation
+(setq native-comp-async-report-warnings-errors 'silent)
 
-;; (setq exec-path (append exec-path '("/opt/homebrew/bin")))
-;; (setq exec-path (append exec-path '("~/env/bin")))
 ;;; early-init.el ends here
