@@ -150,6 +150,10 @@
   (define-key map (kbd "C-z") nil)
   (define-key map (kbd "C-x C-z") nil)
 
+  (define-key map (kbd "C-h C-r") #'restart-emacs)
+  (define-key map (kbd "C-c C-l") #'lsp)
+  (define-key map (kbd "C-c C-r") #'query-replace)
+
   (define-key map (kbd "C-;") #'comment-line)
 
   ;; (define-key map (kbd "C-t") #'other-window)
@@ -172,13 +176,15 @@
   )
 
 ;; Theming ================================================ ;;
+;; (defvar font "Ac437 IBM VGA 9x16")
+(defvar font "Comic Code")
 
 (set-face-attribute 'default nil
-                    :family "Comic Code" :weight 'regular :height 140)
+                    :family font :weight 'regular :height 140)
 (set-face-attribute 'bold nil
-                    :family "Comic Code" :weight 'bold)
+                    :family font :weight 'bold)
 (set-face-attribute 'italic nil
-                    :family "Comic Code" :weight 'regular :slant 'italic)
+                    :family font :weight 'regular :slant 'italic)
 (set-face-attribute 'variable-pitch nil
                     :family "Cantarell" :height 150 :weight 'regular)
 (set-fontset-font t 'unicode
@@ -325,11 +331,12 @@
 
   ;;   (add-hook 'minibuffer-setup-hook #'contrib/corfu-enable-always-in-minibuffer 1)
 
-  (defun corfu-move-to-minibuffer ()
-    (interactive)
-    (let (completion-cycle-threshold completion-cycling)
-      (apply #'consult-completion-in-region completion-in-region--data)))
-  (define-key corfu-map "\M-m" #'corfu-move-to-minibuffer))
+  ;; (defun corfu-move-to-minibuffer ()
+  ;;   (interactive)
+  ;;   (let (completion-cycle-threshold completion-cycling)
+  ;;     (apply #'consult-completion-in-region completion-in-region--data)))
+  ;; (define-key corfu-map "\M-m" #'corfu-move-to-minibuffer))
+  )
 
 ;; Add extensions
 (use-package cape
@@ -594,58 +601,58 @@
 ;; FIDO/IComplete ===================================== ;;
 
 ;; (fido-mode)
-;; (fido-vertical-mode 1)
-;; (setq icomplete-compute-delay 0)
+(fido-vertical-mode 1)
+(setq icomplete-compute-delay 0)
 
-;; ;; (setq icomplete-in-buffer 1)
-;; ;; (define-key map (kbd "RET") 'icomplete-vertical-goto-last)
+;; (setq icomplete-in-buffer 1)
+;; (define-key map (kbd "RET") 'icomplete-vertical-goto-last)
 
-;; (global-set-key (kbd "C-=") 'fido-vertical-mode)
+(global-set-key (kbd "C-=") 'fido-vertical-mode)
 
 ;; Vertico =========================================== ;;
-(use-package vertico
-  :init
-  (vertico-mode)
-  ;; (vertico-unobtrusive-mode)
-  (vertico-reverse-mode)
-  ;; different scroll margin
-  ;; (setq vertico-scroll-margin 0)
-  ;; Show more candidates
-  ;; (setq vertico-count 20)
-  ;; Grow and shrink the Vertico minibuffer
-  ;; (setq vertico-resize t)
-  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
-  (setq vertico-cycle t)
-  ;; :bind
-  ;; ("C-s" . vertico-next)
-  ;; ("C-r" . vertico-previous)
+;; (use-package vertico
+;;   :init
+;;   (vertico-mode)
+;;   ;; (vertico-unobtrusive-mode)
+;;   (vertico-reverse-mode)
+;;   ;; different scroll margin
+;;   ;; (setq vertico-scroll-margin 0)
+;;   ;; Show more candidates
+;;   ;; (setq vertico-count 20)
+;;   ;; Grow and shrink the Vertico minibuffer
+;;   ;; (setq vertico-resize t)
+;;   ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+;;   (setq vertico-cycle t)
+;;   ;; :bind
+;;   ;; ("C-s" . vertico-next)
+;;   ;; ("C-r" . vertico-previous)
 
-  (define-minor-mode kdb/vertico-reverse-mode
-    "Toggle between `vertico-reverse-mode' and 'vertico-flat-mode'."
-    :init-value nil
-    :global nil
-    :require 'vectico-mode
-    :diminish kdb/vertico-reverse-mode
-    (if kdb/vertico-reverse-mode
-        (progn
-          (vertico-reverse-mode)
-          (vertico-flat-mode -1)
-          )
-      (vertico-reverse-mode -1)
-      (vertico-flat-mode)
-      )
-    (message " "))
+;;   (define-minor-mode kdb/vertico-reverse-mode
+;;     "Toggle between `vertico-reverse-mode' and 'vertico-flat-mode'."
+;;     :init-value nil
+;;     :global nil
+;;     :require 'vectico-mode
+;;     :diminish kdb/vertico-reverse-mode
+;;     (if kdb/vertico-reverse-mode
+;;         (progn
+;;           (vertico-reverse-mode)
+;;           (vertico-flat-mode -1)
+;;           )
+;;       (vertico-reverse-mode -1)
+;;       (vertico-flat-mode)
+;;       )
+;;     (message " "))
 
-  :bind ("C-=" . kdb/vertico-reverse-mode)
-  )
+;;   :bind ("C-=" . kdb/vertico-reverse-mode)
+;;   )
 
 ;; Dired ============================================= ;;
 
 (setq dired-recursive-copies 'always)
 (setq dired-recursive-deletes 'always)
 (setq delete-by-moving-to-trash t)
-(setq dired-listing-switches
-      "-AGFhlv --group-directories-first --time-style=long-iso")
+;; (setq dired-listing-switches
+;; "-AGFhlv --group-directories-first --time-style=long-iso")
 (setq dired-dwim-target t)
 (setq dired-auto-revert-buffer #'dired-directory-changed-p) ; also see `dired-do-revert-buffer'
 (setq dired-make-directory-clickable t) ; Emacs 29.1
@@ -666,8 +673,8 @@
 (setq dired-bind-man nil)
 (setq dired-bind-info nil)
 
-(setq wdired-allow-to-change-permissions t)
-(setq wdired-create-parent-directories t)
+;; (setq wdired-allow-to-change-permissions t)
+;; (setq wdired-create-parent-directories t)
 
 (setq image-dired-thumb-size 80)
 (setq image-dired-thumb-margin 2)
@@ -737,7 +744,6 @@
          ("M-y" . consult-yank-pop)                ;; orig. yank-pop
          ("<help> a" . consult-apropos)            ;; orig. apropos-command
          ;; M-g bindings (goto-map)
-         ;; M-g bindings (goto-map)
          ("M-g e" . consult-compile-error)
          ("M-g f" . consult-flycheck)               ;; Alternative: consult-flycheck
          ("M-g g" . consult-goto-line)             ;; orig. goto-line
@@ -776,7 +782,7 @@
   ;; The :init configuration is always executed (Not lazy)
   :init
 
-  (setq register-preview-delay 0
+  (setq register-preview-delay 0.5
         register-preview-function #'consult-register-format)
 
   ;; This adds thin lines, sorting and hides the mode line of the window.
@@ -796,7 +802,7 @@
   ;; Otherwise use the default `completion--in-region' function.
   (setq completion-in-region-function
         (lambda (&rest args)
-          (apply (if vertico-mode
+          (apply (if fido-mode
                      #'consult-completion-in-region
                    #'completion--in-region)
                  args)))
@@ -807,9 +813,12 @@
    :preview-key '(:debounce 0.2 any)
    consult-ripgrep consult-git-grep consult-grep
    consult-bookmark consult-recent-file consult-xref
-   consult--source-bookmark consult--source-recent-file
-   consult--source-project-recent-file
-   :preview-key (kbd "M-."))
+   consult--source-bookmark consult--source-file-register
+   consult--source-recent-file consult--source-project-recent-file
+   ;; :preview-key (kbd "M-.")
+   :preview-key '(:debounce 0.4 any)
+   consult-line :prompt "Search: "
+   :preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
   ;; Optionally configure the narrowing key.
   ;; Both < and C-+ work reasonably well.
   (setq consult-narrow-key "<") ;; (kbd "C-+")
@@ -819,6 +828,14 @@
         (lambda ()
           (when-let (project (project-current))
             (car (project-roots project))))))
+
+(use-package consult-dir
+  :after consult
+  :ensure t
+  :bind (("C-x C-d" . consult-dir)
+         :map minibuffer-local-completion-map
+         ("C-x C-d" . consult-dir)
+         ("C-x C-j" . consult-dir-jump-file)))
 
 ;; Embark ============================================ ;;
 
@@ -846,6 +863,7 @@
 ;; Consult users will also want the embark-consult package.
 (use-package embark-consult
   :ensure t ; only need to install it, embark loads it after consult if found
+  :after (consult embark)
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
@@ -861,6 +879,45 @@
   (add-hook 'eglot--managed-mode-hook #'eldoc-box-hover-mode t)
   )
 
+;; Eglot ============================================== ;;
+
+(use-package eglot
+  :ensure t
+  :config
+  ;; (add-to-list 'eglot-stay-out-of 'flymake)
+  ;; Keybindings
+  (define-key eglot-mode-map (kbd "C-c c r") 'eglot-rename)
+  (define-key eglot-mode-map (kbd "C-c c f") 'eglot-format-buffer)
+  (define-key eglot-mode-map (kbd "C-c c o") 'eglot-code-action-organize-imports)
+  (define-key eglot-mode-map (kbd "C-c c a") 'eglot-code-actions)
+  (define-key eglot-mode-map (kbd "C-c c q") 'eglot-code-action-quickfix)
+  (define-key eglot-mode-map (kbd "C-c c e") 'eglot-code-action-extract)
+  (define-key eglot-mode-map (kbd "C-c c j") 'eglot-code-action-inline)
+  (define-key eglot-mode-map (kbd "C-c c k") 'eglot-code-action-rewrite)
+
+  (define-key eglot-mode-map (kbd "C-c c i") 'eglot-find-implementation)
+  (define-key eglot-mode-map (kbd "C-c c d") 'eglot-find-declaration)
+  (define-key eglot-mode-map (kbd "C-c c t") 'eglot-find-typeDefinition)
+  (define-key eglot-mode-map (kbd "C-c c h") 'eldoc)
+  ;; (define-key eglot-mode-map (kbd "C-c c d") 'xref-find-definitions))
+  :custom
+  ;; Language Servers
+  ;; (add-to-list 'eglot-server-programs '(csharp-mode . ("/run/current-system/sw/bin/omnisharp" "-lsp")))
+  (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
+  (add-to-list 'eglot-server-programs '(rust-mode . ("rls" "--stdio")))
+  (add-to-list 'eglot-server-programs '(rustic-mode . ("rls" "--stdio")))
+
+  ;; Automatically start
+  (add-hook 'typescript-mode-hook 'eglot-ensure)
+  ;; (add-hook 'web-mode-hook 'eglot-ensure)
+  ;; (add-hook 'csharp-mode-hook 'eglot-ensure)
+  ;; (add-hook 'rust-mode-hook 'eglot-ensure)
+  ;; (add-to-list 'eglot-server-programs '(web-mode . ("typescript-language-server" "--stdio")))
+  )
+
+(use-package consult-eglot
+  :after (consult eglot))
+
 ;; LSP Mode =========================================== ;;
 
 (use-package lsp-mode
@@ -869,6 +926,7 @@
   (setq lsp-keymap-prefix "C-c c")
   :config
   (lsp-enable-which-key-integration t)
+  ;; (yas-global-mode)
   (setq lsp-log-io nil) ; if set to true can cause a performance hit
   (setq lsp-headerline-breadcrumb-enable nil)
   (defun corfu-lsp-setup ()
@@ -914,12 +972,48 @@
   (lsp-ui-doc-enable nil))
 
 (use-package consult-lsp
+  :after (consult lsp)
   :custom
   (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols))
 
+;; Flymake ========================================= ;;
+(use-package flymake
+  :config
+  (setq flymake-fringe-indicator-position 'left-fringe)
+  (setq flymake-suppress-zero-counters t)
+  (setq flymake-start-on-flymake-mode t)
+  ;; (setq flymake-no-changes-timeout 0.5)
+  ;; (setq flymake-start-on-save-buffer t)
+  ;; (setq flymake-no-changes-timeout 0.1)
+  (setq flymake-proc-compilation-prevents-syntax-check t)
+  (setq flymake-wrap-around nil)
+  (setq flymake-mode-line-format
+        '("" flymake-mode-line-exception flymake-mode-line-counters))
+  (setq flymake-mode-line-counter-format
+        '(" " flymake-mode-line-error-counter
+          flymake-mode-line-warning-counter
+          flymake-mode-line-note-counter ""))
+
+  (define-key ctl-x-x-map "m" #'flymake-mode) ; C-x x m
+  (let ((map flymake-mode-map))
+    (define-key map (kbd "C-c f s") #'flymake-start)
+    (define-key map (kbd "C-c f d") #'flymake-show-buffer-diagnostics) ; Emacs28
+    (define-key map (kbd "C-c f D") #'flymake-show-project-diagnostics) ; Emacs28
+    (define-key map (kbd "C-c f n") #'flymake-goto-next-error)
+    (define-key map (kbd "C-c f p") #'flymake-goto-prev-error))
+  :init
+  (add-hook 'prog-mode-hook 'flymake-mode)
+  (add-hook 'text-mode-hook 'flymake-mode)
+  (add-hook 'flymake-mode-hook
+            (lambda ()
+              (setq eldoc-documentation-functions
+                    (cons 'flymake-eldoc-function
+                          (delq 'flymake-eldoc-function eldoc-documentation-functions))))))
+
 ;; Flycheck ========================================= ;;
 
-(use-package consult-flycheck)
+(use-package consult-flycheck
+  :after (consult flycheck))
 
 (use-package flycheck
   :after org
@@ -997,8 +1091,8 @@
 ;; Typescript Mode ================================= ;;
 
 (use-package typescript-mode
-  :mode "\\.ts\\'"
-  :hook (typescript-mode . lsp-deferred))
+  :mode "\\.ts\\'")
+;; :hook (typescript-mode . lsp-deferred))
 ;; :config
 ;; (setq typescript-indent-level 4))
 
@@ -1077,6 +1171,7 @@
               ("C-c C-c Q" . lsp-workspace-shutdown)
               ("C-c C-c s" . lsp-rust-analyzer-status))
   :config
+  (setq rustic-lsp-client 'eglot)
   ;; uncomment for less flashiness
   ;; (setq lsp-eldoc-hook nil)
   ;; (setq lsp-enable-symbol-highlighting nil)
@@ -1142,6 +1237,7 @@
 
 ;; (use-package dash-docs)
 ;; (use-package consult-dash
+;;   :after (consult dash)
 ;;   :bind (("C-h D" . consult-dash))
 ;;   :config
 ;;   ;; Use the symbol at point as initial search term
@@ -1231,11 +1327,11 @@
   (setq org-src-tab-acts-natively t)
   (setq org-edit-src-content-indentation 0)
 
-  ;; (org-babel-do-load-languages
-  ;;  'org-babel-load-languages
-  ;;  '((emacs-lisp . t)
-  ;;    (shell . t)
-  ;;    (python . t)))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (shell . t)
+     (python . t)))
 
   ;; export
   (setq org-export-with-toc t)
@@ -1323,9 +1419,9 @@
 
 (use-package popper
   :ensure t
-  :bind (("C-`"   . popper-toggle-latest)
-         ("M-`"   . popper-cycle)
-         ("C-M-`" . popper-toggle-type))
+  :bind (("C-'"   . popper-toggle-latest)
+         ("M-'"   . popper-cycle)
+         ("C-M-'" . popper-toggle-type))
   :init
   (setq popper-reference-buffers
         '("\\*Messages\\*"
@@ -1333,6 +1429,7 @@
           "\\*Async Shell Command\\*"
           "\\*Compile-Log\\*"
           "\\*Warnings\\*"
+          "\\*Backtrace\\*"
           "^\\*cargo"
           "^\\*rust"
           "^\\*lsp"
@@ -1477,21 +1574,25 @@
 
 ;; Macos ========================================== ;;
 
-;; (when (equal system-type 'darwin)
-;;   (setq mac-command-modifier 'meta)
-;;   (setq mac-option-modifier 'none)
-;;   ;; Make mouse wheel / trackpad scrolling less jerky
-;;   (setq mouse-wheel-scroll-amount '(1
-;;                                     ((shift) . 5)
-;;                                     ((control))))
-;;   (dolist (multiple '("" "double-" "triple-"))
-;;     (dolist (direction '("right" "left"))
-;;       (global-set-key (read-kbd-macro (concat "<" multiple "wheel-" direction ">")) 'ignore)))
-;;   (global-set-key (kbd "M-`") 'ns-next-frame)
-;;   (global-set-key (kbd "M-h") 'ns-do-hide-emacs)
-;;   (global-set-key (kbd "M-˙") 'ns-do-hide-others)
-;;   (global-set-key (kbd "M-ˍ") 'ns-do-hide-others) ;; what describe-key reports for cmd-option-h
-;;   )
+;; (defun kdb/setup-macos ()
+;;   "Enable some macos options and swap meta/alt keys."
+;;   (interactive)
+(when (equal system-type 'darwin)
+  (setq mac-command-modifier 'meta)
+  (setq mac-option-modifier 'none)
+  ;; Make mouse wheel / trackpad scrolling less jerky
+  (setq mouse-wheel-scroll-amount '(1
+                                    ((shift) . 5)
+                                    ((control))))
+  (dolist (multiple '("" "double-" "triple-"))
+    (dolist (direction '("right" "left"))
+      (global-set-key (read-kbd-macro (concat "<" multiple "wheel-" direction ">")) 'ignore)))
+  (global-set-key (kbd "M-`") 'ns-next-frame)
+  (global-set-key (kbd "M-h") 'ns-do-hide-emacs)
+  (global-set-key (kbd "M-˙") 'ns-do-hide-others)
+  (global-set-key (kbd "M-ˍ") 'ns-do-hide-others) ;; what describe-key reports for cmd-option-h
+  )
+;; )
 
 ;; Custom ========================================= ;;
 (custom-set-variables
@@ -1500,7 +1601,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(devdocs popper package-lint uwu-theme rustic go-mode ob-typescript flycheck-inline corfu consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel yasnippet-snippets yas-snippet consult-dash dash-docs cape embark-consult embark tree-sitter-indent tree-sitter-langs tree-sitter ef-themes vterm json-mode yaml-mode orderless marginalia olivetti vertico ob-restclient restclient slime rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
+   '(consult-dir consult-eglot devdocs popper package-lint uwu-theme rustic go-mode ob-typescript flycheck-inline corfu consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel consult-dash dash-docs cape embark-consult embark tree-sitter-indent tree-sitter-langs tree-sitter ef-themes vterm json-mode yaml-mode orderless marginalia olivetti vertico ob-restclient restclient slime rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
