@@ -129,16 +129,16 @@
       '(("elpa" . 2)
         ("nongnu" . 1)))
 
-(setq package-pinned-packages
-      '((corfu . "elpa-devel")))
+;; (setq package-pinned-packages
+;;       '((corfu . "elpa-devel")))
 
 (package-initialize)
 (unless package-archive-contents
   (package-refresh-contents))
 
 ;; Initialize use-package on non-Linux platforms
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
+;; (unless (package-installed-p 'use-package)
+;;   (package-install 'use-package))
 
 (require 'use-package)
 (setq use-package-always-ensure t)
@@ -177,16 +177,19 @@
 
 ;; Theming ================================================ ;;
 ;; (defvar font "Ac437 IBM VGA 9x16")
-(defvar font "Comic Code")
+;; (defvar font "Ac437 Verite 8x16")
+;; (defvar font "Comic Code")
+(defvar font "Berkeley Mono")
+;; (defvar font "Inconsolata")
 
 (set-face-attribute 'default nil
-                    :family font :weight 'regular :height 140)
+                    :family font :weight 'regular :height 150)
 (set-face-attribute 'bold nil
                     :family font :weight 'bold)
 (set-face-attribute 'italic nil
                     :family font :weight 'regular :slant 'italic)
 (set-face-attribute 'variable-pitch nil
-                    :family "Cantarell" :height 150 :weight 'regular)
+                    :family "Berkeley Mono Variable" :height 150 :weight 'regular)
 (set-fontset-font t 'unicode
                   (font-spec :name "Inconsolata Light" :size 16) nil)
 
@@ -195,6 +198,7 @@
   :config
   (setq uwu-distinct-line-numbers 'nil))
 (use-package ef-themes)
+(use-package doom-themes)
 (load-theme 'uwu t)
 
 ;; Frame ============================================== ;;
@@ -302,6 +306,7 @@
 ;; Corfu ============================================= ;;
 
 (use-package corfu
+  :ensure t
   :init
   (global-corfu-mode)
   :hook ((prog-mode . corfu-mode)
@@ -601,50 +606,51 @@
 ;; FIDO/IComplete ===================================== ;;
 
 ;; (fido-mode)
-(fido-vertical-mode 1)
+;; (fido-vertical-mode 1)
+;; (icomplete-mode 1)
+;; (icomplete-vertical-mode 1)
 (setq icomplete-compute-delay 0)
-
 ;; (setq icomplete-in-buffer 1)
 ;; (define-key map (kbd "RET") 'icomplete-vertical-goto-last)
 
-(global-set-key (kbd "C-=") 'fido-vertical-mode)
+(global-set-key (kbd "C-=") 'icomplete-vertical-mode)
 
 ;; Vertico =========================================== ;;
-;; (use-package vertico
-;;   :init
-;;   (vertico-mode)
-;;   ;; (vertico-unobtrusive-mode)
-;;   (vertico-reverse-mode)
-;;   ;; different scroll margin
-;;   ;; (setq vertico-scroll-margin 0)
-;;   ;; Show more candidates
-;;   ;; (setq vertico-count 20)
-;;   ;; Grow and shrink the Vertico minibuffer
-;;   ;; (setq vertico-resize t)
-;;   ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
-;;   (setq vertico-cycle t)
-;;   ;; :bind
-;;   ;; ("C-s" . vertico-next)
-;;   ;; ("C-r" . vertico-previous)
+(use-package vertico
+  :init
+  (vertico-mode)
+  ;; (vertico-unobtrusive-mode)
+  (vertico-reverse-mode)
+  ;; different scroll margin
+  ;; (setq vertico-scroll-margin 0)
+  ;; Show more candidates
+  ;; (setq vertico-count 20)
+  ;; Grow and shrink the Vertico minibuffer
+  ;; (setq vertico-resize t)
+  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+  (setq vertico-cycle t)
+  ;; :bind
+  ;; ("C-s" . vertico-next)
+  ;; ("C-r" . vertico-previous)
 
-;;   (define-minor-mode kdb/vertico-reverse-mode
-;;     "Toggle between `vertico-reverse-mode' and 'vertico-flat-mode'."
-;;     :init-value nil
-;;     :global nil
-;;     :require 'vectico-mode
-;;     :diminish kdb/vertico-reverse-mode
-;;     (if kdb/vertico-reverse-mode
-;;         (progn
-;;           (vertico-reverse-mode)
-;;           (vertico-flat-mode -1)
-;;           )
-;;       (vertico-reverse-mode -1)
-;;       (vertico-flat-mode)
-;;       )
-;;     (message " "))
+  (define-minor-mode kdb/vertico-reverse-mode
+    "Toggle between `vertico-reverse-mode' and 'vertico-flat-mode'."
+    :init-value nil
+    :global nil
+    :require 'vectico-mode
+    :diminish kdb/vertico-reverse-mode
+    (if kdb/vertico-reverse-mode
+        (progn
+          (vertico-reverse-mode)
+          (vertico-flat-mode -1)
+          )
+      (vertico-reverse-mode -1)
+      (vertico-flat-mode)
+      )
+    (message " "))
 
-;;   :bind ("C-=" . kdb/vertico-reverse-mode)
-;;   )
+  :bind ("C-=" . kdb/vertico-reverse-mode)
+  )
 
 ;; Dired ============================================= ;;
 
@@ -802,7 +808,7 @@
   ;; Otherwise use the default `completion--in-region' function.
   (setq completion-in-region-function
         (lambda (&rest args)
-          (apply (if fido-mode
+          (apply (if vectico-mode
                      #'consult-completion-in-region
                    #'completion--in-region)
                  args)))
@@ -890,6 +896,7 @@
   (define-key eglot-mode-map (kbd "C-c c f") 'eglot-format-buffer)
   (define-key eglot-mode-map (kbd "C-c c o") 'eglot-code-action-organize-imports)
   (define-key eglot-mode-map (kbd "C-c c a") 'eglot-code-actions)
+  (define-key eglot-mode-map (kbd "C-<tab>") 'eglot-code-actions)
   (define-key eglot-mode-map (kbd "C-c c q") 'eglot-code-action-quickfix)
   (define-key eglot-mode-map (kbd "C-c c e") 'eglot-code-action-extract)
   (define-key eglot-mode-map (kbd "C-c c j") 'eglot-code-action-inline)
@@ -1054,6 +1061,11 @@
 ;;   (add-hook 'js2-mode-hook 'eslintd-fix-mode)
 ;;   (add-hook 'typescript-mode-hook 'eslintd-fix-mode))
 
+;; NPM ============================================== ;;
+
+(use-package npm
+  :ensure t)
+
 ;; Lua Mode ======================================== ;;
 
 (use-package lua-mode
@@ -1063,6 +1075,10 @@
 
 (use-package web-mode
   :mode ("\\.html\\'" "\\.css\\'" "\\.tsx\\'" "\\.cshtml\\'" "\\.astro\\'"))
+
+;; Svelte Mode ========================================== ;;
+(use-package svelte-mode
+  :mode ("\\.svelte\\'"))
 
 ;; Javascript Mode ================================= ;;
 
@@ -1114,7 +1130,6 @@
 
 (use-package ob-typescript
   :after org)
-
 
 ;; EditorConfig ======================================== ;;
 
@@ -1419,9 +1434,9 @@
 
 (use-package popper
   :ensure t
-  :bind (("C-'"   . popper-toggle-latest)
-         ("M-'"   . popper-cycle)
-         ("C-M-'" . popper-toggle-type))
+  :bind (("C-`"   . popper-toggle-latest)
+         ("M-`"   . popper-cycle)
+         ("C-M-`" . popper-toggle-type))
   :init
   (setq popper-reference-buffers
         '("\\*Messages\\*"
@@ -1433,6 +1448,7 @@
           "^\\*cargo"
           "^\\*rust"
           "^\\*lsp"
+          "\\*npm\\*"
           help-mode
           compilation-mode))
   (popper-mode +1)
@@ -1575,8 +1591,8 @@
 ;; Macos ========================================== ;;
 
 ;; (defun kdb/setup-macos ()
-;;   "Enable some macos options and swap meta/alt keys."
-;;   (interactive)
+  ;; "Enable some macos options and swap meta/alt keys."
+  ;; (interactive)
 (when (equal system-type 'darwin)
   (setq mac-command-modifier 'meta)
   (setq mac-option-modifier 'none)
@@ -1601,7 +1617,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(consult-dir consult-eglot devdocs popper package-lint uwu-theme rustic go-mode ob-typescript flycheck-inline corfu consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel consult-dash dash-docs cape embark-consult embark tree-sitter-indent tree-sitter-langs tree-sitter ef-themes vterm json-mode yaml-mode orderless marginalia olivetti vertico ob-restclient restclient slime rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
+   '(doom-themes npm svelte-mode consult-dir consult-eglot vertico devdocs popper package-lint uwu-theme rustic go-mode ob-typescript flycheck-inline corfu consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel consult-dash dash-docs cape embark-consult embark tree-sitter-indent tree-sitter-langs tree-sitter ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient slime rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
