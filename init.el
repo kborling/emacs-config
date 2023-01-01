@@ -129,16 +129,16 @@
       '(("elpa" . 2)
         ("nongnu" . 1)))
 
-;; (setq package-pinned-packages
-;;       '((corfu . "elpa-devel")))
+(setq package-pinned-packages
+      '((corfu . "elpa-devel")))
 
 (package-initialize)
 (unless package-archive-contents
   (package-refresh-contents))
 
 ;; Initialize use-package on non-Linux platforms
-;; (unless (package-installed-p 'use-package)
-;;   (package-install 'use-package))
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
 
 (require 'use-package)
 (setq use-package-always-ensure t)
@@ -173,17 +173,25 @@
   (define-key map (kbd "C-c o t") #'vterm)
   (define-key map (kbd "C-c o d") #'dired)
   (define-key map (kbd "C-c o f") #'treemacs)
+
+  (define-key map (kbd "C-c f f") #'kdb/fullscreen)
   )
 
+(defun kdb/fullsceen()
+  "Make the frame fullscreen."
+  (interactive)
+  (defvar frame (select-frame))
+  (set-frame-parameter (frame) 'fullscreen 'maximized)
+  )
 ;; Theming ================================================ ;;
 ;; (defvar font "Ac437 IBM VGA 9x16")
 ;; (defvar font "Ac437 Verite 8x16")
-;; (defvar font "Comic Code")
-(defvar font "Berkeley Mono")
+(defvar font "Comic Code")
+;; (defvar font "Berkeley Mono")
 ;; (defvar font "Inconsolata")
 
 (set-face-attribute 'default nil
-                    :family font :weight 'regular :height 150)
+                    :family font :weight 'regular :height 130)
 (set-face-attribute 'bold nil
                     :family font :weight 'bold)
 (set-face-attribute 'italic nil
@@ -605,52 +613,52 @@
 
 ;; FIDO/IComplete ===================================== ;;
 
-;; (fido-mode)
-;; (fido-vertical-mode 1)
+(fido-mode)
+(fido-vertical-mode 1)
 ;; (icomplete-mode 1)
 ;; (icomplete-vertical-mode 1)
 (setq icomplete-compute-delay 0)
 ;; (setq icomplete-in-buffer 1)
 ;; (define-key map (kbd "RET") 'icomplete-vertical-goto-last)
 
-(global-set-key (kbd "C-=") 'icomplete-vertical-mode)
+(global-set-key (kbd "C-=") 'fido-vertical-mode)
 
 ;; Vertico =========================================== ;;
-(use-package vertico
-  :init
-  (vertico-mode)
-  ;; (vertico-unobtrusive-mode)
-  (vertico-reverse-mode)
-  ;; different scroll margin
-  ;; (setq vertico-scroll-margin 0)
-  ;; Show more candidates
-  ;; (setq vertico-count 20)
-  ;; Grow and shrink the Vertico minibuffer
-  ;; (setq vertico-resize t)
-  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
-  (setq vertico-cycle t)
-  ;; :bind
-  ;; ("C-s" . vertico-next)
-  ;; ("C-r" . vertico-previous)
+;; (use-package vertico
+;;   :init
+;;   (vertico-mode)
+;;   ;; (vertico-unobtrusive-mode)
+;;   (vertico-reverse-mode)
+;;   ;; different scroll margin
+;;   ;; (setq vertico-scroll-margin 0)
+;;   ;; Show more candidates
+;;   ;; (setq vertico-count 20)
+;;   ;; Grow and shrink the Vertico minibuffer
+;;   ;; (setq vertico-resize t)
+;;   ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+;;   (setq vertico-cycle t)
+;;   ;; :bind
+;;   ;; ("C-s" . vertico-next)
+;;   ;; ("C-r" . vertico-previous)
 
-  (define-minor-mode kdb/vertico-reverse-mode
-    "Toggle between `vertico-reverse-mode' and 'vertico-flat-mode'."
-    :init-value nil
-    :global nil
-    :require 'vectico-mode
-    :diminish kdb/vertico-reverse-mode
-    (if kdb/vertico-reverse-mode
-        (progn
-          (vertico-reverse-mode)
-          (vertico-flat-mode -1)
-          )
-      (vertico-reverse-mode -1)
-      (vertico-flat-mode)
-      )
-    (message " "))
+;;   (define-minor-mode kdb/vertico-reverse-mode
+;;     "Toggle between `vertico-reverse-mode' and 'vertico-flat-mode'."
+;;     :init-value nil
+;;     :global nil
+;;     :require 'vectico-mode
+;;     :diminish kdb/vertico-reverse-mode
+;;     (if kdb/vertico-reverse-mode
+;;         (progn
+;;           (vertico-reverse-mode)
+;;           (vertico-flat-mode -1)
+;;           )
+;;       (vertico-reverse-mode -1)
+;;       (vertico-flat-mode)
+;;       )
+;;     (message " "))
 
-  :bind ("C-=" . kdb/vertico-reverse-mode)
-  )
+;;   :bind ("C-=" . kdb/vertico-reverse-mode)
+;;   )
 
 ;; Dired ============================================= ;;
 
@@ -913,9 +921,12 @@
   (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '(rust-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '(rustic-mode . ("rls" "--stdio")))
+  (add-to-list 'eglot-server-programs `(scheme-mode . ("guile-lsp-server")))
+
 
   ;; Automatically start
   (add-hook 'typescript-mode-hook 'eglot-ensure)
+  (add-hook 'scheme-mode-hook 'eglot-ensure)
   ;; (add-hook 'web-mode-hook 'eglot-ensure)
   ;; (add-hook 'csharp-mode-hook 'eglot-ensure)
   ;; (add-hook 'rust-mode-hook 'eglot-ensure)
@@ -1222,6 +1233,10 @@
 ;;   (setq slime-contribs '(slime-fancy)))
 
 (use-package package-lint)
+
+;; Scheme & GUIX ======================================== ;;
+
+;; (add-hook 'scheme-mode-hook 'guix-devel-mode)
 
 ;; YAML ========================================== ;;
 
@@ -1591,8 +1606,8 @@
 ;; Macos ========================================== ;;
 
 ;; (defun kdb/setup-macos ()
-  ;; "Enable some macos options and swap meta/alt keys."
-  ;; (interactive)
+;; "Enable some macos options and swap meta/alt keys."
+;; (interactive)
 (when (equal system-type 'darwin)
   (setq mac-command-modifier 'meta)
   (setq mac-option-modifier 'none)
