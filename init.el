@@ -129,8 +129,8 @@
       '(("elpa" . 2)
         ("nongnu" . 1)))
 
-(setq package-pinned-packages
-      '((corfu . "elpa-devel")))
+;; (setq package-pinned-packages
+;;       '((corfu . "elpa-devel")))
 
 (package-initialize)
 (unless package-archive-contents
@@ -613,52 +613,52 @@
 
 ;; FIDO/IComplete ===================================== ;;
 
-(fido-mode)
-(fido-vertical-mode 1)
+;; (fido-mode)
+;; (fido-vertical-mode 1)
 ;; (icomplete-mode 1)
 ;; (icomplete-vertical-mode 1)
 (setq icomplete-compute-delay 0)
 ;; (setq icomplete-in-buffer 1)
 ;; (define-key map (kbd "RET") 'icomplete-vertical-goto-last)
 
-(global-set-key (kbd "C-=") 'fido-vertical-mode)
+;; (global-set-key (kbd "C-=") 'fido-vertical-mode)
 
 ;; Vertico =========================================== ;;
-;; (use-package vertico
-;;   :init
-;;   (vertico-mode)
-;;   ;; (vertico-unobtrusive-mode)
-;;   (vertico-reverse-mode)
-;;   ;; different scroll margin
-;;   ;; (setq vertico-scroll-margin 0)
-;;   ;; Show more candidates
-;;   ;; (setq vertico-count 20)
-;;   ;; Grow and shrink the Vertico minibuffer
-;;   ;; (setq vertico-resize t)
-;;   ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
-;;   (setq vertico-cycle t)
-;;   ;; :bind
-;;   ;; ("C-s" . vertico-next)
-;;   ;; ("C-r" . vertico-previous)
+(use-package vertico
+  :init
+  (vertico-mode)
+  ;; (vertico-unobtrusive-mode)
+  (vertico-reverse-mode)
+  ;; different scroll margin
+  ;; (setq vertico-scroll-margin 0)
+  ;; Show more candidates
+  ;; (setq vertico-count 20)
+  ;; Grow and shrink the Vertico minibuffer
+  ;; (setq vertico-resize t)
+  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+  (setq vertico-cycle t)
+  ;; :bind
+  ;; ("C-s" . vertico-next)
+  ;; ("C-r" . vertico-previous)
 
-;;   (define-minor-mode kdb/vertico-reverse-mode
-;;     "Toggle between `vertico-reverse-mode' and 'vertico-flat-mode'."
-;;     :init-value nil
-;;     :global nil
-;;     :require 'vectico-mode
-;;     :diminish kdb/vertico-reverse-mode
-;;     (if kdb/vertico-reverse-mode
-;;         (progn
-;;           (vertico-reverse-mode)
-;;           (vertico-flat-mode -1)
-;;           )
-;;       (vertico-reverse-mode -1)
-;;       (vertico-flat-mode)
-;;       )
-;;     (message " "))
+  (define-minor-mode kdb/vertico-reverse-mode
+    "Toggle between `vertico-reverse-mode' and 'vertico-flat-mode'."
+    :init-value nil
+    :global nil
+    :require 'vectico-mode
+    :diminish kdb/vertico-reverse-mode
+    (if kdb/vertico-reverse-mode
+        (progn
+          (vertico-reverse-mode)
+          (vertico-flat-mode -1)
+          )
+      (vertico-reverse-mode -1)
+      (vertico-flat-mode)
+      )
+    (message " "))
 
-;;   :bind ("C-=" . kdb/vertico-reverse-mode)
-;;   )
+  :bind ("C-=" . kdb/vertico-reverse-mode)
+  )
 
 ;; Dired ============================================= ;;
 
@@ -921,7 +921,7 @@
   (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '(rust-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '(rustic-mode . ("rls" "--stdio")))
-  (add-to-list 'eglot-server-programs `(scheme-mode . ("guile-lsp-server")))
+  (add-to-list 'eglot-server-programs '(scheme-mode . ("guile-lsp-server")))
 
 
   ;; Automatically start
@@ -1208,7 +1208,7 @@
   (add-hook 'rustic-mode-hook 'kdb/rustic-mode-hook))
 
 (defun kdb/rustic-mode-hook ()
-  ;; so that run C-c C-c C-r works without having to confirm, but don't try to
+  ;; So that run C-c C-c C-r works without having to confirm, but don't try to
   ;; save rust buffers that are not file visiting. Once
   ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
   ;; no longer be necessary.
@@ -1229,14 +1229,30 @@
 ;;   :ensure t
 ;;   :config
 ;;   (setq inferior-lisp-program (if (equal system-type 'darwin) "/opt/homebrew/bin/sbcl" "/usr/bin/sbcl"))
-;;   ;; (setq inferior-lisp-program "/usr/bin/sbcl")
-;;   (setq slime-contribs '(slime-fancy)))
+  ;; (setq inferior-lisp-program "/usr/bin/sbcl")
+  ;; (setq slime-contribs '(slime-fancy)))
 
 (use-package package-lint)
 
 ;; Scheme & GUIX ======================================== ;;
 
 ;; (add-hook 'scheme-mode-hook 'guix-devel-mode)
+
+(use-package lsp-scheme
+  :config
+  (add-hook 'scheme-mode-hook #'lsp-scheme)
+
+  (setq lsp-scheme-implementation "guile"))
+
+(use-package flycheck-guile)
+
+(use-package geiser-guile)
+
+(use-package guix
+  :config
+  (add-hook 'scheme-mode-hook 'guix-devel-mode)
+  (add-hook 'scheme-mode-hook 'guix-prettify-mode)
+  )
 
 ;; YAML ========================================== ;;
 
@@ -1632,7 +1648,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(doom-themes npm svelte-mode consult-dir consult-eglot vertico devdocs popper package-lint uwu-theme rustic go-mode ob-typescript flycheck-inline corfu consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel consult-dash dash-docs cape embark-consult embark tree-sitter-indent tree-sitter-langs tree-sitter ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient slime rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
+   '(lsp-scheme guix flycheck-guile doom-themes npm svelte-mode consult-dir consult-eglot vertico devdocs popper package-lint uwu-theme rustic go-mode ob-typescript flycheck-inline corfu consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel consult-dash dash-docs cape embark-consult embark tree-sitter-indent tree-sitter-langs tree-sitter ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient slime rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
