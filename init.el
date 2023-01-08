@@ -203,6 +203,7 @@
 
 ;; Custom themes
 (use-package uwu-theme
+  :load-path "~/Projects/uwu-theme"
   :config
   (setq uwu-distinct-line-numbers 'nil))
 (use-package ef-themes)
@@ -313,28 +314,27 @@
 
 ;; Corfu ============================================= ;;
 
-(use-package corfu
-  :ensure t
-  :init
-  (global-corfu-mode)
-  :hook ((prog-mode . corfu-mode)
-         (shell-mode . corfu-mode)
-         (eshell-mode . corfu-mode))
-  :custom
-  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  (corfu-auto t)                 ;; Enable auto completion
-  (corfu-separator ?\s)          ;; Orderless field separator
-  (corfu-quit-no-match 'separator) ; Don't quit if there is `corfu-separator' inserted
-  (corfu-echo-documentation nil) ;; Disable documentation in the echo area
-  (corfu-scroll-margin 4)
+;; (use-package corfu
+;;   :init
+;;   (global-corfu-mode)
+;;   :hook ((prog-mode . corfu-mode)
+;;          (shell-mode . corfu-mode)
+;;          (eshell-mode . corfu-mode))
+;;   :custom
+;;   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+;;   (corfu-auto t)                 ;; Enable auto completion
+;;   (corfu-separator ?\s)          ;; Orderless field separator
+;;   (corfu-quit-no-match 'separator) ; Don't quit if there is `corfu-separator' inserted
+;;   (corfu-echo-documentation nil) ;; Disable documentation in the echo area
+;;   (corfu-scroll-margin 4)
 
-  :config
-  (corfu-popupinfo-mode 1)
-  (setq corfu-popupinfo-delay 0.0)
-  ;; (corfu-indexed-mode 1)
-  (corfu-history-mode 1)
+;;   :config
+;;   (corfu-popupinfo-mode 1)
+;;   (setq corfu-popupinfo-delay 0.0)
+;;   ;; (corfu-indexed-mode 1)
+;;   (corfu-history-mode 1)
 
-  (define-key corfu-map (kbd "<tab>") #'corfu-complete)
+;;   (define-key corfu-map (kbd "<tab>") #'corfu-complete)
 
   ;;   (defun contrib/corfu-enable-always-in-minibuffer ()
   ;;     "Enable Corfu in the minibuffer if Vertico is not active.
@@ -349,7 +349,7 @@
   ;;   (let (completion-cycle-threshold completion-cycling)
   ;;     (apply #'consult-completion-in-region completion-in-region--data)))
   ;; (define-key corfu-map "\M-m" #'corfu-move-to-minibuffer))
-  )
+  ;; )
 
 ;; Add extensions
 (use-package cape
@@ -645,7 +645,7 @@
     "Toggle between `vertico-reverse-mode' and 'vertico-flat-mode'."
     :init-value nil
     :global nil
-    :require 'vectico-mode
+    :require 'vertico-mode
     :diminish kdb/vertico-reverse-mode
     (if kdb/vertico-reverse-mode
         (progn
@@ -816,7 +816,7 @@
   ;; Otherwise use the default `completion--in-region' function.
   (setq completion-in-region-function
         (lambda (&rest args)
-          (apply (if vectico-mode
+          (apply (if vertico-mode
                      #'consult-completion-in-region
                    #'completion--in-region)
                  args)))
@@ -947,10 +947,10 @@
   ;; (yas-global-mode)
   (setq lsp-log-io nil) ; if set to true can cause a performance hit
   (setq lsp-headerline-breadcrumb-enable nil)
-  (defun corfu-lsp-setup ()
-    (setq-local completion-styles '(orderless)
-                completion-category-defaults nil))
-  (add-hook 'lsp-mode-hook #'corfu-lsp-setup)
+  ;; (defun corfu-lsp-setup ()
+  ;;   (setq-local completion-styles '(orderless)
+  ;;               completion-category-defaults nil))
+  ;; (add-hook 'lsp-mode-hook #'corfu-lsp-setup)
   ;; Fix for completions with corfu
   (setq lsp-completion-provider :none)
   (defun lsp-mode-use-orderless ()
@@ -1228,9 +1228,8 @@
 ;; (use-package slime
 ;;   :ensure t
 ;;   :config
-;;   (setq inferior-lisp-program (if (equal system-type 'darwin) "/opt/homebrew/bin/sbcl" "/usr/bin/sbcl"))
-  ;; (setq inferior-lisp-program "/usr/bin/sbcl")
-  ;; (setq slime-contribs '(slime-fancy)))
+;;   (setq inferior-lisp-program "/opt/homebrew/bin/sbcl")
+;;   (setq slime-contribs '(slime-fancy)))
 
 (use-package package-lint)
 
@@ -1648,7 +1647,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(lsp-scheme guix flycheck-guile doom-themes npm svelte-mode consult-dir consult-eglot vertico devdocs popper package-lint uwu-theme rustic go-mode ob-typescript flycheck-inline corfu consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel consult-dash dash-docs cape embark-consult embark tree-sitter-indent tree-sitter-langs tree-sitter ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient slime rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
+   '(lsp-scheme guix flycheck-guile doom-themes npm svelte-mode consult-dir consult-eglot vertico devdocs popper package-lint rustic go-mode ob-typescript flycheck-inline consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel consult-dash dash-docs cape embark-consult embark tree-sitter-indent tree-sitter-langs tree-sitter ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient slime rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
