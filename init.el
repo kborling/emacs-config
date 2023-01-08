@@ -336,20 +336,20 @@
 
 ;;   (define-key corfu-map (kbd "<tab>") #'corfu-complete)
 
-  ;;   (defun contrib/corfu-enable-always-in-minibuffer ()
-  ;;     "Enable Corfu in the minibuffer if Vertico is not active.
-  ;; Useful for prompts such as `eval-expression' and `shell-command'."
-  ;;     (unless (bound-and-true-p vertico--input)
-  ;;       (corfu-mode 1)))
+;;   (defun contrib/corfu-enable-always-in-minibuffer ()
+;;     "Enable Corfu in the minibuffer if Vertico is not active.
+;; Useful for prompts such as `eval-expression' and `shell-command'."
+;;     (unless (bound-and-true-p vertico--input)
+;;       (corfu-mode 1)))
 
-  ;;   (add-hook 'minibuffer-setup-hook #'contrib/corfu-enable-always-in-minibuffer 1)
+;;   (add-hook 'minibuffer-setup-hook #'contrib/corfu-enable-always-in-minibuffer 1)
 
-  ;; (defun corfu-move-to-minibuffer ()
-  ;;   (interactive)
-  ;;   (let (completion-cycle-threshold completion-cycling)
-  ;;     (apply #'consult-completion-in-region completion-in-region--data)))
-  ;; (define-key corfu-map "\M-m" #'corfu-move-to-minibuffer))
-  ;; )
+;; (defun corfu-move-to-minibuffer ()
+;;   (interactive)
+;;   (let (completion-cycle-threshold completion-cycling)
+;;     (apply #'consult-completion-in-region completion-in-region--data)))
+;; (define-key corfu-map "\M-m" #'corfu-move-to-minibuffer))
+;; )
 
 ;; Add extensions
 (use-package cape
@@ -1225,11 +1225,10 @@
 
 ;; (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
 
-;; (use-package slime
-;;   :ensure t
-;;   :config
-;;   (setq inferior-lisp-program "/opt/homebrew/bin/sbcl")
-;;   (setq slime-contribs '(slime-fancy)))
+(use-package sly
+  :ensure t
+  :config
+  (setq inferior-lisp-program "/opt/homebrew/bin/sbcl"))
 
 (use-package package-lint)
 
@@ -1647,7 +1646,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(lsp-scheme guix flycheck-guile doom-themes npm svelte-mode consult-dir consult-eglot vertico devdocs popper package-lint rustic go-mode ob-typescript flycheck-inline consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel consult-dash dash-docs cape embark-consult embark tree-sitter-indent tree-sitter-langs tree-sitter ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient slime rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
+   '(sly lsp-scheme guix flycheck-guile doom-themes npm svelte-mode consult-dir consult-eglot vertico devdocs popper package-lint rustic go-mode ob-typescript flycheck-inline consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel consult-dash dash-docs cape embark-consult embark tree-sitter-indent tree-sitter-langs tree-sitter ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient slime rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
