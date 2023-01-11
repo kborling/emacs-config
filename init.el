@@ -3,13 +3,13 @@
 ;; Author: Kevin Borling <https://github.com/kborling>
 ;; Version: 1.1.0
 ;; Keywords: configuration
-;; URL: https://gist.github.com/kborling/13f2300e60ae4878d5d96f5f4d041664
-;; Homepage: https://gist.github.com/kborling/13f2300e60ae4878d5d96f5f4d041664
+;; URL: https://github.com/kborling/emacs-config
+;; Homepage: https://github.com/kborling/emacs-config
 ;; Package-Requires: ((emacs "28.1"))
 
 ;;; Commentary:
 
-;; Copyright (C) 2022 Kevin Borling
+;; Copyright (C) 2023 Kevin Borling
 ;; My personal Emacs config
 
 ;;; Code:
@@ -174,27 +174,22 @@
   (define-key map (kbd "C-c o d") #'dired)
   (define-key map (kbd "C-c o f") #'treemacs)
 
-  (define-key map (kbd "C-c f f") #'kdb/fullscreen)
+  (define-key map (kbd "C-c f f") #'toggle-frame-fullscreen)
   )
 
-(defun kdb/fullsceen()
-  "Make the frame fullscreen."
-  (interactive)
-  (defvar frame (select-frame))
-  (set-frame-parameter (frame) 'fullscreen 'maximized)
-  )
 ;; Theming ================================================ ;;
 ;; (defvar *font* "Ac437 IBM VGA 9x16")
 ;; (defvar *font* "Ac437 Verite 8x16")
-(defvar *font* "Comic Code")
+;; (defvar *font* "Comic Code")
 ;; (defvar *font* "Berkeley Mono")
 ;; (defvar *font* "Inconsolata")
 ;; (defvar *font* "Roboto Mono")
+(defvar *font* "Iosevka")
 
 (set-face-attribute 'default nil
-                    :family *font* :weight 'regular :height 140)
+                    :family *font* :weight 'regular :height 160)
 (set-face-attribute 'bold nil
-                    :family *font* :weight 'bold)
+                    :family *font* :weight 'medium)
 (set-face-attribute 'italic nil
                     :family *font* :weight 'regular :slant 'italic)
 (set-face-attribute 'variable-pitch nil
