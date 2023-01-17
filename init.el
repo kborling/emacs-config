@@ -10,7 +10,7 @@
 ;;; Commentary:
 
 ;; Copyright (C) 2023 Kevin Borling
-;; My personal Emacs config
+;; My personal Emacs config.
 
 ;;; Code:
 
@@ -178,18 +178,13 @@
   )
 
 ;; Theming ================================================ ;;
-;; (defvar *font* "Comic Code")
-;; (defvar *font* "Berkeley Mono")
-;; (defvar *font* "Inconsolata")
-;; (defvar *font* "Roboto Mono")
-(defvar *font* "Iosevka")
-
-(set-face-attribute 'default nil
-                    :family *font* :weight 'regular :height 170)
-(set-face-attribute 'bold nil
-                    :family *font* :weight 'medium)
-(set-face-attribute 'italic nil
-                    :family *font* :weight 'regular :slant 'italic)
+(let ((font "Comic Code"))
+  (set-face-attribute 'default nil
+                      :family font :weight 'regular :height 160)
+  (set-face-attribute 'bold nil
+                      :family font :weight 'medium)
+  (set-face-attribute 'italic nil
+                      :family font :weight 'regular :slant 'italic))
 (set-face-attribute 'variable-pitch nil
                     :family "Berkeley Mono Variable" :height 150 :weight 'regular)
 (set-fontset-font t 'unicode
@@ -208,10 +203,10 @@
 ;; Frame ============================================== ;;
 
 ;; Make frame transparency overridable
-(defvar *kdb-frame-transparency* '(96 . 96))
-;; ;; Set frame transparency
-(set-frame-parameter (selected-frame) 'alpha *kdb-frame-transparency*)
-(add-to-list 'default-frame-alist `(alpha . ,*kdb-frame-transparency*))
+(let ((frame-transparency '(96 . 96)))
+  ;; ;; Set frame transparency
+  (set-frame-parameter (selected-frame) 'alpha frame-transparency)
+  (add-to-list 'default-frame-alist `(alpha . ,frame-transparency)))
 ;; (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
 ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
@@ -616,8 +611,6 @@
   (vertico-reverse-mode)
   ;; different scroll margin
   ;; (setq vertico-scroll-margin 0)
-  ;; Show more candidates
-  ;; (setq vertico-count 20)
   ;; Grow and shrink the Vertico minibuffer
   ;; (setq vertico-resize t)
   ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
@@ -1066,6 +1059,7 @@
   (push '(css-mode . css-ts-mode) major-mode-remap-alist))
 
 ;; Svelte Mode ========================================== ;;
+
 (use-package svelte-mode
   :mode ("\\.svelte\\'"))
 
@@ -1468,40 +1462,6 @@
 ;;   (balance-windows)
 ;;   (other-window 1))
 ;; (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
-
-;; Screenshots ==================================== ;;
-
-;; Take screenshot of entire screen
-(defun kdb-take-screenshot ()
-  "Take a fullscreen screenshot of the current workspace."
-  (interactive)
-  (when window-system
-    (cl-loop for i downfrom 3 to 1 do
-             (progn
-               (message (concat (number-to-string i) "..."))
-               (sit-for 1)))
-    (message "Cheese!")
-    (sit-for 1)
-    (start-process "screenshot" nil "import" "-window" "root"
-                   (concat (getenv "HOME") "/" (subseq (number-to-string (float-time)) 0 10) ".png"))
-    (message "Screenshot taken!")))
-
-;; Keybindings
-(global-set-key (kbd "<print>") 'kdb-take-screenshot)
-
-;; Take screenshot of region
-(defun kdb-take-screenshot-region ()
-  "Takes a screenshot of a region selected by the user."
-  (interactive)
-  (when window-system
-    (call-process "import" nil nil nil ".newScreen.png")
-    (call-process "convert" nil nil nil ".newScreen.png" "-shave" "1x1"
-                  (concat (getenv "HOME") "/" (subseq (number-to-string (float-time)) 0 10) ".png"))
-    (call-process "rm" nil nil nil ".newScreen.png")))
-
-;; Keybindings
-(global-set-key (kbd "<Scroll_Lock>") 'kdb-take-screenshot-region)
-
 
 ;; Emacs ============================================= ;;
 
