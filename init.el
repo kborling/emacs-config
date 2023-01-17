@@ -178,8 +178,6 @@
   )
 
 ;; Theming ================================================ ;;
-;; (defvar *font* "Ac437 IBM VGA 9x16")
-;; (defvar *font* "Ac437 Verite 8x16")
 ;; (defvar *font* "Comic Code")
 ;; (defvar *font* "Berkeley Mono")
 ;; (defvar *font* "Inconsolata")
@@ -187,7 +185,7 @@
 (defvar *font* "Iosevka")
 
 (set-face-attribute 'default nil
-                    :family *font* :weight 'regular :height 160)
+                    :family *font* :weight 'regular :height 170)
 (set-face-attribute 'bold nil
                     :family *font* :weight 'medium)
 (set-face-attribute 'italic nil
@@ -198,12 +196,13 @@
                   (font-spec :name "Inconsolata Light" :size 16) nil)
 
 ;; Custom themes
+(use-package doom-themes)
+
 (use-package uwu-theme
-  :load-path "~/Projects/uwu-theme"
+  ;; :load-path "~/Projects/uwu-theme"
   :config
   (setq uwu-distinct-line-numbers 'nil))
-(use-package ef-themes)
-(use-package doom-themes)
+
 (load-theme 'uwu t)
 
 ;; Frame ============================================== ;;
@@ -316,7 +315,7 @@
          (eshell-mode . corfu-mode))
   :custom
   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  (corfu-auto t)                 ;; Enable auto completion
+  (corfu-auto nil)                 ;; Enable auto completion
   (corfu-separator ?\s)          ;; Orderless field separator
   (corfu-quit-no-match 'separator) ; Don't quit if there is `corfu-separator' inserted
   (corfu-echo-documentation nil) ;; Disable documentation in the echo area
@@ -386,7 +385,7 @@
 
 ;; TAGS ============================================== ;;
 
-(setq path-to-ctags "/opt/homebrew/bin/ctags")
+(setq path-to-ctags (locate-file "ctags" exec-path))
 (defun create-tags (dir-name)
   "Create tags file using 'DIR-NAME'."
   (interactive "DDirectory: ")
@@ -536,7 +535,7 @@
 
 (setq read-buffer-completion-ignore-case t)
 (setq read-file-name-completion-ignore-case t)
-(setq enable-recursive-minibuffers t)
+;; (setq enable-recursive-minibuffers t)
 (setq read-answer-short t) ; also check `use-short-answers' for Emacs28
 (setq resize-mini-windows t)
 (setq minibuffer-eldef-shorten-default t)
@@ -627,13 +626,13 @@
   ;; ("C-s" . vertico-next)
   ;; ("C-r" . vertico-previous)
 
-  (define-minor-mode kdb/vertico-reverse-mode
+  (define-minor-mode kdb-vertico-reverse-mode
     "Toggle between `vertico-reverse-mode' and 'vertico-flat-mode'."
     :init-value nil
     :global nil
     :require 'vertico-mode
-    :diminish kdb/vertico-reverse-mode
-    (if kdb/vertico-reverse-mode
+    :diminish kdb-vertico-reverse-mode
+    (if kdb-vertico-reverse-mode
         (progn
           (vertico-reverse-mode)
           (vertico-flat-mode -1)
@@ -643,7 +642,7 @@
       )
     (message " "))
 
-  :bind ("C-=" . kdb/vertico-reverse-mode)
+  :bind ("C-=" . kdb-vertico-reverse-mode)
   )
 
 ;; Dired ============================================= ;;
@@ -903,7 +902,7 @@
   ;; (define-key eglot-mode-map (kbd "C-c c d") 'xref-find-definitions))
   :custom
   ;; Language Servers
-  ;; (add-to-list 'eglot-server-programs '(csharp-mode . ("/run/current-system/sw/bin/omnisharp" "-lsp")))
+  ;; (add-to-list 'eglot-server-programs '(csharp-mode . ("omnisharp" "-lsp")))
   (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '(rust-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '(rustic-mode . ("rls" "--stdio")))
@@ -916,7 +915,6 @@
   ;; (add-hook 'web-mode-hook 'eglot-ensure)
   ;; (add-hook 'csharp-mode-hook 'eglot-ensure)
   ;; (add-hook 'rust-mode-hook 'eglot-ensure)
-  ;; (add-to-list 'eglot-server-programs '(web-mode . ("typescript-language-server" "--stdio")))
   )
 
 (use-package consult-eglot
@@ -1050,14 +1048,6 @@
               ("<C-tab>" . emmet-expand-line))
   :hook ((css-mode web-mode html-mode vue-mode) . emmet-mode))
 
-;; Eslint ========================================== ;;
-
-;; (use-package eslintd-fix
-;;   :config
-;;   ;; (setq eslintd-fix-executable "~/Projects/angular-tests/node_modules/.bin/eslint_d")
-;;   (add-hook 'js2-mode-hook 'eslintd-fix-mode)
-;;   (add-hook 'typescript-mode-hook 'eslintd-fix-mode))
-
 ;; NPM ============================================== ;;
 
 (use-package npm
@@ -1071,7 +1061,9 @@
 ;; Web Mode ======================================== ;;
 
 (use-package web-mode
-  :mode ("\\.html\\'" "\\.css\\'" "\\.tsx\\'" "\\.cshtml\\'" "\\.astro\\'"))
+  :mode ("\\.html\\'" "\\.css\\'" "\\.tsx\\'" "\\.cshtml\\'" "\\.astro\\'")
+  :config
+  (push '(css-mode . css-ts-mode) major-mode-remap-alist))
 
 ;; Svelte Mode ========================================== ;;
 (use-package svelte-mode
@@ -1083,6 +1075,7 @@
   :mode ("\\.js\\'")
   ;; :hook (js2-mode . lsp-deferred)
   :config
+  (push '(js2-mode . js-ts-mode) major-mode-remap-alist)
   ;; (add-hook 'js2-mode-hook #'js2-imenu-extras-mode)
   (add-hook 'js2-mode-hook #'js2-refactor-mode)
   (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
@@ -1104,9 +1097,11 @@
 ;; Typescript Mode ================================= ;;
 
 (use-package typescript-mode
-  :mode "\\.ts\\'")
-;; :hook (typescript-mode . lsp-deferred))
-;; :config
+  :mode "\\.ts\\'"
+  ;; :hook (typescript-mode . lsp-deferred))
+  :config
+  (push '(typescript-mode . typescript-ts-mode) major-mode-remap-alist)
+  (push '(typescript-mode . tsx-ts-mode) major-mode-remap-alist))
 ;; (setq typescript-indent-level 4))
 
 (use-package tide
@@ -1135,21 +1130,6 @@
   :diminish
   :config
   (editorconfig-mode 1))
-
-;; TreeSitter ========================================== ;;
-
-(use-package tree-sitter
-  :ensure t
-  :diminish
-  :config
-  (global-tree-sitter-mode)
-  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
-(use-package tree-sitter-langs
-  :ensure t
-  :after tree-sitter)
-(use-package tree-sitter-indent
-  :ensure t
-  :after tree-sitter)
 
 ;; Csharp ========================================== ;;
 
@@ -1191,9 +1171,9 @@
 
   ;; comment to disable rustfmt on save
   (setq rustic-format-on-save t)
-  (add-hook 'rustic-mode-hook 'kdb/rustic-mode-hook))
+  (add-hook 'rustic-mode-hook 'kdb-rustic-mode-hook))
 
-(defun kdb/rustic-mode-hook ()
+(defun kdb-rustic-mode-hook ()
   "Run `C-c` `C-c` `C-r` works without having to confirm."
   (when buffer-file-name
     (setq-local buffer-save-without-query t))
@@ -1210,10 +1190,20 @@
 
 (use-package sly
   :ensure t
-  :config
-  (setq inferior-lisp-program "/opt/homebrew/bin/sbcl")
+  :hook ((lisp-mode . sly-symbol-completion-mode))
+  :custom (inferior-lisp-program (locate-file "sbcl" exec-path))
   :bind (:map sly-mode-map
-              ("M-h" . sly-documentation-lookup)))
+              ("M-h" . sly-documentation-lookup))
+  :config
+  (defun kdb-sly-mrepl (arg)
+    "Find or create the first useful REPL for the default connection in a side window."
+    (interactive "P")
+    (save-excursion
+      (sly-mrepl nil))
+    (let ((buf (sly-mrepl--find-create (sly-current-connection))))
+      (if arg
+          (switch-to-buffer buf)
+        (pop-to-buffer buf)))))
 
 (use-package package-lint)
 
@@ -1221,21 +1211,21 @@
 
 ;; (add-hook 'scheme-mode-hook 'guix-devel-mode)
 
-(use-package lsp-scheme
-  :config
-  (add-hook 'scheme-mode-hook #'lsp-scheme)
+;; (use-package lsp-scheme
+;;   :config
+;;   (add-hook 'scheme-mode-hook #'lsp-scheme)
 
-  (setq lsp-scheme-implementation "guile"))
+;;   (setq lsp-scheme-implementation "guile"))
 
-(use-package flycheck-guile)
+;; (use-package flycheck-guile)
 
-(use-package geiser-guile)
+;; (use-package geiser-guile)
 
-(use-package guix
-  :config
-  (add-hook 'scheme-mode-hook 'guix-devel-mode)
-  (add-hook 'scheme-mode-hook 'guix-prettify-mode)
-  )
+;; (use-package guix
+;;   :config
+;;   (add-hook 'scheme-mode-hook 'guix-devel-mode)
+;;   (add-hook 'scheme-mode-hook 'guix-prettify-mode)
+;;   )
 
 ;; YAML ========================================== ;;
 
@@ -1245,13 +1235,14 @@
 ;; JSON ========================================== ;;
 
 (use-package json-mode
-  :mode ("\\.json\\'"))
+  :mode ("\\.json\\'")
+  :config
+  (push '(json-mode . json-ts-mode) major-mode-remap-alist))
 
 ;; Restclient ==================================== ;;
 
 (use-package restclient)
 (use-package ob-restclient)
-;; :mode ("\\.org\\'"))
 
 ;; Dev Docs ======================================= ;;
 
@@ -1262,19 +1253,9 @@
 ;; (use-package devdocs-browser
 ;;   :after devdocs)
 
-;; Dash Docs ======================================= ;;
-
-;; (use-package dash-docs)
-;; (use-package consult-dash
-;;   :after (consult dash)
-;;   :bind (("C-h D" . consult-dash))
-;;   :config
-;;   ;; Use the symbol at point as initial search term
-;;   (consult-customize consult-dash :initial (thing-at-point 'symbol)))
-
 ;; Ansi-term ====================================== ;;
 
-(setq explicit-shell-file-name "/bin/zsh")
+(setq explicit-shell-file-name (locate-file "zsh" exec-path))
 (defadvice ansi-term (before force-bash)
   "Set the default shell to bash."
   (interactive (list explicit-shell-file-name)))
@@ -1308,7 +1289,7 @@
 ;; Org Mode ===================================== ;;
 
 ;;; Org Mode
-(defun kdb/org-mode-setup ()
+(defun kdb-org-mode-setup ()
   "Setup org mode."
   (org-indent-mode)
   ;; (variable-pitch-mode 1)
@@ -1322,7 +1303,7 @@
 (use-package org
   :pin org
   :commands (org-capture org-agenda)
-  :hook (org-mode . kdb/org-mode-setup)
+  :hook (org-mode . kdb-org-mode-setup)
   :config
   (setq org-ellipsis " ▾")
   (setq org-src-fontify-natively t)
@@ -1343,9 +1324,6 @@
           ("V" . "verbatim")
           ("c" . "center")
           ("C" . "comment")))
-  ;; (setq org-todo-keyword-faces
-  ;;     '(("TODO" . org-warning) ("IN PROGRESS" . "yellow")
-  ;;       ("BLOCKED" . (:foreground "blue" :weight bold))))
 
   ;; code blocks
   (setq org-confirm-babel-evaluate nil)
@@ -1372,14 +1350,19 @@
 ;; (require 'ox-texinfo)
 ;; (require 'ox-md)
 ;; (setq org-export-backends '(html texinfo md)))
-
 ;; Org Files
 
-(defun todo-visit ()
+(defun kdb-todo-visit ()
   "Load ~/.org/todo.org for editing."
   (interactive)
-  (find-file "~/org/todo.org"))
-(global-set-key (kbd "C-c e t") 'todo-visit)
+  (find-file (concat org-directory "todo.org")))
+(global-set-key (kbd "C-c e t") 'kdb-todo-visit)
+
+(defun kdb-org-find-file ()
+  "Find file for org mode directory."
+  (interactive)
+  (find-file org-directory))
+(global-set-key (kbd "C-c e f") 'kdb-org-find-file)
 
 ;; PDF Tools ===================================== ;;
 
@@ -1399,13 +1382,13 @@
 (defun config-visit ()
   "Load ~/.emacs.d/init.el for editing."
   (interactive)
-  (find-file "~/.emacs.d/init.el"))
+  (find-file (expand-file-name (locate-user-emacs-file "init.el"))))
 (global-set-key (kbd "C-c e v") 'config-visit)
 
 (defun config-reload ()
   "Reload ~/.emacs.custom/init.el at runtime."
   (interactive)
-  (load-file (expand-file-name "~/.emacs.d/init.el")))
+  (load-file (expand-file-name (locate-user-emacs-file "init.el"))))
 (global-set-key (kbd "C-c e r") 'config-reload)
 
 ;; Buffers ======================================== ;;
@@ -1489,7 +1472,7 @@
 ;; Screenshots ==================================== ;;
 
 ;; Take screenshot of entire screen
-(defun kdb/take-screenshot ()
+(defun kdb-take-screenshot ()
   "Take a fullscreen screenshot of the current workspace."
   (interactive)
   (when window-system
@@ -1504,10 +1487,10 @@
     (message "Screenshot taken!")))
 
 ;; Keybindings
-(global-set-key (kbd "<print>") 'kdb/take-screenshot)
+(global-set-key (kbd "<print>") 'kdb-take-screenshot)
 
 ;; Take screenshot of region
-(defun kdb/take-screenshot-region ()
+(defun kdb-take-screenshot-region ()
   "Takes a screenshot of a region selected by the user."
   (interactive)
   (when window-system
@@ -1517,7 +1500,7 @@
     (call-process "rm" nil nil nil ".newScreen.png")))
 
 ;; Keybindings
-(global-set-key (kbd "<Scroll_Lock>") 'kdb/take-screenshot-region)
+(global-set-key (kbd "<Scroll_Lock>") 'kdb-take-screenshot-region)
 
 
 ;; Emacs ============================================= ;;
@@ -1585,11 +1568,11 @@
   (setq olivetti-minimum-body-width 120)
   (setq olivetti-recall-visual-line-mode-entry-state t)
 
-  (define-minor-mode kdb/olivetti-mode
+  (define-minor-mode kdb-olivetti-mode
     "Toggle buffer-local `olivetti-mode' with additional parameters."
     :init-value nil
     :global nil
-    (if kdb/olivetti-mode
+    (if kdb-olivetti-mode
         (progn
           (olivetti-mode 1)
           (set-window-fringes (selected-window) 0 0)
@@ -1600,11 +1583,11 @@
       (unless (derived-mode-p 'prog-mode)
         (setq mode-line-format old-mode-line-format))))
 
-  :bind ("C-c m" . kdb/olivetti-mode))
+  :bind ("C-c m" . kdb-olivetti-mode))
 
 ;; Macos ========================================== ;;
 
-;; (defun kdb/setup-macos ()
+;; (defun kdb-setup-macos ()
 ;; "Enable some macos options and swap meta/alt keys."
 ;; (interactive)
 (when (equal system-type 'darwin)
@@ -1625,13 +1608,15 @@
 ;; )
 
 ;; Custom ========================================= ;;
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(corfu sly lsp-scheme guix flycheck-guile doom-themes npm svelte-mode consult-dir consult-eglot vertico devdocs popper package-lint rustic go-mode ob-typescript flycheck-inline consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel consult-dash dash-docs cape embark-consult embark tree-sitter-indent tree-sitter-langs tree-sitter ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
+   '(uwu-theme corfu sly lsp-scheme guix flycheck-guile doom-themes npm svelte-mode consult-dir consult-eglot vertico devdocs popper package-lint rustic go-mode ob-typescript flycheck-inline consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel consult-dash dash-docs cape embark-consult embark tree-sitter-indent tree-sitter-langs tree-sitter ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
