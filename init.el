@@ -5,7 +5,7 @@
 ;; Keywords: configuration
 ;; URL: https://github.com/kborling/emacs-config
 ;; Homepage: https://github.com/kborling/emacs-config
-;; Package-Requires: ((emacs "28.1"))
+;; Package-Requires: ((emacs "29"))
 
 ;;; Commentary:
 
@@ -174,13 +174,12 @@
   (define-key map (kbd "C-c o d") #'dired)
   (define-key map (kbd "C-c o f") #'treemacs)
 
-  (define-key map (kbd "C-c f f") #'toggle-frame-fullscreen)
-  )
+  (define-key map (kbd "C-c f f") #'toggle-frame-fullscreen))
 
 ;; Theming ================================================ ;;
 (let ((font "Comic Code"))
   (set-face-attribute 'default nil
-                      :family font :weight 'regular :height 160)
+                      :family font :weight 'regular :height 140)
   (set-face-attribute 'bold nil
                       :family font :weight 'medium)
   (set-face-attribute 'italic nil
@@ -1575,7 +1574,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(uwu-theme corfu sly lsp-scheme guix flycheck-guile doom-themes npm svelte-mode consult-dir consult-eglot vertico devdocs popper package-lint rustic go-mode ob-typescript flycheck-inline consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel consult-dash dash-docs cape embark-consult embark tree-sitter-indent tree-sitter-langs tree-sitter ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
+   '(uwu-theme corfu sly lsp-scheme guix flycheck-guile doom-themes npm svelte-mode consult-dir consult-eglot vertico devdocs popper package-lint rustic go-mode ob-typescript flycheck-inline consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel consult-dash dash-docs cape embark-consult embark ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
