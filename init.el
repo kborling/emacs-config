@@ -129,8 +129,8 @@
       '(("elpa" . 2)
         ("nongnu" . 1)))
 
-(setq package-pinned-packages
-      '((corfu . "elpa-devel")))
+;; (setq package-pinned-packages
+      ;; '((corfu . "elpa-devel")))
 
 (package-initialize)
 (unless package-archive-contents
@@ -140,7 +140,9 @@
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 
-(require 'use-package)
+(eval-when-compile
+  (require 'use-package))
+
 (setq use-package-always-ensure t)
 
 ;; Keybindings ======================================= ;;
@@ -191,6 +193,11 @@
 
 ;; Custom themes
 (use-package doom-themes)
+(use-package gruber-darker-theme)
+
+;; (use-package github-dark-theme
+;;   :load-path "~/Projects/github-dark-theme"
+;;   )
 
 (use-package uwu-theme
   ;; :load-path "~/Projects/uwu-theme"
@@ -863,12 +870,12 @@
 (global-eldoc-mode 1)
 (setq eldoc-echo-area-use-multiline-p t)
 
-(use-package eldoc-box
-  :after eldoc
-  :diminish
-  :config
-  (add-hook 'eglot--managed-mode-hook #'eldoc-box-hover-mode t)
-  )
+;; (use-package eldoc-box
+;;   :after eldoc
+;;   :diminish
+;;   :config
+;;   (add-hook 'eglot--managed-mode-hook #'eldoc-box-hover-mode t)
+;;   )
 
 ;; Eglot ============================================== ;;
 
@@ -1237,6 +1244,23 @@
 (use-package restclient)
 (use-package ob-restclient)
 
+;; Copilot ======================================== ;;
+
+(use-package copilot
+  :load-path "~/.emacs.d/elisp/copilot.el"
+  :config
+  (add-hook 'prog-mode-hook 'copilot-mode)
+  :bind (:map copilot-completion-map
+              ("C-g" . 'copilot-clear-overlay)
+              ("<right>" . 'copilot-accept-completion)
+              ("C-f" . 'copilot-accept-completion)
+              ("M-<right>" . 'copilot-accept-completion-by-word)
+              ("M-f" . 'copilot-accept-completion-by-word)
+              ("C-e" . 'copilot-accept-completion-by-line)
+              ("<end>" . 'copilot-accept-completion-by-line)
+              ("M-n" . 'copilot-next-completion)
+              ("M-p" . 'copilot-previous-completion)))
+
 ;; Dev Docs ======================================= ;;
 
 (use-package devdocs
@@ -1574,7 +1598,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(uwu-theme corfu sly lsp-scheme guix flycheck-guile doom-themes npm svelte-mode consult-dir consult-eglot vertico devdocs popper package-lint rustic go-mode ob-typescript flycheck-inline consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel consult-dash dash-docs cape embark-consult embark ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
+   '(gruber-darker-theme color-theme-sanityinc-solarized color-theme-sanityinc-tomorrow github-theme uwu-theme sly lsp-scheme guix flycheck-guile doom-themes npm svelte-mode consult-dir consult-eglot vertico devdocs popper package-lint rustic go-mode ob-typescript flycheck-inline consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel consult-dash dash-docs cape embark-consult embark ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
