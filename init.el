@@ -242,12 +242,6 @@
 
 ;; Meow ============================================== ;;
 
-(use-package meow
-  :ensure t
-  :config
-  (meow-setup)
-  (meow-global-mode 1))
-
 (defun meow-setup ()
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvorak)
   (meow-leader-define-key
@@ -261,6 +255,9 @@
    '("8" . meow-digit-argument)
    '("9" . meow-digit-argument)
    '("0" . meow-digit-argument)
+   '(";" . comment-line)
+   '("D" . dired-jump)
+   `("p" . ,project-prefix-map)
    '("/" . meow-keypad-describe-key)
    '("?" . meow-cheatsheet))
   (meow-motion-overwrite-define-key
@@ -328,6 +325,12 @@
    '("z" . meow-pop-selection)
    '("'" . repeat)
    '("<escape>" . ignore)))
+
+(use-package meow
+  :ensure t
+  :config
+  (meow-global-mode 1)
+  (meow-setup))
 
 ;; Which Key ========================================= ;;
 
@@ -1687,7 +1690,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(meow gruber-darker-theme color-theme-sanityinc-solarized color-theme-sanityinc-tomorrow github-theme uwu-theme sly lsp-scheme guix flycheck-guile doom-themes npm svelte-mode consult-dir consult-eglot vertico devdocs popper package-lint rustic go-mode ob-typescript flycheck-inline consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel consult-dash dash-docs cape embark-consult embark ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
+   '(meow gruber-darker-theme color-theme-sanityinc-solarized color-theme-sanityinc-tomorrow github-theme uwu-theme sly doom-themes npm svelte-mode consult-dir consult-eglot vertico devdocs popper package-lint rustic go-mode ob-typescript flycheck-inline consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel consult-dash dash-docs cape embark-consult embark ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
