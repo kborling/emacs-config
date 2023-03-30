@@ -130,7 +130,7 @@
         ("nongnu" . 1)))
 
 ;; (setq package-pinned-packages
-      ;; '((corfu . "elpa-devel")))
+;; '((corfu . "elpa-devel")))
 
 (package-initialize)
 (unless package-archive-contents
@@ -256,7 +256,14 @@
    '("9" . meow-digit-argument)
    '("0" . meow-digit-argument)
    '(";" . comment-line)
+   '("j" . crux-top-join-line)
+   '("b" . consult-project-buffer)
    '("D" . dired-jump)
+   '("v" . split-window-right)
+   '("s" . split-window-below)
+   '("t" . other-window)
+   '("w" . delete-other-windows)
+   '("u" . kill-current-buffer)
    `("p" . ,project-prefix-map)
    '("/" . meow-keypad-describe-key)
    '("?" . meow-cheatsheet))
