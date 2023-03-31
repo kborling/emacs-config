@@ -8,6 +8,7 @@ package-quickstart.el
 tutorial/
 elpa/
 eln-cache/
+url/
 eshell/history
 eshell/lastdir
 devdocs/

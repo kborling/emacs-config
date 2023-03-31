@@ -275,10 +275,11 @@
    '("D" . dired-jump)
    '("v" . split-window-right)
    '("s" . split-window-below)
-   '("t" . consult-buffer)
-   '("T" . consult-buffer-other-window)
+   '("t" . consult-line-multi)
+   '("T" . consult-imenu-multi)
    '("SPC" . other-window)
    '("w" . delete-other-windows)
+   '("W" . delete-window)
    '("u" . kill-current-buffer)
    `("p" . ,project-prefix-map)
    '("r" . consult-ripgrep)
@@ -546,7 +547,7 @@
 
 ;; Set completion styles
 (setq completion-styles
-      '(basic orderless))
+      '(substring basic orderless))
 ;; '(basic substring initials flex partial-completion orderless))
 (setq completion-category-defaults nil)
 (setq completion-category-overrides
@@ -812,7 +813,7 @@
 (use-package consult
   :bind (;; C-c bindings (mode-specific-map)
          ("C-c h" . consult-history)
-         ("C-c m" . consult-mode-command)
+         ("M-X" . consult-mode-command)
          ("C-c k" . consult-kmacro)
          ("C-h t" . consult-theme)
          ;; C-x bindings (ctl-x-map)
@@ -829,7 +830,6 @@
          ("C-M-#" . consult-register)
          ;; Other custom bindings
          ("M-y" . consult-yank-pop)                ;; orig. yank-pop
-         ("<help> a" . consult-apropos)            ;; orig. apropos-command
          ;; M-g bindings (goto-map)
          ("M-g e" . consult-compile-error)
          ("M-g f" . consult-flycheck)               ;; Alternative: consult-flycheck
@@ -848,7 +848,7 @@
          ("M-s r" . consult-ripgrep)
          ("M-s l" . consult-line)
          ("M-s L" . consult-line-multi)
-         ;; ("M-s m" . consult-multi-occur)
+         ("M-s m" . consult-multi-occur)
          ("M-s k" . consult-keep-lines)
          ("M-s u" . consult-focus-lines)
          ;; Isearch integration
