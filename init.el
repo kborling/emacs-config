@@ -132,9 +132,9 @@
 ;; (setq package-pinned-packages
 ;; '((corfu . "elpa-devel")))
 
-(package-initialize)
-(unless package-archive-contents
-  (package-refresh-contents))
+;; (package-initialize)
+;; (unless package-archive-contents
+  ;; (package-refresh-contents))
 
 ;; Initialize use-package on non-Linux platforms
 (unless (package-installed-p 'use-package)
@@ -153,7 +153,6 @@
   (define-key map (kbd "C-x C-z") nil)
 
   (define-key map (kbd "C-h C-r") #'restart-emacs)
-  (define-key map (kbd "C-c C-l") #'lsp)
   (define-key map (kbd "C-c C-r") #'query-replace)
 
   (define-key map (kbd "C-;") #'comment-line)
@@ -241,7 +240,23 @@
 
 ;; Meow ============================================== ;;
 
+(defmacro meow--call-negative (form)
+  "Call FORM with negative prefix argument."
+  `(let ((current-prefix-arg -1))
+     (call-interactively ,form)))
+
+(defun meow-negative-find ()
+  "Call negative version of `meow-find'."
+  (interactive)
+  (meow--call-negative 'meow-find))
+
+(defun meow-negative-till ()
+  "Call negative version of `meow-till'."
+  (interactive)
+  (meow--call-negative 'meow-till))
+
 (defun meow-setup ()
+  "Setup Meow."
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvorak)
   (meow-leader-define-key
    '("1" . meow-digit-argument)
@@ -260,12 +275,15 @@
    '("D" . dired-jump)
    '("v" . split-window-right)
    '("s" . split-window-below)
-   '("t" . other-window)
+   '("t" . consult-buffer)
+   '("T" . consult-buffer-other-window)
+   '("SPC" . other-window)
    '("w" . delete-other-windows)
    '("u" . kill-current-buffer)
    `("p" . ,project-prefix-map)
-   '("/" . meow-keypad-describe-key)
-   '("?" . meow-cheatsheet))
+   '("r" . consult-ripgrep)
+   '("/" . consult-imenu)
+   '("?" . consult-imenu-multi))
   (meow-motion-overwrite-define-key
    ;; custom keybinding for motion state
    '("<escape>" . ignore))
@@ -296,6 +314,7 @@
    '("e" . meow-line)
    '("E" . meow-goto-line)
    '("f" . meow-find)
+   '("F" . meow-negative-find)
    '("g" . meow-cancel-selection)
    '("G" . meow-grab)
    '("h" . meow-left)
@@ -305,6 +324,7 @@
    '("j" . meow-join)
    '("k" . meow-kill)
    '("l" . meow-till)
+   '("L" . meow-negative-till)
    '("m" . meow-mark-word)
    '("M" . meow-mark-symbol)
    '("n" . meow-next)
@@ -351,7 +371,7 @@
 
 (use-package crux
   :bind (("C-a" . crux-move-beginning-of-line)
-         ;; ("C-k" . crux-smart-kill-line)
+         ("C-k" . crux-smart-kill-line)
          ("M-<return>" . crux-smart-open-line-above)
          ("C-x w" . crux-rename-file-and-buffer)
          ("C-c d" . crux-duplicate-current-line-or-region)
@@ -669,7 +689,7 @@
 
 ;; FIDO/IComplete ===================================== ;;
 
-(fido-mode)
+;; (fido-mode)
 ;; (fido-vertical-mode 1)
 ;; (icomplete-mode 1)
 ;; (icomplete-vertical-mode 1)
@@ -677,7 +697,41 @@
 ;; (setq icomplete-in-buffer 1)
 ;; (define-key map (kbd "RET") 'icomplete-vertical-goto-last)
 
-(global-set-key (kbd "C-=") 'fido-vertical-mode)
+;; (global-set-key (kbd "C-=") 'fido-vertical-mode)
+
+;; Vertico ============================================= ;;
+(use-package vertico
+  :init
+  (vertico-mode)
+  ;; (vertico-unobtrusive-mode)
+  (vertico-reverse-mode)
+  ;; different scroll margin
+  ;; (setq vertico-scroll-margin 0)
+  ;; Grow and shrink the Vertico minibuffer
+  ;; (setq vertico-resize t)
+  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+  (setq vertico-cycle t)
+  ;; :bind
+  ;; ("C-s" . vertico-next)
+  ;; ("C-r" . vertico-previous)
+
+  (define-minor-mode kdb-vertico-reverse-mode
+    "Toggle between `vertico-reverse-mode' and 'vertico-flat-mode'."
+    :init-value nil
+    :global nil
+    :require 'vertico-mode
+    :diminish kdb-vertico-reverse-mode
+    (if kdb-vertico-reverse-mode
+        (progn
+          (vertico-reverse-mode)
+          (vertico-flat-mode -1)
+          )
+      (vertico-reverse-mode -1)
+      (vertico-flat-mode)
+      )
+    (message " "))
+
+  :bind ("C-=" . kdb-vertico-reverse-mode))
 
 ;; Dired ============================================= ;;
 
@@ -794,7 +848,7 @@
          ("M-s r" . consult-ripgrep)
          ("M-s l" . consult-line)
          ("M-s L" . consult-line-multi)
-         ("M-s m" . consult-multi-occur)
+         ;; ("M-s m" . consult-multi-occur)
          ("M-s k" . consult-keep-lines)
          ("M-s u" . consult-focus-lines)
          ;; Isearch integration
@@ -831,11 +885,11 @@
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref)
 
-  ;; Use `consult-completion-in-region' if fido is enabled.
+  ;; Use `consult-completion-in-region' if vertico is enabled.
   ;; Otherwise use the default `completion--in-region' function.
   (setq completion-in-region-function
         (lambda (&rest args)
-          (apply (if fido-mode
+          (apply (if vertico-mode
                      #'consult-completion-in-region
                    #'completion--in-region)
                  args)))

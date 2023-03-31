@@ -22,7 +22,7 @@
 ;;; Commentary:
 
 ;; Prior to Emacs 27, the `init.el' was supposed to handle the
-;; initialisation of the package manager, by means of calling
+;; initialization of the package manager, by means of calling
 ;; `package-initialize'.  Starting with Emacs 27, the default
 ;; behaviour is to start the package manager before loading the init
 ;; file.
@@ -46,9 +46,14 @@
 (when (boundp 'w32-pipe-buffer-size)
   (setq irony-server-w32-pipe-buffer-size (* 64 1024)))
 
+(customize-set-variable 'load-prefer-newer t)
+
 (setq inhibit-startup-message t
       inhibit-startup-echo-area-message t)
 (setq initial-scratch-message nil)
+
+;; Make the initial buffer load faster by setting its mode to fundamental-mode
+(customize-set-variable 'initial-major-mode 'fundamental-mode)
 
 (set-default-coding-systems 'utf-8)
 
@@ -66,6 +71,21 @@
 ;; Allow loading from the package cache
 (setq package-quickstart t)
 
-(setq native-comp-async-report-warnings-errors 'silent)
+;;; Native compilation settings
+(when (featurep 'native-compile)
+  ;; Silence compiler warnings as they can be pretty disruptive
+  (setq native-comp-async-report-warnings-errors nil)
+
+  ;; Make native compilation happens asynchronously
+  (setq inhibit-automatic-native-compilation t)
+
+  ;; Set the right directory to store the native compilation cache
+  ;; NOTE the method for setting the eln-cache directory depends on the emacs version
+  (when (fboundp 'startup-redirect-eln-cache)
+    (if (version< emacs-version "29")
+        (add-to-list 'native-comp-eln-load-path (convert-standard-filename (expand-file-name "var/eln-cache/" user-emacs-directory)))
+      (startup-redirect-eln-cache (convert-standard-filename (expand-file-name "var/eln-cache/" user-emacs-directory)))))
+
+  (add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory)))
 
 ;;; early-init.el ends here
