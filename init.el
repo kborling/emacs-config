@@ -1022,11 +1022,6 @@
               ("<C-tab>" . emmet-expand-line))
   :hook ((css-mode web-mode html-mode vue-mode) . emmet-mode))
 
-;; NPM ============================================== ;;
-
-(use-package npm
-  :ensure t)
-
 ;; Web Mode ======================================== ;;
 
 (use-package web-mode
@@ -1530,7 +1525,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(meow gruber-darker-theme uwu-theme sly doom-themes npm consult-dir consult-eglot devdocs popper package-lint rustic ob-typescript flycheck-inline consult-flycheck exec-path-from-shell desktop-environment eldoc-box editorconfig tempel cape embark-consult embark ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux which-key diminish use-package)))
+   '(meow gruber-darker-theme uwu-theme sly doom-themes consult-dir consult-eglot devdocs popper package-lint rustic ob-typescript flycheck-inline consult-flycheck exec-path-from-shell desktop-environment eldoc-box editorconfig tempel cape embark-consult embark ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux which-key diminish use-package)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
