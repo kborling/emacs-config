@@ -158,8 +158,11 @@
 
   (define-key map (kbd "C-;") #'comment-line)
 
-  ;; (define-key map (kbd "C-t") #'other-window)
-  ;; (define-key map (kbd "C-c C-<tab>") #'next-window)
+  (define-key map (kbd "M-(") #'insert-pair)
+  (define-key map (kbd "M-\"") #'insert-pair)
+  (define-key map (kbd "M-{") #'insert-pair)
+  (define-key map (kbd "M-[") #'insert-pair)
+
   (define-key map (kbd "C-c C-p") #'previous-buffer)
   (define-key map (kbd "C-c C-n") #'next-buffer)
   ;; Misc
@@ -174,7 +177,7 @@
   (define-key map (kbd "C-c o e") #'eshell)
   (define-key map (kbd "C-c o t") #'vterm)
   (define-key map (kbd "C-c o d") #'dired)
-  (define-key map (kbd "C-c o f") #'treemacs)
+  (define-key map (kbd "C-c o s") #'speedbar)
 
   (define-key map (kbd "C-c f f") #'toggle-frame-fullscreen))
 
@@ -194,10 +197,6 @@
 ;; Custom themes
 (use-package doom-themes)
 (use-package gruber-darker-theme)
-
-;; (use-package github-dark-theme
-;;   :load-path "~/Projects/github-dark-theme"
-;;   )
 
 (use-package uwu-theme
   ;; :load-path "~/Projects/uwu-theme"
@@ -348,18 +347,6 @@
   (which-key-mode)
   (setq which-key-idle-delay 1))
 
-;; Expand Region ====================================== ;;
-
-(use-package expand-region
-  :bind ("C-\\" . er/expand-region))
-
-;; Wrap Region ======================================== ;;
-
-(use-package wrap-region
-  :diminish
-  :config
-  (wrap-region-mode t))
-
 ;; Crux ============================================== ;;
 
 (use-package crux
@@ -475,14 +462,6 @@
   ;; (global-tempel-abbrev-mode)
   )
 
-;; Snippets =================================================
-
-;; (use-package yasnippet-snippets
-;;   :ensure t
-;;   :after yasnippet)
-
-;; (yas-global-mode 1)
-
 ;; TAGS ============================================== ;;
 
 (setq path-to-ctags (locate-file "ctags" exec-path))
@@ -506,14 +485,6 @@
          ("C-c C-<" . mc/mark-all-like-this)
          ("C-S-c C-S-c" . mc/mark-edit-lines)
          ))
-
-;; Repeat ============================================ ;;
-
-(use-package repeat
-  :ensure t
-  :config
-  (setq repeat-on-final-keystroke t)
-  (setq set-mark-command-repeat-pop t))
 
 ;; So Long =========================================== ;;
 
@@ -698,7 +669,7 @@
 
 ;; FIDO/IComplete ===================================== ;;
 
-;; (fido-mode)
+(fido-mode)
 ;; (fido-vertical-mode 1)
 ;; (icomplete-mode 1)
 ;; (icomplete-vertical-mode 1)
@@ -706,42 +677,7 @@
 ;; (setq icomplete-in-buffer 1)
 ;; (define-key map (kbd "RET") 'icomplete-vertical-goto-last)
 
-;; (global-set-key (kbd "C-=") 'fido-vertical-mode)
-
-;; Vertico =========================================== ;;
-(use-package vertico
-  :init
-  (vertico-mode)
-  ;; (vertico-unobtrusive-mode)
-  (vertico-reverse-mode)
-  ;; different scroll margin
-  ;; (setq vertico-scroll-margin 0)
-  ;; Grow and shrink the Vertico minibuffer
-  ;; (setq vertico-resize t)
-  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
-  (setq vertico-cycle t)
-  ;; :bind
-  ;; ("C-s" . vertico-next)
-  ;; ("C-r" . vertico-previous)
-
-  (define-minor-mode kdb-vertico-reverse-mode
-    "Toggle between `vertico-reverse-mode' and 'vertico-flat-mode'."
-    :init-value nil
-    :global nil
-    :require 'vertico-mode
-    :diminish kdb-vertico-reverse-mode
-    (if kdb-vertico-reverse-mode
-        (progn
-          (vertico-reverse-mode)
-          (vertico-flat-mode -1)
-          )
-      (vertico-reverse-mode -1)
-      (vertico-flat-mode)
-      )
-    (message " "))
-
-  :bind ("C-=" . kdb-vertico-reverse-mode)
-  )
+(global-set-key (kbd "C-=") 'fido-vertical-mode)
 
 ;; Dired ============================================= ;;
 
@@ -895,11 +831,11 @@
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref)
 
-  ;; Use `consult-completion-in-region' if Vertico is enabled.
+  ;; Use `consult-completion-in-region' if fido is enabled.
   ;; Otherwise use the default `completion--in-region' function.
   (setq completion-in-region-function
         (lambda (&rest args)
-          (apply (if vertico-mode
+          (apply (if fido-mode
                      #'consult-completion-in-region
                    #'completion--in-region)
                  args)))
@@ -945,12 +881,10 @@
    ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
 
   :init
-
   ;; Optionally replace the key help with a completing-read interface
   (setq prefix-help-command #'embark-prefix-help-command)
 
   :config
-
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
@@ -1017,64 +951,6 @@
 
 (use-package consult-eglot
   :after (consult eglot))
-
-;; LSP Mode =========================================== ;;
-
-(use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :init
-  (setq lsp-keymap-prefix "C-c c")
-  :config
-  (lsp-enable-which-key-integration t)
-  ;; (yas-global-mode)
-  (setq lsp-log-io nil) ; if set to true can cause a performance hit
-  (setq lsp-headerline-breadcrumb-enable nil)
-  ;; (defun corfu-lsp-setup ()
-  ;;   (setq-local completion-styles '(orderless)
-  ;;               completion-category-defaults nil))
-  ;; (add-hook 'lsp-mode-hook #'corfu-lsp-setup)
-  ;; Fix for completions with corfu
-  (setq lsp-completion-provider :none)
-  (defun lsp-mode-use-orderless ()
-    "Set LSP mode to use orderless."
-    (setf (alist-get 'styles
-		                 (alist-get 'lsp-capf completion-category-defaults))
-	        '(orderless)))
-
-  ;; (setq lsp-eslint-server-command '("vscode-eslint-language-server" "--stdio"))
-  (setq lsp-eslint-auto-fix-on-save t)
-
-  ;; :custom
-  ;; Rust settings
-  ;; (lsp-rust-analyzer-cargo-watch-command "clippy")
-  ;; (lsp-eldoc-render-all t)
-  ;; (lsp-idle-delay 0.6)
-  ;; ;; enable / disable the hints as you prefer:
-  ;; (lsp-rust-analyzer-server-display-inlay-hints t)
-  ;; (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
-  ;; (lsp-rust-analyzer-display-chaining-hints t)
-  ;; (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
-  ;; (lsp-rust-analyzer-display-closure-return-type-hints t)
-  ;; (lsp-rust-analyzer-display-parameter-hints nil)
-  ;; (lsp-rust-analyzer-display-reborrow-hints nil)
-
-  :hook
-  (lsp-completion-mode . lsp-mode-use-orderless)
-  )
-
-(use-package lsp-ui
-  :hook (lsp-mode . lsp-ui-mode)
-  :custom
-  (lsp-ui-doc-position 'bottom)
-
-  (lsp-ui-peek-always-show t)
-  (lsp-ui-sideline-show-hover t)
-  (lsp-ui-doc-enable nil))
-
-(use-package consult-lsp
-  :after (consult lsp)
-  :custom
-  (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols))
 
 ;; Flymake ========================================= ;;
 (use-package flymake
@@ -1151,22 +1027,12 @@
 (use-package npm
   :ensure t)
 
-;; Lua Mode ======================================== ;;
-
-(use-package lua-mode
-  :mode ("\\.lua\\'"))
-
 ;; Web Mode ======================================== ;;
 
 (use-package web-mode
   :mode ("\\.html\\'" "\\.css\\'" "\\.tsx\\'" "\\.cshtml\\'" "\\.astro\\'")
   :config
   (push '(css-mode . css-ts-mode) major-mode-remap-alist))
-
-;; Svelte Mode ========================================== ;;
-
-(use-package svelte-mode
-  :mode ("\\.svelte\\'"))
 
 ;; Javascript Mode ================================= ;;
 
@@ -1230,14 +1096,6 @@
   :config
   (editorconfig-mode 1))
 
-;; Csharp ========================================== ;;
-
-;; (use-package csharp-mode
-;;   :ensure t
-;;   :mode ("\\.cs\\'" "\\.cshtml\\'")
-;;   :config
-;;   (add-to-list 'auto-mode-alist '("\\.cs\\'" . csharp-tree-sitter-mode)))
-
 ;; Rust ========================================== ;;
 
 (use-package rust-mode
@@ -1278,11 +1136,6 @@
     (setq-local buffer-save-without-query t))
   (add-hook 'before-save-hook 'lsp-format-buffer nil t))
 
-;; Go ============================================ ;;
-
-(use-package go-mode
-  :mode ("\\.go\\'"))
-
 ;; Elisp ========================================= ;;
 
 ;; (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
@@ -1305,26 +1158,6 @@
         (pop-to-buffer buf)))))
 
 (use-package package-lint)
-
-;; Scheme & GUIX ======================================== ;;
-
-;; (add-hook 'scheme-mode-hook 'guix-devel-mode)
-
-;; (use-package lsp-scheme
-;;   :config
-;;   (add-hook 'scheme-mode-hook #'lsp-scheme)
-
-;;   (setq lsp-scheme-implementation "guile"))
-
-;; (use-package flycheck-guile)
-
-;; (use-package geiser-guile)
-
-;; (use-package guix
-;;   :config
-;;   (add-hook 'scheme-mode-hook 'guix-devel-mode)
-;;   (add-hook 'scheme-mode-hook 'guix-prettify-mode)
-;;   )
 
 ;; YAML ========================================== ;;
 
@@ -1697,7 +1530,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(meow gruber-darker-theme color-theme-sanityinc-solarized color-theme-sanityinc-tomorrow github-theme uwu-theme sly doom-themes npm svelte-mode consult-dir consult-eglot vertico devdocs popper package-lint rustic go-mode ob-typescript flycheck-inline consult-flycheck consult-lsp lsp-ui lsp-mode lua-mode wrap-region exec-path-from-shell desktop-environment eldoc-box editorconfig tempel consult-dash dash-docs cape embark-consult embark ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux expand-region which-key diminish use-package)))
+   '(meow gruber-darker-theme uwu-theme sly doom-themes npm consult-dir consult-eglot devdocs popper package-lint rustic ob-typescript flycheck-inline consult-flycheck exec-path-from-shell desktop-environment eldoc-box editorconfig tempel cape embark-consult embark ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux which-key diminish use-package)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
