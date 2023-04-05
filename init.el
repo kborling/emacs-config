@@ -289,6 +289,28 @@
          ("C-c g Z" . magit-apply)
          ))
 
+(defun magit-status-refresh-buffer-quick ()
+  "Refresh the current `magit-status' buffer."
+  (magit-insert-section (status)
+    (magit-insert-heading "Quick status")
+    (insert "\n")
+    (magit-insert-error-header)
+    (magit-insert-head-branch-header)
+    (insert "\n")
+    (magit-insert-unstaged-changes)
+    (magit-insert-staged-changes)))
+
+(defun magit-quick-status ()
+  "Toggle quick magit status."
+  (interactive)
+  (if (advice-member-p 'magit-status-refresh-buffer-quick 'magit-status-refresh-buffer)
+      (progn
+        (advice-remove 'magit-status-refresh-buffer 'magit-status-refresh-buffer-quick)
+        (message "Quick magit status turned off"))
+    (advice-add 'magit-status-refresh-buffer :override 'magit-status-refresh-buffer-quick)
+    (message "Quick magit status turned on"))
+  (magit-refresh-all))
+
 ;; Marginalia ======================================== ;;
 
 (use-package marginalia
