@@ -134,7 +134,7 @@
 
 ;; (package-initialize)
 ;; (unless package-archive-contents
-  ;; (package-refresh-contents))
+;; (package-refresh-contents))
 
 ;; Initialize use-package on non-Linux platforms
 (unless (package-installed-p 'use-package)
@@ -270,7 +270,6 @@
    '("9" . meow-digit-argument)
    '("0" . meow-digit-argument)
    '(";" . comment-line)
-   '("j" . crux-top-join-line)
    '("b" . consult-project-buffer)
    '("D" . dired-jump)
    '("v" . split-window-right)
@@ -356,7 +355,7 @@
 (use-package meow
   :ensure t
   :config
-  (meow-global-mode 1)
+  ;; (meow-global-mode 1)
   (meow-setup))
 
 ;; Which Key ========================================= ;;
@@ -376,6 +375,7 @@
          ("M-<return>" . crux-smart-open-line-above)
          ("C-x w" . crux-rename-file-and-buffer)
          ("C-c d" . crux-duplicate-current-line-or-region)
+         ("C-c j" . crux-top-join-line)
          ("C-c M-d" . crux-duplicate-and-comment-current-line-or-region)
          ([(shift return)] . crux-smart-open-line)))
 
@@ -969,6 +969,7 @@
 (use-package eglot
   :ensure t
   :config
+  (setq eglot-sync-connect 0)
   ;; (add-to-list 'eglot-stay-out-of 'flymake)
   ;; Keybindings
   (define-key eglot-mode-map (kbd "C-c c r") 'eglot-rename)
@@ -997,7 +998,6 @@
 
   ;; Automatically start
   (add-hook 'typescript-mode-hook 'eglot-ensure)
-  (add-hook 'scheme-mode-hook 'eglot-ensure)
   ;; (add-hook 'web-mode-hook 'eglot-ensure)
   ;; (add-hook 'csharp-mode-hook 'eglot-ensure)
   ;; (add-hook 'rust-mode-hook 'eglot-ensure)
@@ -1112,10 +1112,9 @@
 
 (use-package typescript-mode
   :mode "\\.ts\\'"
-  ;; :hook (typescript-mode . lsp-deferred))
   :config
-  (push '(typescript-mode . typescript-ts-mode) major-mode-remap-alist)
-  (push '(typescript-mode . tsx-ts-mode) major-mode-remap-alist))
+  (push '(typescript-mode . typescript-ts-mode) major-mode-remap-alist))
+
 ;; (setq typescript-indent-level 4))
 
 (use-package tide
@@ -1230,7 +1229,8 @@
 (use-package copilot
   :load-path "~/.emacs.d/elisp/copilot.el"
   :config
-  (add-hook 'prog-mode-hook 'copilot-mode)
+  (global-set-key (kbd "C-c c p") 'copilot-mode)
+  ;; (add-hook 'prog-mode-hook 'copilot-mode)
   :bind (:map copilot-completion-map
               ("C-g" . 'copilot-clear-overlay)
               ("<right>" . 'copilot-accept-completion)
@@ -1298,58 +1298,73 @@
 
 ;; (add-hook 'org-mode-hook 'org-indent-mode)
 
+(use-package org-modern
+  :config
+  (global-org-modern-mode))
+
 (use-package org
   :pin org
   :commands (org-capture org-agenda)
   :hook (org-mode . kdb-org-mode-setup)
   :config
-  (setq org-ellipsis " ▾")
-  (setq org-src-fontify-natively t)
-  (setq org-src-tab-acts-natively t)
-  (setq org-hide-emphasis-markers t)
-  (setq org-confirm-babel-evaluate nil)
-  (setq org-export-with-smart-quotes t)
-  (setq org-src-window-setup 'current-window)
-  (setq org-directory "~/org/")
-  (setq org-todo-keywords
-        '((sequence "TODO" "IN PROGRESS" "|" "DONE" "DELEGATED" "BLOCKED" "FIXME")))
-  (setq org-structure-template-alist    ; CHANGED in Org 9.3, Emacs 27.1
-        '(("s" . "src")
-          ("E" . "src emacs-lisp")
-          ("e" . "example")
-          ("q" . "quote")
-          ("v" . "verse")
-          ("V" . "verbatim")
-          ("c" . "center")
-          ("C" . "comment")))
 
-  ;; code blocks
-  (setq org-confirm-babel-evaluate nil)
-  (setq org-src-window-setup 'current-window)
-  (setq org-edit-src-persistent-message nil)
-  (setq org-src-fontify-natively t)
-  (setq org-src-preserve-indentation t)
-  (setq org-src-tab-acts-natively t)
-  (setq org-edit-src-content-indentation 0)
+  (setq
+   org-ellipsis "…"
+   org-pretty-entities t
+   org-src-fontify-natively t
+   org-src-tab-acts-natively t
+   org-hide-emphasis-markers t
+   org-confirm-babel-evaluate nil
+   org-export-with-smart-quotes t
+   org-src-window-setup 'current-window
+   org-directory "~/org/"
+   org-todo-keyword
+   '((sequence "TODO" "IN PROGRESS" "|" "DONE" "DELEGATED" "BLOCKED" "FIXME"))
+   org-structure-template-alist
+   '(("s" . "src")
+     ("E" . "src emacs-lisp")
+     ("e" . "example")
+     ("q" . "quote")
+     ("v" . "verse")
+     ("V" . "verbatim")
+     ("c" . "center")
+     ("C" . "comment"))
+
+   ;; code blocks
+   org-confirm-babel-evaluate nil
+   org-src-window-setup 'current-window
+   org-edit-src-persistent-message nil
+   org-src-fontify-natively t
+   org-src-preserve-indentation t
+   org-src-tab-acts-natively t
+   org-edit-src-content-indentation 0
+   org-auto-align-tags nil
+   org-tags-column 0
+   org-catch-invisible-edits 'show-and-error
+   org-special-ctrl-a/e t
+   org-insert-heading-respect-content t
+   org-export-with-toc t
+   org-export-headline-levels 8
+   org-export-dispatch-use-expert-ui nil
+   org-html-htmlize-output-type nil
+   org-html-head-include-default-style nil
+   org-html-head-include-scripts nil
+   org-agenda-tags-column 0
+   org-agenda-block-separator ?─
+   org-agenda-time-grid
+   '((daily today require-timed)
+     (800 1000 1200 1400 1600 1800 2000)
+     " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+   org-agenda-current-time-string
+   "⭠ now ─────────────────────────────────────────────────")
 
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
      (shell . t)
-     (python . t)))
+     (python . t))))
 
-  ;; export
-  (setq org-export-with-toc t)
-  (setq org-export-headline-levels 8)
-  (setq org-export-dispatch-use-expert-ui nil)
-  (setq org-html-htmlize-output-type nil)
-  (setq org-html-head-include-default-style nil)
-  (setq org-html-head-include-scripts nil))
-;; (require 'ox-texinfo)
-;; (require 'ox-md)
-;; (setq org-export-backends '(html texinfo md)))
 ;; Org Files
-
 (defun kdb-todo-visit ()
   "Load ~/.org/todo.org for editing."
   (interactive)
@@ -1579,7 +1594,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(meow gruber-darker-theme uwu-theme sly doom-themes consult-dir consult-eglot devdocs popper package-lint rustic ob-typescript flycheck-inline consult-flycheck exec-path-from-shell desktop-environment eldoc-box editorconfig tempel cape embark-consult embark ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux which-key diminish use-package)))
+   '(org-modern meow gruber-darker-theme uwu-theme sly doom-themes consult-dir consult-eglot devdocs popper package-lint rustic ob-typescript flycheck-inline consult-flycheck exec-path-from-shell desktop-environment eldoc-box editorconfig tempel cape embark-consult embark ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux which-key diminish use-package)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
