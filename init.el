@@ -17,68 +17,68 @@
 ;; Backups ========================================== ;;
 
 ;; Auto-revert mode
-(setopt auto-revert-interval 0.5)
-(setopt auto-revert-verbose t)
+(setopt
+ auto-revert-interval 0.5
+ auto-revert-verbose t)
 
 (add-hook 'after-init-hook #'global-auto-revert-mode)
 
 ;; Backup stored in /tmp
-(setq backup-directory-alist
-      `((".*" . ,temporary-file-directory)))
-(setq auto-save-file-name-transforms
-      `((".*" , temporary-file-directory t)))
+(setq
+ backup-directory-alist
+ `((".*" . ,temporary-file-directory))
+ auto-save-file-name-transforms
+ `((".*" , temporary-file-directory t))
 
-(setq backup-by-copying t)
-(setq version-control t)
-(setq delete-old-versions t)
-(setq kept-new-versions 6)
-(setq kept-old-versions 2)
-(setq create-lockfiles nil)
+ backup-by-copying t
+ version-control t
+ delete-old-versions t
+ kept-new-versions 6
+ kept-old-versions 2
+ create-lockfiles nil)
 
 ;; User ============================================= ;;
 (setq user-full-name "Kevin Borling"
       user-mail-address "kborling@protonmail.com")
 
 ;; Defaults ========================================= ;;
-(setq frame-title-format '("%b"))
+(setq
+ frame-title-format '("%b")
+ use-short-answers t
+ ring-bell-function 'ignore
+ visible-bell nil
+ sentence-end-double-space nil
+ fill-column 100
+ apropos-do-all t
+ mouse-yank-at-point t
+ require-final-newline t
+ load-prefer-newer t
+ global-mark-ring-max 50000
+ bookmark-save-flag 1)
 
-(setq use-short-answers t)
-(setq ring-bell-function 'ignore)
-(setq visible-bell nil)
-
-(setq fill-column 100)
-
-(show-paren-mode 1)
-;; Treat Camelcase as words
-(global-subword-mode 1)
 ;; Remember cursor place
-(setq save-place-file (locate-user-emacs-file "saveplace"))
-(setq save-place-forget-unreadable-files t)
+(setq
+ save-place-file (locate-user-emacs-file "saveplace")
+ save-place-forget-unreadable-files t)
+
 (save-place-mode 1)
-;; Remember my bookmarks
-(setq bookmark-save-flag 1)
+
 ;; Enable indentation+completion using the TAB key.
 (setq tab-always-indent 'complete)
 
 (setq-default indent-tabs-mode nil
               tab-stop-list    ()
               tab-width        2)
-(setq sentence-end-double-space nil)
-(setq scroll-step 1) ; keyboard scroll one line at a time
-(setq scroll-preserve-screen-position t)
-(setq scroll-conservatively 101)
 
-(setq ; save-interprogram-paste-before-kill t
- apropos-do-all t
- mouse-yank-at-point t
- require-final-newline t
- load-prefer-newer t)
-
-;; Global mark ring
-(setq global-mark-ring-max 50000)
+(show-paren-mode 1)
+;; Treat Camelcase as words
+(global-subword-mode 1)
 
 ;; Delete marked region when input
 (add-hook 'after-init-hook #'delete-selection-mode)
+
+;; Smooth scrolling
+(add-hook 'after-init-hook #'pixel-scroll-precision-mode)
 
 (autoload 'zap-up-to-char "misc"
   "Kill up to, but not including ARGth occurrence of CHAR." t)
@@ -89,19 +89,21 @@
 ;; Electric Pairs ====================================== ;;
 
 ;; make electric-pair-mode work on more brackets
-(setq electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
-(setq electric-pair-preserve-balance t)
-(setq electric-pair-pairs
-      '((8216 . 8217)
-        (8220 . 8221)
-        (171 . 187)))
-(setq electric-pair-skip-self 'electric-pair-default-skip-self)
-(setq electric-pair-skip-whitespace nil)
-(setq electric-pair-skip-whitespace-chars '(9 10 32))
-(setq electric-quote-context-sensitive t)
-(setq electric-quote-paragraph t)
-(setq electric-quote-string nil)
-(setq electric-quote-replace-double t)
+(setq
+ electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit
+ electric-pair-preserve-balance t
+ electric-pair-pair
+ '((8216 . 8217)
+   (8220 . 8221)
+   (171 . 187))
+ electric-pair-skip-self 'electric-pair-default-skip-self
+ electric-pair-skip-whitespace nil
+ electric-pair-skip-whitespace-chars '(9 10 32)
+ electric-quote-context-sensitive t
+ electric-quote-paragraph t
+ electric-quote-string nil
+ electric-quote-replace-double t)
+
 (electric-pair-mode -1)
 (electric-quote-mode -1)
 (electric-indent-mode -1)
@@ -132,9 +134,9 @@
 ;; (setq package-pinned-packages
 ;; '((corfu . "elpa-devel")))
 
-;; (package-initialize)
-;; (unless package-archive-contents
-;; (package-refresh-contents))
+(package-initialize)
+(unless package-archive-contents
+  (package-refresh-contents))
 
 ;; Initialize use-package on non-Linux platforms
 (unless (package-installed-p 'use-package)
@@ -208,7 +210,7 @@
 
 ;; Make frame transparency overridable
 (let ((frame-transparency '(96 . 96)))
-  ;; ;; Set frame transparency
+  ;; Set frame transparency
   (set-frame-parameter (selected-frame) 'alpha frame-transparency)
   (add-to-list 'default-frame-alist `(alpha . ,frame-transparency)))
 ;; (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
@@ -218,9 +220,11 @@
 
 (require 'recentf)
 ;; ;; enable recent files mode.
-(setq recentf-save-file (locate-user-emacs-file "recentf"))
-(setq recentf-max-saved-items 50)
-(setq recentf-exclude '(".gz" ".xz" ".zip" "/elpa/" "/ssh:" "/sudo:"))
+(setq
+ recentf-save-file (locate-user-emacs-file "recentf")
+ recentf-max-saved-items 50
+ recentf-exclude '(".gz" ".xz" ".zip" "/elpa/" "/ssh:" "/sudo:"))
+
 (add-hook 'after-init-hook #'recentf-mode)
 
 ;; Exec Path ========================================= ;;
@@ -237,126 +241,6 @@
   :config
   (diminish 'subword-mode)
   (diminish 'eldoc-mode))
-
-;; Meow ============================================== ;;
-
-(defmacro meow--call-negative (form)
-  "Call FORM with negative prefix argument."
-  `(let ((current-prefix-arg -1))
-     (call-interactively ,form)))
-
-(defun meow-negative-find ()
-  "Call negative version of `meow-find'."
-  (interactive)
-  (meow--call-negative 'meow-find))
-
-(defun meow-negative-till ()
-  "Call negative version of `meow-till'."
-  (interactive)
-  (meow--call-negative 'meow-till))
-
-(defun meow-setup ()
-  "Setup Meow."
-  (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvorak)
-  (meow-leader-define-key
-   '("1" . meow-digit-argument)
-   '("2" . meow-digit-argument)
-   '("3" . meow-digit-argument)
-   '("4" . meow-digit-argument)
-   '("5" . meow-digit-argument)
-   '("6" . meow-digit-argument)
-   '("7" . meow-digit-argument)
-   '("8" . meow-digit-argument)
-   '("9" . meow-digit-argument)
-   '("0" . meow-digit-argument)
-   '(";" . comment-line)
-   '("b" . consult-project-buffer)
-   '("D" . dired-jump)
-   '("v" . split-window-right)
-   '("s" . split-window-below)
-   '("t" . consult-line-multi)
-   '("T" . consult-imenu-multi)
-   '("SPC" . other-window)
-   '("w" . delete-other-windows)
-   '("W" . delete-window)
-   '("u" . kill-current-buffer)
-   `("p" . ,project-prefix-map)
-   '("r" . consult-ripgrep)
-   '("/" . consult-imenu)
-   '("?" . consult-imenu-multi))
-  (meow-motion-overwrite-define-key
-   ;; custom keybinding for motion state
-   '("<escape>" . ignore))
-  (meow-normal-define-key
-   '("0" . meow-expand-0)
-   '("9" . meow-expand-9)
-   '("8" . meow-expand-8)
-   '("7" . meow-expand-7)
-   '("6" . meow-expand-6)
-   '("5" . meow-expand-5)
-   '("4" . meow-expand-4)
-   '("3" . meow-expand-3)
-   '("2" . meow-expand-2)
-   '("1" . meow-expand-1)
-   '("-" . negative-argument)
-   '(";" . meow-reverse)
-   '("," . meow-inner-of-thing)
-   '("." . meow-bounds-of-thing)
-   '("<" . meow-beginning-of-thing)
-   '(">" . meow-end-of-thing)
-   '("a" . meow-append)
-   '("A" . meow-open-below)
-   '("b" . meow-back-word)
-   '("B" . meow-back-symbol)
-   '("c" . meow-change)
-   '("d" . meow-delete)
-   '("D" . meow-backward-delete)
-   '("e" . meow-line)
-   '("E" . meow-goto-line)
-   '("f" . meow-find)
-   '("F" . meow-negative-find)
-   '("g" . meow-cancel-selection)
-   '("G" . meow-grab)
-   '("h" . meow-left)
-   '("H" . meow-left-expand)
-   '("i" . meow-insert)
-   '("I" . meow-open-above)
-   '("j" . meow-join)
-   '("k" . meow-kill)
-   '("l" . meow-till)
-   '("L" . meow-negative-till)
-   '("m" . meow-mark-word)
-   '("M" . meow-mark-symbol)
-   '("n" . meow-next)
-   '("N" . meow-next-expand)
-   '("o" . meow-block)
-   '("O" . meow-to-block)
-   '("p" . meow-prev)
-   '("P" . meow-prev-expand)
-   '("q" . meow-quit)
-   '("Q" . meow-goto-line)
-   '("r" . meow-replace)
-   '("R" . meow-swap-grab)
-   '("s" . meow-search)
-   '("t" . meow-right)
-   '("T" . meow-right-expand)
-   '("u" . meow-undo)
-   '("U" . meow-undo-in-selection)
-   '("v" . meow-visit)
-   '("w" . meow-next-word)
-   '("W" . meow-next-symbol)
-   '("x" . meow-save)
-   '("X" . meow-sync-grab)
-   '("y" . meow-yank)
-   '("z" . meow-pop-selection)
-   '("'" . repeat)
-   '("<escape>" . ignore)))
-
-(use-package meow
-  :ensure t
-  :config
-  ;; (meow-global-mode 1)
-  (meow-setup))
 
 ;; Which Key ========================================= ;;
 
@@ -517,15 +401,16 @@
 ;; Dabbrev =========================================== ;;
 
 (require 'dabbrev)
-(setq dabbrev-abbrev-char-regexp "\\sw\\|\\s_")
-(setq dabbrev-abbrev-skip-leading-regexp "[$*/=~']")
-(setq dabbrev-backward-only nil)
-(setq dabbrev-case-distinction 'case-replace)
-(setq dabbrev-case-fold-search nil)
-(setq dabbrev-case-replace 'case-replace)
-(setq dabbrev-check-other-buffers t)
-(setq dabbrev-eliminate-newlines t)
-(setq dabbrev-upcase-means-case-search t)
+(setq
+ dabbrev-abbrev-char-regexp "\\sw\\|\\s_"
+ dabbrev-abbrev-skip-leading-regexp "[$*/=~']"
+ dabbrev-backward-only nil
+ dabbrev-case-distinction 'case-replace
+ dabbrev-case-fold-search nil
+ dabbrev-case-replace 'case-replace
+ dabbrev-check-other-buffers t
+ dabbrev-eliminate-newlines t
+ dabbrev-upcase-means-case-search t)
 (let ((map global-map))
   (define-key map (kbd "M-/") #'dabbrev-expand)
   (define-key map (kbd "C-M-/") #'dabbrev-completion))
@@ -546,96 +431,50 @@
 ;; Completion Styles ================================= ;;
 
 ;; Set completion styles
-(setq completion-styles
-      '(substring basic orderless))
-;; '(basic substring initials flex partial-completion orderless))
-(setq completion-category-defaults nil)
-(setq completion-category-overrides
-      '((file (styles . (basic substring partial-completion orderless)))
-        (project-file (styles . (basic substring partial-completion orderless)))
-        (imenu (styles . (basic substring orderless)))
-        (kill-ring (styles . (basic substring orderless)))
-        (consult-location (styles . (basic substring orderless)))))
-(setq completion-cycle-threshold 2)
-(setq completion-flex-nospace nil)
-(setq completion-pcm-complete-word-inserts-delimiters nil)
-(setq completion-pcm-word-delimiters "-_./:| ")
-(setq completion-ignore-case t)
-(setq completions-detailed t)
-(setq-default case-fold-search t)   ; For general regexp
-
-;; Grouping of completions for Emacs 28
-(setq completions-group t)
-(setq completions-group-sort nil)
-(setq completions-group-format
-      (concat
-       (propertize "    " 'face 'completions-group-separator)
-       (propertize " %s " 'face 'completions-group-title)
-       (propertize " " 'face 'completions-group-separator
-                   'display '(space :align-to right))))
-
-(setq read-buffer-completion-ignore-case t)
-(setq read-file-name-completion-ignore-case t)
-
-(setq completion-show-inline-help nil)
-
-(setq completions-detailed t)
-
-;; Ibuffer ============================================== ;;
-
-(setq ibuffer-expert t)
-(setq ibuffer-display-summary nil)
-(setq ibuffer-use-other-window nil)
-(setq ibuffer-show-empty-filter-groups nil)
-(setq ibuffer-movement-cycle nil)
-(setq ibuffer-default-sorting-mode 'filename/process)
-(setq ibuffer-use-header-line t)
-(setq ibuffer-default-shrink-to-minimum-size nil)
-(setq ibuffer-formats
-      '((mark modified read-only locked " "
-              (name 40 40 :left :elide)
-              " "
-              (size 9 -1 :right)
-              " "
-              (mode 16 16 :left :elide)
-              " " filename-and-process)
-        (mark " "
-              (name 16 -1)
-              " " filename)))
-(setq ibuffer-saved-filter-groups nil)
-(setq ibuffer-old-time 48)
-(add-hook 'ibuffer-mode-hook #'hl-line-mode)
+(setq
+ completion-styles
+ '(substring basic orderless)
+ ;; '(basic substring initials flex partial-completion orderless))
+ completion-category-defaults nil
+ completion-category-overrides
+ '((file (styles . (basic substring partial-completion orderless)))
+   (project-file (styles . (basic substring partial-completion orderless)))
+   (imenu (styles . (basic substring orderless)))
+   (kill-ring (styles . (basic substring orderless)))
+   (consult-location (styles . (basic substring orderless)))))
 
 ;; Minibuffer =========================================== ;;
-(setq completion-cycle-threshold 2)
-(setq completion-flex-nospace nil) ; though I don't use the built-in `flex' style...
-(setq completion-pcm-complete-word-inserts-delimiters nil)
-(setq completion-pcm-word-delimiters "-_./:| ")
-(setq completion-ignore-case t)
-(setq completions-detailed t)
-(setq-default case-fold-search t)   ; For general regexp
+(setq
+ completion-cycle-threshold 2
+ completion-flex-nospace nil ; though I don't use the built-in `flex' style..
+ completion-pcm-complete-word-inserts-delimiters nil
+ completion-pcm-word-delimiters "-_./:| "
+ completion-ignore-case t
+ completions-detailed t
+ completion-show-inline-help nil)
 
 ;; Grouping of completions for Emacs 28
-(setq completions-group t)
-(setq completions-group-sort nil)
-(setq completions-group-format
-      (concat
-       (propertize "    " 'face 'completions-group-separator)
-       (propertize " %s " 'face 'completions-group-title)
-       (propertize " " 'face 'completions-group-separator
-                   'display '(space :align-to right))))
+(setq
+ completions-group t
+ completions-group-sort nil
+ completions-group-format
+ (concat
+  (propertize "    " 'face 'completions-group-separator)
+  (propertize " %s " 'face 'completions-group-title)
+  (propertize " " 'face 'completions-group-separator
+              'display '(space :align-to right)))
 
-(setq read-buffer-completion-ignore-case t)
-(setq read-file-name-completion-ignore-case t)
-;; (setq enable-recursive-minibuffers t)
-(setq read-answer-short t) ; also check `use-short-answers' for Emacs28
-(setq resize-mini-windows t)
-(setq minibuffer-eldef-shorten-default t)
+ read-buffer-completion-ignore-case t
+ read-file-name-completion-ignore-case t
+ ;; (setq enable-recursive-minibuffers t)
+ read-answer-short t
+ resize-mini-windows t
+ minibuffer-eldef-shorten-default t
+ echo-keystrokes 0.25
+ minibuffer-prompt-properties
+ '(read-only t cursor-intangible t face minibuffer-prompt))
 
-(setq echo-keystrokes 0.25)           ; from the C source code
-
-(setq minibuffer-prompt-properties
-      '(read-only t cursor-intangible t face minibuffer-prompt))
+(setq-default case-fold-search t)   ; For general regexp
 
 (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
@@ -644,11 +483,12 @@
 (minibuffer-electric-default-mode 1)
 
 ;; Modeline ============================================= ;;
-
-(setq mode-line-percent-position '(-3 "%p"))
-(setq mode-line-position-column-line-format '(" %l,%c")) ; Emacs 28
-(setq mode-line-defining-kbd-macro
-      (propertize " Macro" 'face 'mode-line-emphasis))
+(setq
+ mode-line-compact nil
+ mode-line-percent-position '(-3 "%p")
+ mode-line-position-column-line-format '(" %l,%c")
+ mode-line-defining-kbd-macr
+ (propertize " Macro" 'face 'mode-line-emphasis))
 
 (setq-default mode-line-modes
               (seq-filter (lambda (s)
@@ -657,7 +497,7 @@
                                        "^\\(%\\[\\|%\\]\\)$" s))))
                           mode-line-modes))
 
-(setq mode-line-compact nil)            ; Emacs 28
+
 (setq-default mode-line-format
               '("%e"
                 mode-line-front-space
@@ -676,6 +516,33 @@
                 mode-line-misc-info
                 mode-line-end-spaces))
 
+;; Ibuffer ============================================== ;;
+
+(setq
+ ibuffer-expert t
+ ibuffer-display-summary nil
+ ibuffer-use-other-window nil
+ ibuffer-show-empty-filter-groups nil
+ ibuffer-movement-cycle nil
+ ibuffer-default-sorting-mode 'filename/process
+ ibuffer-use-header-line t
+ ibuffer-default-shrink-to-minimum-size nil
+ ibuffer-format
+ '((mark modified read-only locked " "
+         (name 40 40 :left :elide)
+         " "
+         (size 9 -1 :right)
+         " "
+         (mode 16 16 :left :elide)
+         " " filename-and-process)
+   (mark " "
+         (name 16 -1)
+         " " filename))
+ ibuffer-saved-filter-groups nil
+ ibuffer-old-time 48)
+
+(add-hook 'ibuffer-mode-hook #'hl-line-mode)
+
 ;; Winner =============================================== ;;
 
 (add-hook 'after-init-hook #'winner-mode)
@@ -685,6 +552,7 @@
   (define-key map (kbd "C-c >") #'winner-undo))
 
 ;; Vterm ================================================ ;;
+
 (use-package vterm
   :ensure t)
 
@@ -697,20 +565,13 @@
 (setq icomplete-compute-delay 0)
 ;; (setq icomplete-in-buffer 1)
 ;; (define-key map (kbd "RET") 'icomplete-vertical-goto-last)
-
 ;; (global-set-key (kbd "C-=") 'fido-vertical-mode)
 
 ;; Vertico ============================================= ;;
 (use-package vertico
   :init
   (vertico-mode)
-  ;; (vertico-unobtrusive-mode)
   (vertico-reverse-mode)
-  ;; different scroll margin
-  ;; (setq vertico-scroll-margin 0)
-  ;; Grow and shrink the Vertico minibuffer
-  ;; (setq vertico-resize t)
-  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
   (setq vertico-cycle t)
   ;; :bind
   ;; ("C-s" . vertico-next)
@@ -736,63 +597,58 @@
 
 ;; Dired ============================================= ;;
 
-(setq dired-recursive-copies 'always)
-(setq dired-recursive-deletes 'always)
-(setq delete-by-moving-to-trash t)
-;; (setq dired-listing-switches
-;; "-AGFhlv --group-directories-first --time-style=long-iso")
-(setq dired-dwim-target t)
-(setq dired-auto-revert-buffer #'dired-directory-changed-p) ; also see `dired-do-revert-buffer'
-(setq dired-make-directory-clickable t) ; Emacs 29.1
-(setq dired-free-space nil) ; Emacs 29.1
+(setq
+ dired-recursive-copies 'always
+ dired-recursive-deletes 'always
+ delete-by-moving-to-trash t
+ dired-dwim-target t
+ dired-auto-revert-buffer #'dired-directory-changed-p
+ dired-make-directory-clickable t
+ dired-free-space nil
+ dired-isearch-filenames 'dwim
+ dired-create-destination-dirs 'ask
+ dired-vc-rename-file t
+ dired-do-revert-buffer (lambda (dir) (not (file-remote-p dir)))
+
+ dired-clean-up-buffers-too t
+ dired-clean-confirm-killing-deleted-buffers t
+ dired-x-hands-off-my-keys t
+ dired-bind-man nil
+ dired-bind-info nil
+ ;; wdired-allow-to-change-permissions t
+ ;; wdired-create-parent-directories t
+ image-dired-thumb-size 80
+ image-dired-thumb-margin 2
+ image-dired-thumb-relief 0
+ image-dired-thumbs-per-row 4)
 
 (add-hook 'dired-mode-hook #'dired-hide-details-mode)
 (add-hook 'dired-mode-hook #'hl-line-mode)
-(setq dired-isearch-filenames 'dwim)
-;; The following variables were introduced in Emacs 27.1
-(setq dired-create-destination-dirs 'ask)
-(setq dired-vc-rename-file t)
-;; And this is for Emacs 28
-(setq dired-do-revert-buffer (lambda (dir) (not (file-remote-p dir))))
-
-(setq dired-clean-up-buffers-too t)
-(setq dired-clean-confirm-killing-deleted-buffers t)
-(setq dired-x-hands-off-my-keys t)    ; easier to show the keys I use
-(setq dired-bind-man nil)
-(setq dired-bind-info nil)
-
-;; (setq wdired-allow-to-change-permissions t)
-;; (setq wdired-create-parent-directories t)
-
-(setq image-dired-thumb-size 80)
-(setq image-dired-thumb-margin 2)
-(setq image-dired-thumb-relief 0)
-(setq image-dired-thumbs-per-row 4)
 
 ;; Xref ============================================== ;;
 
-(setq xref-show-definitions-function #'xref-show-definitions-completing-read) ; for M-.
-(setq xref-show-xrefs-function #'xref-show-definitions-buffer) ; for grep and the like
-(setq xref-file-name-display 'project-relative)
-(setq xref-search-program 'ripgrep)
+(setq
+ xref-show-definitions-function #'xref-show-definitions-completing-read
+ xref-show-xrefs-function #'xref-show-definitions-buffer
+ xref-file-name-display 'project-relative
+ xref-search-program 'ripgrep)
 
 ;; ISearch =========================================== ;;
-(setq search-highlight t)
-(setq search-whitespace-regexp ".*?")
-(setq isearch-lax-whitespace t)
-(setq isearch-regexp-lax-whitespace nil)
-(setq isearch-lazy-highlight t)
-;; All of the following variables were introduced in Emacs 27.1.
-(setq isearch-lazy-count t)
-(setq lazy-count-prefix-format nil)
-(setq lazy-count-suffix-format " (%s/%s)")
-(setq isearch-yank-on-move 'shift)
-(setq isearch-allow-scroll 'unlimited)
-;; These variables are from Emacs 28
-(setq isearch-repeat-on-direction-change t)
-(setq lazy-highlight-initial-delay 0.5)
-(setq lazy-highlight-no-delay-length 3)
-(setq isearch-wrap-pause t)
+(setq
+ search-highlight t
+ search-whitespace-regexp ".*?"
+ isearch-lax-whitespace t
+ isearch-regexp-lax-whitespace nil
+ isearch-lazy-highlight t
+ isearch-lazy-count t
+ lazy-count-prefix-format nil
+ lazy-count-suffix-format " (%s/%s)"
+ isearch-yank-on-move 'shift
+ isearch-allow-scroll 'unlimited
+ isearch-repeat-on-direction-change t
+ lazy-highlight-initial-delay 0.5
+ lazy-highlight-no-delay-length 3
+ isearch-wrap-pause t)
 
 (define-key minibuffer-local-isearch-map (kbd "M-/") #'isearch-complete-edit)
 (let ((map isearch-mode-map))
@@ -802,10 +658,12 @@
 ;; SaveHist ========================================== ;;
 
 (require 'savehist)
-(setq savehist-file (locate-user-emacs-file "savehist"))
-(setq history-length 10000)
-(setq history-delete-duplicates t)
-(setq savehist-save-minibuffer-history t)
+(setq
+ savehist-file (locate-user-emacs-file "savehist")
+ history-length 10000
+ history-delete-duplicates t
+ savehist-save-minibuffer-history t)
+
 (add-hook 'after-init-hook #'savehist-mode)
 
 ;; Consult ============================================ ;;
@@ -902,15 +760,10 @@
    consult-bookmark consult-recent-file consult-xref
    consult--source-bookmark consult--source-file-register
    consult--source-recent-file consult--source-project-recent-file
-   ;; :preview-key (kbd "M-.")
    :preview-key '(:debounce 0.4 any)
    consult-line :prompt "Search: "
    :preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
-  ;; Optionally configure the narrowing key.
-  ;; Both < and C-+ work reasonably well.
   (setq consult-narrow-key "<") ;; (kbd "C-+")
-
-  ;;;; 1. project.el (project-roots)
   (setq consult-project-root-function
         (lambda ()
           (when-let (project (project-current))
@@ -928,16 +781,13 @@
 
 (use-package embark
   :ensure t
-
   :bind
-  (("C-." . embark-act)         ;; pick some comfortable binding
-   ("M-." . embark-dwim)        ;; good alternative: M-.
-   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
-
+  (("C-." . embark-act)
+   ("M-." . embark-dwim)
+   ("C-h B" . embark-bindings))
   :init
   ;; Optionally replace the key help with a completing-read interface
   (setq prefix-help-command #'embark-prefix-help-command)
-
   :config
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
@@ -1009,26 +859,27 @@
 ;; Flymake ========================================= ;;
 (use-package flymake
   :config
-  (setq flymake-fringe-indicator-position 'left-fringe)
-  (setq flymake-suppress-zero-counters t)
-  (setq flymake-start-on-flymake-mode t)
-  ;; (setq flymake-no-changes-timeout 0.5)
-  ;; (setq flymake-start-on-save-buffer t)
-  ;; (setq flymake-no-changes-timeout 0.1)
-  (setq flymake-proc-compilation-prevents-syntax-check t)
-  (setq flymake-wrap-around nil)
-  (setq flymake-mode-line-format
-        '("" flymake-mode-line-exception flymake-mode-line-counters))
-  (setq flymake-mode-line-counter-format
-        '(" " flymake-mode-line-error-counter
-          flymake-mode-line-warning-counter
-          flymake-mode-line-note-counter ""))
+  (setq
+   flymake-fringe-indicator-position 'left-fringe
+   flymake-suppress-zero-counters t
+   flymake-start-on-flymake-mode t
+   ;; flymake-no-changes-timeout 0.5
+   ;; flymake-start-on-save-buffer t
+   ;; flymake-no-changes-timeout 0.1
+   flymake-proc-compilation-prevents-syntax-check t
+   flymake-wrap-around nil
+   flymake-mode-line-format
+   '("" flymake-mode-line-exception flymake-mode-line-counters)
+   flymake-mode-line-counter-format
+   '(" " flymake-mode-line-error-counter
+     flymake-mode-line-warning-counter
+     flymake-mode-line-note-counter ""))
 
-  (define-key ctl-x-x-map "m" #'flymake-mode) ; C-x x m
+  (define-key ctl-x-x-map "m" #'flymake-mode)
   (let ((map flymake-mode-map))
     (define-key map (kbd "C-c f s") #'flymake-start)
-    (define-key map (kbd "C-c f d") #'flymake-show-buffer-diagnostics) ; Emacs28
-    (define-key map (kbd "C-c f D") #'flymake-show-project-diagnostics) ; Emacs28
+    (define-key map (kbd "C-c f d") #'flymake-show-buffer-diagnostics)
+    (define-key map (kbd "C-c f D") #'flymake-show-project-diagnostics)
     (define-key map (kbd "C-c f n") #'flymake-goto-next-error)
     (define-key map (kbd "C-c f p") #'flymake-goto-prev-error))
   :init
@@ -1277,12 +1128,13 @@
 
 ;; Ediff ======================================== ;;
 
-(setq ediff-keep-variants nil)
-(setq ediff-make-buffers-readonly-at-startup nil)
-(setq ediff-merge-revisions-with-ancestor t)
-(setq ediff-show-clashes-only t)
-(setq ediff-split-window-function 'split-window-horizontally)
-(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+(setq
+ ediff-keep-variants nil
+ ediff-make-buffers-readonly-at-startup nil
+ ediff-merge-revisions-with-ancestor t
+ ediff-show-clashes-only t
+ ediff-split-window-function 'split-window-horizontally
+ ediff-window-setup-function 'ediff-setup-windows-plain)
 
 ;; Org Mode ===================================== ;;
 
@@ -1501,9 +1353,10 @@
   ;; Enable recursive minibuffers
   (setq enable-recursive-minibuffers t)
   :config
-  (setq window-divider-default-right-width 1)
-  (setq window-divider-default-bottom-width 1)
-  (setq window-divider-default-places t)
+  (setq
+   window-divider-default-right-width 1
+   window-divider-default-bottom-width 1
+   window-divider-default-places t)
   (window-divider-mode -1))
 
 
@@ -1543,9 +1396,10 @@
   :ensure
   :diminish
   :config
-  (setq olivetti-body-width 0.65)
-  (setq olivetti-minimum-body-width 120)
-  (setq olivetti-recall-visual-line-mode-entry-state t)
+  (setq
+   olivetti-body-width 0.65
+   olivetti-minimum-body-width 120
+   olivetti-recall-visual-line-mode-entry-state t)
 
   (define-minor-mode kdb-olivetti-mode
     "Toggle buffer-local `olivetti-mode' with additional parameters."
@@ -1566,9 +1420,6 @@
 
 ;; Macos ========================================== ;;
 
-;; (defun kdb-setup-macos ()
-;; "Enable some macos options and swap meta/alt keys."
-;; (interactive)
 (when (equal system-type 'darwin)
   (setq mac-command-modifier 'meta)
   (setq mac-option-modifier 'none)
@@ -1582,9 +1433,7 @@
   (global-set-key (kbd "M-`") 'ns-next-frame)
   (global-set-key (kbd "M-h") 'ns-do-hide-emacs)
   (global-set-key (kbd "M-˙") 'ns-do-hide-others)
-  (global-set-key (kbd "M-ˍ") 'ns-do-hide-others) ;; what describe-key reports for cmd-option-h
-  )
-;; )
+  (global-set-key (kbd "M-ˍ") 'ns-do-hide-others))
 
 ;; Custom ========================================= ;;
 
@@ -1594,7 +1443,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(org-modern meow gruber-darker-theme uwu-theme sly doom-themes consult-dir consult-eglot devdocs popper package-lint rustic ob-typescript flycheck-inline consult-flycheck exec-path-from-shell desktop-environment eldoc-box editorconfig tempel cape embark-consult embark ef-themes vterm json-mode yaml-mode orderless marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux which-key diminish use-package)))
+   '(org-modern gruber-darker-theme uwu-theme sly doom-themes consult-dir consult-eglot devdocs popper package-lint rustic ob-typescript flycheck-inline consult-flycheck exec-path-from-shell desktop-environment eldoc-box editorconfig tempel cape embark-consult embark ef-themes vterm json-mode yaml-mode orderless vertico corfu marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux which-key diminish use-package)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
