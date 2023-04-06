@@ -134,7 +134,8 @@
 ;; (setq package-pinned-packages
 ;; '((corfu . "elpa-devel")))
 
-(package-initialize)
+(unless package--initialized
+  (package-initialize))
 (unless package-archive-contents
   (package-refresh-contents))
 
@@ -287,6 +288,7 @@
          ;; ("C-c g r" . magit-remote)
          ("C-c g z" . magit-stash)
          ("C-c g Z" . magit-apply)
+         ("C-c g t" . #'magit-quick-status)
          ))
 
 (defun magit-status-refresh-buffer-quick ()
@@ -1273,7 +1275,7 @@
 (global-set-key (kbd "C-c e v") 'config-visit)
 
 (defun config-reload ()
-  "Reload ~/.emacs.custom/init.el at runtime."
+  "Reload ~/.emacs.d/init.el at runtime."
   (interactive)
   (load-file (expand-file-name (locate-user-emacs-file "init.el"))))
 (global-set-key (kbd "C-c e r") 'config-reload)
