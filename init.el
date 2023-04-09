@@ -707,14 +707,14 @@
          ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
          ("C-x C-r" . consult-recent-file)
          ;; Custom M-# bindings for fast register access
-         ("M-#" . consult-register-load)
+         ("M-R" . consult-register-load)
          ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
-         ("C-M-#" . consult-register)
+         ("C-M-r" . consult-register)
          ;; Other custom bindings
          ("M-y" . consult-yank-pop)                ;; orig. yank-pop
          ;; M-g bindings (goto-map)
          ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flycheck)               ;; Alternative: consult-flycheck
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
          ("M-g g" . consult-goto-line)             ;; orig. goto-line
          ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
          ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
@@ -915,32 +915,18 @@
                     (cons 'flymake-eldoc-function
                           (delq 'flymake-eldoc-function eldoc-documentation-functions))))))
 
-;; Flycheck ========================================= ;;
-
-(use-package consult-flycheck
-  :after (consult flycheck))
-
-(use-package flycheck
-  :after org
-  :hook
-  (org-src-mode . disable-flycheck-for-elisp)
-  :custom
-  (flycheck-emacs-lisp-initialize-packages t)
-  (flycheck-display-errors-delay 0.1)
+(use-package flymake-eslint
   :config
-  (global-flycheck-mode)
-  (flycheck-set-indication-mode 'left-margin)
+  (add-hook 'typescript-mode-hook
+            (lambda ()
+              (flymake-eslint-enable))))
 
-  (setq flycheck-javascript-eslint-executable "eslint_d")
-
-  (defun disable-flycheck-for-elisp ()
-    (setq-local flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
-
-  (add-to-list 'flycheck-checkers 'proselint)
-  (setq-default flycheck-disgabled-checkers '(haskell-stack-ghc)))
-
-(use-package flycheck-inline
-  :config (global-flycheck-inline-mode))
+(use-package flymake-stylelint
+  :load-path "~/.emacs.d/elisp/flymake-stylelint"
+  :config
+  (add-hook 'scss-mode-hook
+            (lambda ()
+              (flymake-stylelint-enable))))
 
 ;; Emmet Mode ====================================== ;;
 
@@ -983,12 +969,18 @@
   :config
   (js2r-add-keybindings-with-prefix "C-c C-r"))
 
+(use-package add-node-modules-path
+  :config
+
+  (dolist (mode '(typescript-mode js-mode js2-mode))
+    (add-hook mode 'add-node-modules-path)))
+
 ;; Typescript Mode ================================= ;;
 
 (use-package typescript-mode
-  :mode "\\.ts\\'"
-  :config
-  (push '(typescript-mode . typescript-ts-mode) major-mode-remap-alist))
+  :mode "\\.ts\\'")
+;; :config
+;; (push '(typescript-mode . typescript-ts-mode) major-mode-remap-alist))
 
 ;; (setq typescript-indent-level 4))
 
@@ -1036,7 +1028,7 @@
   :bind (:map rustic-mode-map
               ("M-j" . lsp-ui-imenu)
               ("M-?" . lsp-find-references)
-              ("C-c C-c l" . flycheck-list-errors)
+              ("C-c C-c l" . flycheck-list-errors) ;; todo use flymake
               ("C-c C-c a" . lsp-execute-code-action)
               ("C-c C-c r" . lsp-rename)
               ("C-c C-c q" . lsp-workspace-restart)
@@ -1461,13 +1453,17 @@
 
 ;; Custom ========================================= ;;
 
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("6adb2ba6000114d56766db7eb5041cdf83a1541888aed89cd9a1c01cb7f51768" "387e7759c1b93c9a9332948ee228cdcce8287838523b6f129731f601da5ff7a0" "344206ea6947ef52ca381f7927fc137103995fd20e829658cdbe060a26bde8c0" "2449bc6e12bf2f4eafa6ecd486f136afa6ba0e43281863c6e2d97b4847e5f787" "8804bbfac13f67a6a72b8c863badac8a17c9fb8143a892080d5ff471ff8dce26" "1b82936d2f53f26fb159e05a007ee0ddf46de78bc9dbb075a17cd62598a069b6" default))
  '(package-selected-packages
-   '(org-modern gruber-darker-theme uwu-theme sly doom-themes consult-dir consult-eglot devdocs popper package-lint rustic ob-typescript flycheck-inline consult-flycheck exec-path-from-shell desktop-environment eldoc-box editorconfig tempel cape embark-consult embark ef-themes vterm json-mode yaml-mode orderless vertico corfu marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux which-key diminish use-package)))
+   '(flymake-stylelint add-node-modules-path org-modern gruber-darker-theme uwu-theme sly doom-themes consult-dir consult-eglot devdocs popper package-lint rustic ob-typescript flycheck-inline consult-flycheck exec-path-from-shell desktop-environment eldoc-box editorconfig tempel cape embark-consult embark ef-themes vterm json-mode yaml-mode orderless vertico corfu marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux which-key diminish use-package)))
+
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
