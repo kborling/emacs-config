@@ -70,12 +70,8 @@
 
 (setq frame-resize-pixelwise t)
 
-(setq package-enable-at-startup t)
-
-(defvar package-quickstart)
-
-;; Allow loading from the package cache
-(setq package-quickstart t)
+;; disable package.el
+(setq package-enable-at-startup nil)
 
 ;;; Native compilation settings
 (when (featurep 'native-compile)
@@ -93,5 +89,7 @@
       (startup-redirect-eln-cache (convert-standard-filename (expand-file-name "var/eln-cache/" user-emacs-directory)))))
 
   (add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory)))
+
+(load-theme 'modus-vivendi)
 
 ;;; early-init.el ends here

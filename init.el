@@ -83,70 +83,63 @@
 (autoload 'zap-up-to-char "misc"
   "Kill up to, but not including ARGth occurrence of CHAR." t)
 
-(require 'uniquify)
-(setq uniquify-buffer-name-style 'forward)
+;; Straight ========================================== ;;
+
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 6))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+(setq straight-package-neutering-mode t)
+(setq straight-use-package-by-default t)
+(setq straight-repository-branch "develop")
+(setq straight-use-package-mode t)
+
+(straight-use-package 'use-package)
 
 ;; Electric Pairs ====================================== ;;
 
 ;; make electric-pair-mode work on more brackets
-(setq
- electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit
- electric-pair-preserve-balance t
- electric-pair-pair
- '((8216 . 8217)
-   (8220 . 8221)
-   (171 . 187))
- electric-pair-skip-self 'electric-pair-default-skip-self
- electric-pair-skip-whitespace nil
- electric-pair-skip-whitespace-chars '(9 10 32)
- electric-quote-context-sensitive t
- electric-quote-paragraph t
- electric-quote-string nil
- electric-quote-replace-double t)
+(use-package elec-pair
+  :straight nil
+  :config
+  (setq
+   electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit
+   electric-pair-preserve-balance t
+   electric-pair-pair
+   '((8216 . 8217)
+     (8220 . 8221)
+     (171 . 187))
+   electric-pair-skip-self 'electric-pair-default-skip-self
+   electric-pair-skip-whitespace nil
+   electric-pair-skip-whitespace-chars '(9 10 32)))
+;; (electric-pair-mode -1)
 
-(electric-pair-mode -1)
-(electric-quote-mode -1)
-(electric-indent-mode -1)
-(add-hook 'prog-mode-hook #'electric-indent-local-mode)
+(use-package electric
+  :straight nil
+  :config
+  (setq
+   electric-quote-context-sensitive t
+   electric-quote-paragraph t
+   electric-quote-string nil
+   electric-quote-replace-double t)
+
+  ;; (electric-quote-mode -1)
+  (electric-indent-mode -1)
+  (add-hook 'prog-mode-hook #'electric-indent-local-mode))
 
 ;; Hooks ============================================= ;;
 
 ;; (add-hook 'emacs-startup-hook 'toggle-frame-maximized)
 (add-hook 'before-save-hook #'delete-trailing-whitespace)
-
-;; Package ========================================== ;;
-
-;; Initialize package sources
-(require 'package)
-
-(setq package-archives
-      '(("elpa" . "https://elpa.gnu.org/packages/")
-        ("elpa-devel" . "https://elpa.gnu.org/devel/")
-        ("org" . "https://orgmode.org/elpa/")
-        ("nongnu" . "https://elpa.nongnu.org/nongnu/")
-        ("melpa" . "https://melpa.org/packages/")))
-
-;; Highest number gets priority (what is not mentioned has priority 0)
-(setq package-archive-priorities
-      '(("elpa" . 2)
-        ("nongnu" . 1)))
-
-;; (setq package-pinned-packages
-;; '((corfu . "elpa-devel")))
-
-(unless package--initialized
-  (package-initialize))
-(unless package-archive-contents
-  (package-refresh-contents))
-
-;; Initialize use-package on non-Linux platforms
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
-
-(eval-when-compile
-  (require 'use-package))
-
-(setq use-package-always-ensure t)
 
 ;; Keybindings ======================================= ;;
 
@@ -198,7 +191,6 @@
 
 ;; Custom themes
 (use-package doom-themes)
-(use-package gruber-darker-theme)
 
 (use-package uwu-theme
   ;; :load-path "~/Projects/uwu-theme"
@@ -219,18 +211,20 @@
 
 ;; Recent Files ====================================== ;;
 
-(require 'recentf)
-;; ;; enable recent files mode.
-(setq
- recentf-save-file (locate-user-emacs-file "recentf")
- recentf-max-saved-items 50
- recentf-exclude '(".gz" ".xz" ".zip" "/elpa/" "/ssh:" "/sudo:"))
+(use-package recentf
+  :straight nil
+  :config
+  (setq
+   recentf-save-file (locate-user-emacs-file "recentf")
+   recentf-max-saved-items 50
+   recentf-exclude '(".gz" ".xz" ".zip" "/elpa/" "/ssh:" "/sudo:"))
 
-(add-hook 'after-init-hook #'recentf-mode)
+  (add-hook 'after-init-hook #'recentf-mode))
 
 ;; Exec Path ========================================= ;;
+
 (use-package exec-path-from-shell
-  :ensure t
+  :straight t
   :config
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
@@ -238,7 +232,7 @@
 ;; Diminish ========================================== ;;
 
 (use-package diminish
-  :ensure t
+
   :config
   (diminish 'subword-mode)
   (diminish 'eldoc-mode))
@@ -260,7 +254,6 @@
          ("M-<return>" . crux-smart-open-line-above)
          ("C-x w" . crux-rename-file-and-buffer)
          ("C-c d" . crux-duplicate-current-line-or-region)
-         ("C-c j" . crux-top-join-line)
          ("C-c M-d" . crux-duplicate-and-comment-current-line-or-region)
          ([(shift return)] . crux-smart-open-line)))
 
@@ -294,13 +287,13 @@
 (defun magit-status-refresh-buffer-quick ()
   "Refresh the current `magit-status' buffer."
   (magit-insert-section (status)
-    (magit-insert-heading "Quick status")
-    (insert "\n")
-    (magit-insert-error-header)
-    (magit-insert-head-branch-header)
-    (insert "\n")
-    (magit-insert-unstaged-changes)
-    (magit-insert-staged-changes)))
+                        (magit-insert-heading "Quick status")
+                        (insert "\n")
+                        (magit-insert-error-header)
+                        (magit-insert-head-branch-header)
+                        (insert "\n")
+                        (magit-insert-unstaged-changes)
+                        (magit-insert-staged-changes)))
 
 (defun magit-quick-status ()
   "Toggle quick magit status."
@@ -326,6 +319,7 @@
 ;; Corfu ============================================= ;;
 
 (use-package corfu
+  :straight (:files (:defaults "extensions/*"))
   :hook ((prog-mode . corfu-mode)
          (shell-mode . corfu-mode)
          (eshell-mode . corfu-mode))
@@ -404,7 +398,7 @@
 ;; Multiple Cursors ================================== ;;
 
 (use-package multiple-cursors
-  :ensure t
+
   :diminish
   :bind (
          ("C->" . mc/mark-next-like-this)
@@ -418,31 +412,32 @@
 ;; So Long =========================================== ;;
 
 (use-package so-long
-  :ensure t
+
   :config
   (global-so-long-mode 1))
 
 ;; Dabbrev =========================================== ;;
 
-(require 'dabbrev)
-(setq
- dabbrev-abbrev-char-regexp "\\sw\\|\\s_"
- dabbrev-abbrev-skip-leading-regexp "[$*/=~']"
- dabbrev-backward-only nil
- dabbrev-case-distinction 'case-replace
- dabbrev-case-fold-search nil
- dabbrev-case-replace 'case-replace
- dabbrev-check-other-buffers t
- dabbrev-eliminate-newlines t
- dabbrev-upcase-means-case-search t)
-(let ((map global-map))
-  (define-key map (kbd "M-/") #'dabbrev-expand)
-  (define-key map (kbd "C-M-/") #'dabbrev-completion))
+(use-package dabbrev
+  :straight nil
+  :config
+  (setq
+   dabbrev-abbrev-char-regexp "\\sw\\|\\s_"
+   dabbrev-abbrev-skip-leading-regexp "[$*/=~']"
+   dabbrev-backward-only nil
+   dabbrev-case-distinction 'case-replace
+   dabbrev-case-fold-search nil
+   dabbrev-case-replace 'case-replace
+   dabbrev-check-other-buffers t
+   dabbrev-eliminate-newlines t
+   dabbrev-upcase-means-case-search t)
+  (let ((map global-map))
+    (define-key map (kbd "M-/") #'dabbrev-expand)
+    (define-key map (kbd "C-M-/") #'dabbrev-completion)))
 
 ;; Orderless ========================================= ;;
 
 (use-package orderless
-  :ensure t
   :config
   (setq orderless-component-separator " +")
   (setq orderless-matching-styles
@@ -454,57 +449,58 @@
 
 ;; Completion Styles ================================= ;;
 
-;; Set completion styles
-(setq
- completion-styles
- '(substring basic orderless)
- ;; '(basic substring initials flex partial-completion orderless))
- completion-category-defaults nil
- completion-category-overrides
- '((file (styles . (basic substring partial-completion orderless)))
-   (project-file (styles . (basic substring partial-completion orderless)))
-   (imenu (styles . (basic substring orderless)))
-   (kill-ring (styles . (basic substring orderless)))
-   (consult-location (styles . (basic substring orderless)))))
+(use-package minibuffer
+  :straight nil
+  :config
+  (setq
+   completion-styles
+   '(substring basic orderless)
+   ;; '(basic substring initials flex partial-completion orderless))
+   completion-category-defaults nil
+   completion-category-overrides
+   '((file (styles . (basic substring partial-completion orderless)))
+     (project-file (styles . (basic substring partial-completion orderless)))
+     (imenu (styles . (basic substring orderless)))
+     (kill-ring (styles . (basic substring orderless)))
+     (consult-location (styles . (basic substring orderless)))))
 
-;; Minibuffer =========================================== ;;
-(setq
- completion-cycle-threshold 2
- completion-flex-nospace nil ; though I don't use the built-in `flex' style..
- completion-pcm-complete-word-inserts-delimiters nil
- completion-pcm-word-delimiters "-_./:| "
- completion-ignore-case t
- completions-detailed t
- completion-show-inline-help nil)
+  (setq
+   completion-cycle-threshold 2
+   completion-flex-nospace nil ; though I don't use the built-in `flex' style..
+   completion-pcm-complete-word-inserts-delimiters nil
+   completion-pcm-word-delimiters "-_./:| "
+   completion-ignore-case t
+   completions-detailed t
+   completion-show-inline-help nil)
 
-;; Grouping of completions for Emacs 28
-(setq
- completions-group t
- completions-group-sort nil
- completions-group-format
- (concat
-  (propertize "    " 'face 'completions-group-separator)
-  (propertize " %s " 'face 'completions-group-title)
-  (propertize " " 'face 'completions-group-separator
-              'display '(space :align-to right)))
+  ;; Grouping of completions for Emacs 28
+  (setq
+   completions-group t
+   completions-group-sort nil
+   completions-group-format
+   (concat
+    (propertize "    " 'face 'completions-group-separator)
+    (propertize " %s " 'face 'completions-group-title)
+    (propertize " " 'face 'completions-group-separator
+                'display '(space :align-to right)))
 
- read-buffer-completion-ignore-case t
- read-file-name-completion-ignore-case t
- ;; (setq enable-recursive-minibuffers t)
- read-answer-short t
- resize-mini-windows t
- minibuffer-eldef-shorten-default t
- echo-keystrokes 0.25
- minibuffer-prompt-properties
- '(read-only t cursor-intangible t face minibuffer-prompt))
+   read-buffer-completion-ignore-case t
+   read-file-name-completion-ignore-case t
+   ;; (setq enable-recursive-minibuffers t)
+   read-answer-short t
+   resize-mini-windows t
+   minibuffer-eldef-shorten-default t
+   echo-keystrokes 0.25
+   minibuffer-prompt-properties
+   '(read-only t cursor-intangible t face minibuffer-prompt))
 
-(setq-default case-fold-search t)   ; For general regexp
+  (setq-default case-fold-search t)   ; For general regexp
 
-(add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
-(file-name-shadow-mode 1)
-(minibuffer-depth-indicate-mode 1)
-(minibuffer-electric-default-mode 1)
+  (file-name-shadow-mode 1)
+  (minibuffer-depth-indicate-mode 1)
+  (minibuffer-electric-default-mode 1))
 
 ;; Modeline ============================================= ;;
 (setq
@@ -542,57 +538,57 @@
 
 ;; Ibuffer ============================================== ;;
 
-(setq
- ibuffer-expert t
- ibuffer-display-summary nil
- ibuffer-use-other-window nil
- ibuffer-show-empty-filter-groups nil
- ibuffer-movement-cycle nil
- ibuffer-default-sorting-mode 'filename/process
- ibuffer-use-header-line t
- ibuffer-default-shrink-to-minimum-size nil
- ibuffer-format
- '((mark modified read-only locked " "
-         (name 40 40 :left :elide)
-         " "
-         (size 9 -1 :right)
-         " "
-         (mode 16 16 :left :elide)
-         " " filename-and-process)
-   (mark " "
-         (name 16 -1)
-         " " filename))
- ibuffer-saved-filter-groups nil
- ibuffer-old-time 48)
+(use-package ibuffer
+  :straight nil
+  :config
+  (setq
+   ibuffer-expert t
+   ibuffer-display-summary nil
+   ibuffer-use-other-window nil
+   ibuffer-show-empty-filter-groups nil
+   ibuffer-movement-cycle nil
+   ibuffer-default-sorting-mode 'filename/process
+   ibuffer-use-header-line t
+   ibuffer-default-shrink-to-minimum-size nil
+   ibuffer-format
+   '((mark modified read-only locked " "
+           (name 40 40 :left :elide)
+           " "
+           (size 9 -1 :right)
+           " "
+           (mode 16 16 :left :elide)
+           " " filename-and-process)
+     (mark " "
+           (name 16 -1)
+           " " filename))
+   ibuffer-saved-filter-groups nil
+   ibuffer-old-time 48)
 
-(add-hook 'ibuffer-mode-hook #'hl-line-mode)
+  (add-hook 'ibuffer-mode-hook #'hl-line-mode))
 
 ;; Winner =============================================== ;;
 
-(add-hook 'after-init-hook #'winner-mode)
+(use-package winner
+  :straight nil
+  :config
+  (add-hook 'after-init-hook #'winner-mode)
 
-(let ((map global-map))
-  (define-key map (kbd "C-c <") #'winner-redo)
-  (define-key map (kbd "C-c >") #'winner-undo))
+  (let ((map global-map))
+    (define-key map (kbd "C-c <") #'winner-redo)
+    (define-key map (kbd "C-c >") #'winner-undo)))
 
-;; Vterm ================================================ ;;
+;; vterm ================================================ ;;
 
-(use-package vterm
-  :ensure t)
+(use-package vterm)
 
 ;; FIDO/IComplete ===================================== ;;
 
-;; (fido-mode)
-;; (fido-vertical-mode 1)
-;; (icomplete-mode 1)
-;; (icomplete-vertical-mode 1)
 (setq icomplete-compute-delay 0)
-;; (setq icomplete-in-buffer 1)
-;; (define-key map (kbd "RET") 'icomplete-vertical-goto-last)
-;; (global-set-key (kbd "C-=") 'fido-vertical-mode)
 
 ;; Vertico ============================================= ;;
+
 (use-package vertico
+  :straight (:files (:defaults "extensions/*"))
   :init
   (vertico-mode)
   (vertico-reverse-mode)
@@ -621,74 +617,86 @@
 
 ;; Dired ============================================= ;;
 
-(setq
- dired-recursive-copies 'always
- dired-recursive-deletes 'always
- delete-by-moving-to-trash t
- dired-dwim-target t
- dired-auto-revert-buffer #'dired-directory-changed-p
- dired-make-directory-clickable t
- dired-free-space nil
- dired-isearch-filenames 'dwim
- dired-create-destination-dirs 'ask
- dired-vc-rename-file t
- dired-do-revert-buffer (lambda (dir) (not (file-remote-p dir)))
+(use-package dired
+  :straight nil
+  :config
+  (setq
+   dired-recursive-copies 'always
+   dired-recursive-deletes 'always
+   delete-by-moving-to-trash t
+   dired-dwim-target t
+   dired-auto-revert-buffer #'dired-directory-changed-p
+   dired-make-directory-clickable t
+   dired-free-space nil
+   dired-isearch-filenames 'dwim
+   dired-create-destination-dirs 'ask
+   dired-vc-rename-file t
+   dired-do-revert-buffer (lambda (dir) (not (file-remote-p dir)))
 
- dired-clean-up-buffers-too t
- dired-clean-confirm-killing-deleted-buffers t
- dired-x-hands-off-my-keys t
- dired-bind-man nil
- dired-bind-info nil
- ;; wdired-allow-to-change-permissions t
- ;; wdired-create-parent-directories t
- image-dired-thumb-size 80
- image-dired-thumb-margin 2
- image-dired-thumb-relief 0
- image-dired-thumbs-per-row 4)
+   dired-clean-up-buffers-too t
+   dired-clean-confirm-killing-deleted-buffers t
+   dired-x-hands-off-my-keys t
+   dired-bind-man nil
+   dired-bind-info nil
+   ;; wdired-allow-to-change-permissions t
+   ;; wdired-create-parent-directories t
+   image-dired-thumb-size 80
+   image-dired-thumb-margin 2
+   image-dired-thumb-relief 0
+   image-dired-thumbs-per-row 4)
 
-(add-hook 'dired-mode-hook #'dired-hide-details-mode)
-(add-hook 'dired-mode-hook #'hl-line-mode)
+  (add-hook 'dired-mode-hook #'dired-hide-details-mode)
+  (add-hook 'dired-mode-hook #'hl-line-mode))
 
 ;; Xref ============================================== ;;
 
-(setq
- xref-show-definitions-function #'xref-show-definitions-completing-read
- xref-show-xrefs-function #'xref-show-definitions-buffer
- xref-file-name-display 'project-relative
- xref-search-program 'ripgrep)
+(use-package xref
+  :straight nil
+  :config
+  (setq
+   xref-show-definitions-function #'xref-show-definitions-completing-read
+   xref-show-xrefs-function #'xref-show-definitions-buffer
+   xref-file-name-display 'project-relative
+   xref-search-program 'ripgrep))
 
 ;; ISearch =========================================== ;;
-(setq
- search-highlight t
- search-whitespace-regexp ".*?"
- isearch-lax-whitespace t
- isearch-regexp-lax-whitespace nil
- isearch-lazy-highlight t
- isearch-lazy-count t
- lazy-count-prefix-format nil
- lazy-count-suffix-format " (%s/%s)"
- isearch-yank-on-move 'shift
- isearch-allow-scroll 'unlimited
- isearch-repeat-on-direction-change t
- lazy-highlight-initial-delay 0.5
- lazy-highlight-no-delay-length 3
- isearch-wrap-pause t)
 
-(define-key minibuffer-local-isearch-map (kbd "M-/") #'isearch-complete-edit)
-(let ((map isearch-mode-map))
-  (define-key map (kbd "C-g") #'isearch-cancel) ; instead of `isearch-abort'
-  (define-key map (kbd "M-/") #'isearch-complete))
+(use-package isearch
+  :straight nil
+  :config
+  (setq
+   search-highlight t
+   search-whitespace-regexp ".*?"
+   isearch-lax-whitespace t
+   isearch-regexp-lax-whitespace nil
+   isearch-lazy-highlight t
+   isearch-lazy-count t
+   lazy-count-prefix-format nil
+   lazy-count-suffix-format " (%s/%s)"
+   isearch-yank-on-move 'shift
+   isearch-allow-scroll 'unlimited
+   isearch-repeat-on-direction-change t
+   lazy-highlight-initial-delay 0.5
+   lazy-highlight-no-delay-length 3
+   isearch-wrap-pause t)
+
+  (define-key minibuffer-local-isearch-map (kbd "M-/") #'isearch-complete-edit)
+  (let ((map isearch-mode-map))
+    (define-key map (kbd "C-g") #'isearch-cancel) ; instead of `isearch-abort'
+    (define-key map (kbd "M-/") #'isearch-complete)))
 
 ;; SaveHist ========================================== ;;
 
-(require 'savehist)
-(setq
- savehist-file (locate-user-emacs-file "savehist")
- history-length 10000
- history-delete-duplicates t
- savehist-save-minibuffer-history t)
+(use-package savehist
+  :straight nil
+  :config
+  (setq
+   savehist-file (locate-user-emacs-file "savehist")
+   history-length 10000
+   history-delete-duplicates t
+   savehist-save-minibuffer-history t)
 
-(add-hook 'after-init-hook #'savehist-mode)
+  (add-hook 'after-init-hook #'savehist-mode))
 
 ;; Consult ============================================ ;;
 
@@ -795,7 +803,7 @@
 
 (use-package consult-dir
   :after consult
-  :ensure t
+
   :bind (("C-x C-d" . consult-dir)
          :map minibuffer-local-completion-map
          ("C-x C-d" . consult-dir)
@@ -804,7 +812,7 @@
 ;; Embark ============================================ ;;
 
 (use-package embark
-  :ensure t
+
   :bind
   (("C-." . embark-act)
    ("M-." . embark-dwim)
@@ -821,15 +829,18 @@
 
 ;; Consult users will also want the embark-consult package.
 (use-package embark-consult
-  :ensure t ; only need to install it, embark loads it after consult if found
+                                        ; only need to install it, embark loads it after consult if found
   :after (consult embark)
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
 ;; Eldoc Box ========================================= ;;
 
-(global-eldoc-mode 1)
-(setq eldoc-echo-area-use-multiline-p t)
+(use-package eldoc
+  :straight nil
+  :config
+  (global-eldoc-mode 1)
+  (setq eldoc-echo-area-use-multiline-p t))
 
 ;; (use-package eldoc-box
 ;;   :after eldoc
@@ -841,7 +852,7 @@
 ;; Eglot ============================================== ;;
 
 (use-package eglot
-  :ensure t
+  :straight nil
   :config
   (setq eglot-sync-connect 0)
   ;; (add-to-list 'eglot-stay-out-of 'flymake)
@@ -882,6 +893,7 @@
 
 ;; Flymake ========================================= ;;
 (use-package flymake
+  :straight nil
   :config
   (setq
    flymake-fringe-indicator-position 'left-fringe
@@ -922,7 +934,7 @@
               (flymake-eslint-enable))))
 
 (use-package flymake-stylelint
-  :load-path "~/.emacs.d/elisp/flymake-stylelint"
+  :straight (flymake-stylelint :type git :host github :repo "orzechowskid/flymake-stylelint")
   :config
   (add-hook 'scss-mode-hook
             (lambda ()
@@ -931,11 +943,11 @@
 ;; Emmet Mode ====================================== ;;
 
 (use-package emmet-mode
-  :mode ("\\.html\\'" "\\.css\\'" "\\.cshtml\\'" "\\.tsx\\'")
+  :mode ("\\.html\\'" "\\.cshtml\\'" "\\.tsx\\'")
   :preface (defvar emmet-mode-keymap (make-sparse-keymap))
   :bind (:map emmet-mode-keymap
               ("<C-tab>" . emmet-expand-line))
-  :hook ((css-mode web-mode html-mode vue-mode) . emmet-mode))
+  :hook ((html-mode) . emmet-mode))
 
 ;; Web Mode ======================================== ;;
 
@@ -985,7 +997,7 @@
 ;; (setq typescript-indent-level 4))
 
 (use-package tide
-  :ensure t
+
   :bind (("C-c C-." . tide-documentation-at-point))
   :diminish)
 
@@ -1006,7 +1018,7 @@
 ;; EditorConfig ======================================== ;;
 
 (use-package editorconfig
-  :ensure t
+
   :diminish
   :config
   (editorconfig-mode 1))
@@ -1024,7 +1036,7 @@
   )
 
 (use-package rustic
-  :ensure t
+
   :bind (:map rustic-mode-map
               ("M-j" . lsp-ui-imenu)
               ("M-?" . lsp-find-references)
@@ -1056,7 +1068,7 @@
 ;; (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
 
 (use-package sly
-  :ensure t
+
   :hook ((lisp-mode . sly-symbol-completion-mode))
   :custom (inferior-lisp-program (locate-file "sbcl" exec-path))
   :bind (:map sly-mode-map
@@ -1094,7 +1106,7 @@
 ;; Copilot ======================================== ;;
 
 (use-package copilot
-  :load-path "~/.emacs.d/elisp/copilot.el"
+  :straight (copilot :type git :host github :repo "zerolfx/copilot.el")
   :config
   (global-set-key (kbd "C-c c p") 'copilot-mode)
   ;; (add-hook 'prog-mode-hook 'copilot-mode)
@@ -1144,13 +1156,16 @@
 
 ;; Ediff ======================================== ;;
 
-(setq
- ediff-keep-variants nil
- ediff-make-buffers-readonly-at-startup nil
- ediff-merge-revisions-with-ancestor t
- ediff-show-clashes-only t
- ediff-split-window-function 'split-window-horizontally
- ediff-window-setup-function 'ediff-setup-windows-plain)
+(use-package ediff
+  :straight nil
+  :config
+  (setq
+   ediff-keep-variants nil
+   ediff-make-buffers-readonly-at-startup nil
+   ediff-merge-revisions-with-ancestor t
+   ediff-show-clashes-only t
+   ediff-split-window-function 'split-window-horizontally
+   ediff-window-setup-function 'ediff-setup-windows-plain))
 
 ;; Org Mode ===================================== ;;
 
@@ -1171,7 +1186,7 @@
   (global-org-modern-mode))
 
 (use-package org
-  :pin org
+  :straight nil
   :commands (org-capture org-agenda)
   :hook (org-mode . kdb-org-mode-setup)
   :config
@@ -1278,6 +1293,11 @@
 ;; (require 'ibuf-ext)
 ;; (add-to-list 'ibuffer-never-show-predicates "^\\*")
 
+(use-package uniquify
+  :straight nil
+  :config
+  (setq uniquify-buffer-name-style 'forward))
+
 (defun kill-current-buffer ()
   "Kill the current buffer."
   (interactive)
@@ -1311,7 +1331,6 @@
 ;; Popups ========================================= ;;
 
 (use-package popper
-  :ensure t
   :bind (("C-`"   . popper-toggle-latest)
          ("M-`"   . popper-cycle)
          ("C-M-`" . popper-toggle-type))
@@ -1353,6 +1372,7 @@
 ;; Emacs ============================================= ;;
 
 (use-package emacs
+  :straight nil
   :init
   ;; Add prompt indicator to `completing-read-multiple'.
   ;; Alternatively try `consult-completing-read-multiple'.
@@ -1378,32 +1398,35 @@
 
 ;; EWW =============================================== ;;
 
-(setq
- browse-url-browser-function 'eww-browse-url ; Use eww as the default browser
- shr-use-fonts  nil                          ; No special fonts
- shr-indentation 2                           ; Left-side margin
- shr-width 120                                ; Fold text to 70 columns
- shr-use-colors nil             ; t is bad for accessibility
- shr-max-image-proportion 0.6
- shr-image-animate nil          ; No GIFs, thank you!
- shr-discard-aria-hidden t
- shr-cookie-policy nil
- eww-restore-desktop t
- eww-desktop-remove-duplicates t
- eww-header-line-format nil
- eww-retrieve-command nil
- eww-search-prefix "https://duckduckgo.com/html/?q="
- eww-download-directory (expand-file-name "~/Downloads")
- eww-suggest-uris
- '(eww-links-at-point
-   thing-at-point-url-at-point)
- eww-bookmarks-directory (locate-user-emacs-file "eww-bookmarks/")
- eww-history-limit 150
- eww-use-external-browser-for-content-type
- "\\`\\(video/\\|audio\\)" ; On GNU/Linux check your mimeapps.list
- eww-browse-url-new-window-is-tab nil
- eww-form-checkbox-selected-symbol "[X]"
- eww-form-checkbox-symbol "[ ]")
+(use-package eww
+  :straight nil
+  :config
+  (setq
+   browse-url-browser-function 'eww-browse-url ; Use eww as the default browser
+   shr-use-fonts  nil                          ; No special fonts
+   shr-indentation 2                           ; Left-side margin
+   shr-width 120                                ; Fold text to 70 columns
+   shr-use-colors nil             ; t is bad for accessibility
+   shr-max-image-proportion 0.6
+   shr-image-animate nil          ; No GIFs, thank you!
+   shr-discard-aria-hidden t
+   shr-cookie-policy nil
+   eww-restore-desktop t
+   eww-desktop-remove-duplicates t
+   eww-header-line-format nil
+   eww-retrieve-command nil
+   eww-search-prefix "https://duckduckgo.com/html/?q="
+   eww-download-directory (expand-file-name "~/Downloads")
+   eww-suggest-uris
+   '(eww-links-at-point
+     thing-at-point-url-at-point)
+   eww-bookmarks-directory (locate-user-emacs-file "eww-bookmarks/")
+   eww-history-limit 150
+   eww-use-external-browser-for-content-type
+   "\\`\\(video/\\|audio\\)" ; On GNU/Linux check your mimeapps.list
+   eww-browse-url-new-window-is-tab nil
+   eww-form-checkbox-selected-symbol "[X]"
+   eww-form-checkbox-symbol "[ ]"))
 
 ;; Olivetti ========================================== ;;
 (defvar-local old-mode-line-format nil)
