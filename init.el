@@ -1,7 +1,7 @@
 ;;; init.el --- My personal emacs config  -*- lexical-binding: t; -*-
 
 ;; Author: Kevin Borling <https://github.com/kborling>
-;; Version: 1.1.0
+;; Version: 1.2.0
 ;; Keywords: configuration
 ;; URL: https://github.com/kborling/emacs-config
 ;; Homepage: https://github.com/kborling/emacs-config
@@ -220,7 +220,6 @@
 (use-package doom-themes)
 
 (use-package uwu-theme
-  ;; :load-path "~/Projects/uwu-theme"
   :config
   (setq uwu-distinct-line-numbers 'nil)
   (load-theme 'uwu t))
@@ -395,7 +394,6 @@
          ("M-*" . tempel-insert))
 
   :init
-
   ;; Setup completion at point
   (defun tempel-setup-capf ()
     (setq-local completion-at-point-functions
@@ -424,7 +422,6 @@
 ;; Multiple Cursors ================================== ;;
 
 (use-package multiple-cursors
-
   :diminish
   :bind (
          ("C->" . mc/mark-next-like-this)
@@ -432,13 +429,11 @@
          ("C-z" . mc/mark-next-like-this)
          ("M-C-z" . mc/mark-previous-like-this)
          ("C-c C-<" . mc/mark-all-like-this)
-         ("C-S-c C-S-c" . mc/mark-edit-lines)
-         ))
+         ("C-S-c C-S-c" . mc/mark-edit-lines)))
 
 ;; So Long =========================================== ;;
 
 (use-package so-long
-
   :config
   (global-so-long-mode 1))
 
@@ -1277,19 +1272,6 @@
   (find-file org-directory))
 (global-set-key (kbd "C-c e f") 'kdb-org-find-file)
 
-;; PDF Tools ===================================== ;;
-
-;; (use-package pdf-tools
-;;   :config
-;;   ;; initialise
-;;   (pdf-tools-install)
-;;   ;; open pdfs scaled to fit page
-;;   (setq-default pdf-view-display-size 'fit-page)
-;;   ;; automatically annotate highlights
-;;   (setq pdf-annot-activate-created-annotations t)
-;;   ;; use normal isearch
-;;   (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward))
-
 ;; Config ======================================= ;;
 
 (defun config-visit ()
@@ -1493,17 +1475,12 @@
 
 ;; Custom ========================================= ;;
 
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("6adb2ba6000114d56766db7eb5041cdf83a1541888aed89cd9a1c01cb7f51768" "387e7759c1b93c9a9332948ee228cdcce8287838523b6f129731f601da5ff7a0" "344206ea6947ef52ca381f7927fc137103995fd20e829658cdbe060a26bde8c0" "2449bc6e12bf2f4eafa6ecd486f136afa6ba0e43281863c6e2d97b4847e5f787" "8804bbfac13f67a6a72b8c863badac8a17c9fb8143a892080d5ff471ff8dce26" "1b82936d2f53f26fb159e05a007ee0ddf46de78bc9dbb075a17cd62598a069b6" default))
- '(package-selected-packages
-   '(flymake-stylelint add-node-modules-path org-modern gruber-darker-theme uwu-theme sly doom-themes consult-dir consult-eglot devdocs popper package-lint rustic ob-typescript exec-path-from-shell desktop-environment eldoc-box editorconfig tempel cape embark-consult embark ef-themes vterm json-mode yaml-mode orderless vertico corfu marginalia olivetti ob-restclient restclient rust-mode typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux which-key diminish use-package)))
-
+)
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
