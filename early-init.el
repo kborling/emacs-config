@@ -57,10 +57,6 @@
 
 (set-default-coding-systems 'utf-8)
 
-(pcase system-type
-  ('darwin (menu-bar-mode 1))
-  (menu-bar-mode -1))
-
 (when (fboundp 'tool-bar-mode)
   (tool-bar-mode -1))
 (when (fboundp 'scroll-bar-mode)
@@ -90,6 +86,11 @@
 
   (add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory)))
 
-(load-theme 'modus-vivendi)
+(load-theme 'wombat)
 
+;; Local Variables:
+;; no-byte-compile: t
+;; no-native-compile: t
+;; no-update-autoloads: t
+;; End:
 ;;; early-init.el ends here

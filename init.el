@@ -49,6 +49,7 @@
  visible-bell nil
  sentence-end-double-space nil
  fill-column 100
+ column-number-mode t
  apropos-do-all t
  mouse-yank-at-point t
  require-final-newline t
@@ -971,10 +972,7 @@
   ;; unbind it.
   (define-key js-mode-map (kbd "M-.") nil)
   (add-hook 'js2-mode-hook (lambda ()
-                             (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
-  (add-hook 'js2-mode-hook (lambda ()
-                             (setup-tide-mode)))
-  )
+                             (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t))))
 
 (use-package js2-refactor)
 (use-package xref-js2
@@ -995,22 +993,6 @@
 ;; (push '(typescript-mode . typescript-ts-mode) major-mode-remap-alist))
 
 ;; (setq typescript-indent-level 4))
-
-(use-package tide
-
-  :bind (("C-c C-." . tide-documentation-at-point))
-  :diminish)
-
-(defun setup-tide-mode ()
-  "Setup 'tide-mode' for js/ts."
-  (interactive)
-  (tide-setup)
-  (tide-hl-identifier-mode 1))
-
-;; formats the buffer before saving
-(add-hook 'before-save-hook 'tide-format-before-save)
-
-(add-hook 'typescript-mode-hook #'setup-tide-mode)
 
 (use-package ob-typescript
   :after org)
@@ -1485,7 +1467,7 @@
  '(custom-safe-themes
    '("6adb2ba6000114d56766db7eb5041cdf83a1541888aed89cd9a1c01cb7f51768" "387e7759c1b93c9a9332948ee228cdcce8287838523b6f129731f601da5ff7a0" "344206ea6947ef52ca381f7927fc137103995fd20e829658cdbe060a26bde8c0" "2449bc6e12bf2f4eafa6ecd486f136afa6ba0e43281863c6e2d97b4847e5f787" "8804bbfac13f67a6a72b8c863badac8a17c9fb8143a892080d5ff471ff8dce26" "1b82936d2f53f26fb159e05a007ee0ddf46de78bc9dbb075a17cd62598a069b6" default))
  '(package-selected-packages
-   '(flymake-stylelint add-node-modules-path org-modern gruber-darker-theme uwu-theme sly doom-themes consult-dir consult-eglot devdocs popper package-lint rustic ob-typescript flycheck-inline consult-flycheck exec-path-from-shell desktop-environment eldoc-box editorconfig tempel cape embark-consult embark ef-themes vterm json-mode yaml-mode orderless vertico corfu marginalia olivetti ob-restclient restclient rust-mode tide typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux which-key diminish use-package)))
+   '(flymake-stylelint add-node-modules-path org-modern gruber-darker-theme uwu-theme sly doom-themes consult-dir consult-eglot devdocs popper package-lint rustic ob-typescript exec-path-from-shell desktop-environment eldoc-box editorconfig tempel cape embark-consult embark ef-themes vterm json-mode yaml-mode orderless vertico corfu marginalia olivetti ob-restclient restclient rust-mode typescript-mode xref-js2 js2-refactor js2-mode web-mode emmet-mode consult multiple-cursors magit hl-todo crux which-key diminish use-package)))
 
 
 (custom-set-faces
