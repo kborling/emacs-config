@@ -84,33 +84,59 @@
 (autoload 'zap-up-to-char "misc"
   "Kill up to, but not including ARGth occurrence of CHAR." t)
 
-;; Straight ========================================== ;;
+;; Elpaca ========================================== ;;
 
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 6))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
+(defvar elpaca-installer-version 0.3)
+(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                              :ref nil
+                              :files (:defaults (:exclude "extensions"))
+                              :build (:not elpaca--activate-package)))
+(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+       (build (expand-file-name "elpaca/" elpaca-builds-directory))
+       (order (cdr elpaca-order))
+       (default-directory repo))
+  (add-to-list 'load-path (if (file-exists-p build) build repo))
+  (unless (file-exists-p repo)
+    (make-directory repo t)
+    (condition-case-unless-debug err
+        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                 ((zerop (call-process "git" nil buffer t "clone"
+                                       (plist-get order :repo) repo)))
+                 ((zerop (call-process "git" nil buffer t "checkout"
+                                       (or (plist-get order :ref) "--"))))
+                 (emacs (concat invocation-directory invocation-name))
+                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                 ((require 'elpaca))
+                 ((elpaca-generate-autoloads "elpaca" repo)))
+            (kill-buffer buffer)
+          (error "%s" (with-current-buffer buffer (buffer-string))))
+      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+  (unless (require 'elpaca-autoloads nil t)
+    (require 'elpaca)
+    (elpaca-generate-autoloads "elpaca" repo)
+    (load "./elpaca-autoloads")))
+(add-hook 'after-init-hook #'elpaca-process-queues)
+(elpaca `(,@elpaca-order))
 
-(setq straight-package-neutering-mode t)
-(setq straight-use-package-by-default t)
-(setq straight-repository-branch "develop")
-(setq straight-use-package-mode t)
+(elpaca use-package :elpaca t)
+;; Install use-package support
+(elpaca elpaca-use-package
+  ;; Enable :elpaca use-package keyword.
+  (elpaca-use-package-mode)
+  ;; Assume :elpaca t unless otherwise specified.
+  (setq elpaca-use-package-by-default t))
 
-(straight-use-package 'use-package)
+(elpaca-wait)
 
 ;; Electric Pairs ====================================== ;;
 
 ;; make electric-pair-mode work on more brackets
 (use-package elec-pair
-  :straight nil
+  :elpaca nil
   :config
   (setq
    electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit
@@ -125,7 +151,7 @@
 ;; (electric-pair-mode -1)
 
 (use-package electric
-  :straight nil
+  :elpaca nil
   :config
   (setq
    electric-quote-context-sensitive t
@@ -196,9 +222,8 @@
 (use-package uwu-theme
   ;; :load-path "~/Projects/uwu-theme"
   :config
-  (setq uwu-distinct-line-numbers 'nil))
-
-(load-theme 'uwu t)
+  (setq uwu-distinct-line-numbers 'nil)
+  (load-theme 'uwu t))
 
 ;; Frame ============================================== ;;
 
@@ -213,7 +238,7 @@
 ;; Recent Files ====================================== ;;
 
 (use-package recentf
-  :straight nil
+  :elpaca nil
   :config
   (setq
    recentf-save-file (locate-user-emacs-file "recentf")
@@ -225,7 +250,7 @@
 ;; Exec Path ========================================= ;;
 
 (use-package exec-path-from-shell
-  :straight t
+  :elpaca t
   :config
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
@@ -320,7 +345,7 @@
 ;; Corfu ============================================= ;;
 
 (use-package corfu
-  :straight (:files (:defaults "extensions/*"))
+  :elpaca (:files (:defaults "extensions/*"))
   :hook ((prog-mode . corfu-mode)
          (shell-mode . corfu-mode)
          (eshell-mode . corfu-mode))
@@ -420,7 +445,7 @@
 ;; Dabbrev =========================================== ;;
 
 (use-package dabbrev
-  :straight nil
+  :elpaca nil
   :config
   (setq
    dabbrev-abbrev-char-regexp "\\sw\\|\\s_"
@@ -451,7 +476,7 @@
 ;; Completion Styles ================================= ;;
 
 (use-package minibuffer
-  :straight nil
+  :elpaca nil
   :config
   (setq
    completion-styles
@@ -540,7 +565,7 @@
 ;; Ibuffer ============================================== ;;
 
 (use-package ibuffer
-  :straight nil
+  :elpaca nil
   :config
   (setq
    ibuffer-expert t
@@ -570,7 +595,7 @@
 ;; Winner =============================================== ;;
 
 (use-package winner
-  :straight nil
+  :elpaca nil
   :config
   (add-hook 'after-init-hook #'winner-mode)
 
@@ -589,7 +614,7 @@
 ;; Vertico ============================================= ;;
 
 (use-package vertico
-  :straight (:files (:defaults "extensions/*"))
+  :elpaca (:files (:defaults "extensions/*"))
   :init
   (vertico-mode)
   (vertico-reverse-mode)
@@ -619,7 +644,7 @@
 ;; Dired ============================================= ;;
 
 (use-package dired
-  :straight nil
+  :elpaca nil
   :config
   (setq
    dired-recursive-copies 'always
@@ -652,7 +677,7 @@
 ;; Xref ============================================== ;;
 
 (use-package xref
-  :straight nil
+  :elpaca nil
   :config
   (setq
    xref-show-definitions-function #'xref-show-definitions-completing-read
@@ -663,7 +688,7 @@
 ;; ISearch =========================================== ;;
 
 (use-package isearch
-  :straight nil
+  :elpaca nil
   :config
   (setq
    search-highlight t
@@ -689,7 +714,7 @@
 ;; SaveHist ========================================== ;;
 
 (use-package savehist
-  :straight nil
+  :elpaca nil
   :config
   (setq
    savehist-file (locate-user-emacs-file "savehist")
@@ -838,7 +863,7 @@
 ;; Eldoc Box ========================================= ;;
 
 (use-package eldoc
-  :straight nil
+  :elpaca nil
   :config
   (global-eldoc-mode 1)
   (setq eldoc-echo-area-use-multiline-p t))
@@ -853,7 +878,7 @@
 ;; Eglot ============================================== ;;
 
 (use-package eglot
-  :straight nil
+  :elpaca nil
   :config
   (setq eglot-sync-connect 0)
   ;; (add-to-list 'eglot-stay-out-of 'flymake)
@@ -894,7 +919,7 @@
 
 ;; Flymake ========================================= ;;
 (use-package flymake
-  :straight nil
+  :elpaca nil
   :config
   (setq
    flymake-fringe-indicator-position 'left-fringe
@@ -935,7 +960,7 @@
               (flymake-eslint-enable))))
 
 (use-package flymake-stylelint
-  :straight (flymake-stylelint :type git :host github :repo "orzechowskid/flymake-stylelint")
+  :elpaca (flymake-stylelint :type git :host github :repo "orzechowskid/flymake-stylelint")
   :config
   (add-hook 'scss-mode-hook
             (lambda ()
@@ -994,6 +1019,7 @@
   :after org)
 
 (use-package typescript-ts-mode
+  :elpaca nil
   :init
   ;; Associate ts files with `typescript-ts-mode'.
   (add-to-list 'auto-mode-alist (cons "\\.ts\\'" 'typescript-ts-mode))
@@ -1097,7 +1123,7 @@
 ;; Copilot ======================================== ;;
 
 (use-package copilot
-  :straight (copilot :type git :host github :repo "zerolfx/copilot.el")
+  :elpaca (copilot :type git :host github :repo "zerolfx/copilot.el")
   :config
   (global-set-key (kbd "C-c c p") 'copilot-mode)
   ;; (add-hook 'prog-mode-hook 'copilot-mode)
@@ -1148,7 +1174,7 @@
 ;; Ediff ======================================== ;;
 
 (use-package ediff
-  :straight nil
+  :elpaca nil
   :config
   (setq
    ediff-keep-variants nil
@@ -1177,7 +1203,7 @@
   (global-org-modern-mode))
 
 (use-package org
-  :straight nil
+  :elpaca nil
   :commands (org-capture org-agenda)
   :hook (org-mode . kdb-org-mode-setup)
   :config
@@ -1285,7 +1311,7 @@
 ;; (add-to-list 'ibuffer-never-show-predicates "^\\*")
 
 (use-package uniquify
-  :straight nil
+  :elpaca nil
   :config
   (setq uniquify-buffer-name-style 'forward))
 
@@ -1363,7 +1389,7 @@
 ;; Emacs ============================================= ;;
 
 (use-package emacs
-  :straight nil
+  :elpaca nil
   :init
   ;; Add prompt indicator to `completing-read-multiple'.
   ;; Alternatively try `consult-completing-read-multiple'.
@@ -1390,7 +1416,7 @@
 ;; EWW =============================================== ;;
 
 (use-package eww
-  :straight nil
+  :elpaca nil
   :config
   (setq
    browse-url-browser-function 'eww-browse-url ; Use eww as the default browser
@@ -1488,6 +1514,8 @@
 
 ;; Local Variables:
 ;; no-byte-compile: t
+;; no-native-compile: t
+;; no-update-autoloads: t
 ;; indent-tabs-mode: nil
 ;; End:
 ;;; init.el ends here

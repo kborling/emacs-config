@@ -24,4 +24,5 @@ transient/
 site-lisp/
 elisp/
 straight/
+elpaca/
 treesitter/
