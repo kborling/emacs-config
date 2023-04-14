@@ -288,13 +288,13 @@
 (defun magit-status-refresh-buffer-quick ()
   "Refresh the current `magit-status' buffer."
   (magit-insert-section (status)
-                        (magit-insert-heading "Quick status")
-                        (insert "\n")
-                        (magit-insert-error-header)
-                        (magit-insert-head-branch-header)
-                        (insert "\n")
-                        (magit-insert-unstaged-changes)
-                        (magit-insert-staged-changes)))
+    (magit-insert-heading "Quick status")
+    (insert "\n")
+    (magit-insert-error-header)
+    (magit-insert-head-branch-header)
+    (insert "\n")
+    (magit-insert-unstaged-changes)
+    (magit-insert-staged-changes)))
 
 (defun magit-quick-status ()
   "Toggle quick magit status."
@@ -982,25 +982,34 @@
 (use-package add-node-modules-path
   :config
 
-  (dolist (mode '(typescript-mode js-mode js2-mode))
+  (dolist (mode '(typescript-mode js2-mode))
     (add-hook mode 'add-node-modules-path)))
 
 ;; Typescript Mode ================================= ;;
 
 (use-package typescript-mode
   :mode "\\.ts\\'")
-;; :config
-;; (push '(typescript-mode . typescript-ts-mode) major-mode-remap-alist))
-
-;; (setq typescript-indent-level 4))
 
 (use-package ob-typescript
   :after org)
 
+(use-package typescript-ts-mode
+  :init
+  ;; Associate ts files with `typescript-ts-mode'.
+  (add-to-list 'auto-mode-alist (cons "\\.ts\\'" 'typescript-ts-mode))
+  (add-hook 'typescript-ts-mode-hook #'eglot-ensure)
+  :custom (typescript-ts-mode-indent-offset 4)
+  :ensure nil)
+
+;; Treesitter Modules ========================================== ;;
+
+;; https://github.com/casouri/tree-sitter-module
+(add-to-list 'treesit-extra-load-path
+             (expand-file-name "~/.emacs.d/treesitter/tree-sitter-module/dist"))
+
 ;; EditorConfig ======================================== ;;
 
 (use-package editorconfig
-
   :diminish
   :config
   (editorconfig-mode 1))
