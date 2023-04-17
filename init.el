@@ -875,7 +875,8 @@
 (use-package eglot
   :elpaca nil
   :config
-  (setq eglot-sync-connect 0)
+  (setq eglot-sync-connect 0
+        eglot-confirm-server-initiated-edits nil)
   ;; (add-to-list 'eglot-stay-out-of 'flymake)
   ;; Keybindings
   (define-key eglot-mode-map (kbd "C-c c r") 'eglot-rename)
@@ -899,8 +900,6 @@
   (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '(rust-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '(rustic-mode . ("rls" "--stdio")))
-  (add-to-list 'eglot-server-programs '(scheme-mode . ("guile-lsp-server")))
-
 
   ;; Automatically start
   (add-hook 'typescript-mode-hook 'eglot-ensure)
@@ -1118,7 +1117,7 @@
 ;; Copilot ======================================== ;;
 
 (use-package copilot
-  :elpaca (copilot :type git :host github :repo "zerolfx/copilot.el")
+  :elpaca (copilot :type git :host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
   :config
   (global-set-key (kbd "C-c c p") 'copilot-mode)
   ;; (add-hook 'prog-mode-hook 'copilot-mode)
