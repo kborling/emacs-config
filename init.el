@@ -206,7 +206,7 @@
 ;; Theming ================================================ ;;
 (let ((font "Comic Code"))
   (set-face-attribute 'default nil
-                      :family font :weight 'regular :height 140)
+                      :family font :weight 'regular :height 130)
   (set-face-attribute 'bold nil
                       :family font :weight 'medium)
   (set-face-attribute 'italic nil
@@ -218,6 +218,9 @@
 
 ;; Custom themes
 (use-package doom-themes)
+
+(use-package myron-themes
+  :elpaca (myron-themes :host github :repo "neeasade/myron-themes" :files ("*.el" "themes/*.el")))
 
 (use-package uwu-theme
   :config
@@ -312,13 +315,13 @@
 (defun magit-status-refresh-buffer-quick ()
   "Refresh the current `magit-status' buffer."
   (magit-insert-section (status)
-    (magit-insert-heading "Quick status")
-    (insert "\n")
-    (magit-insert-error-header)
-    (magit-insert-head-branch-header)
-    (insert "\n")
-    (magit-insert-unstaged-changes)
-    (magit-insert-staged-changes)))
+                        (magit-insert-heading "Quick status")
+                        (insert "\n")
+                        (magit-insert-error-header)
+                        (magit-insert-head-branch-header)
+                        (insert "\n")
+                        (magit-insert-unstaged-changes)
+                        (magit-insert-staged-changes)))
 
 (defun magit-quick-status ()
   "Toggle quick magit status."
@@ -334,7 +337,6 @@
 ;; Marginalia ======================================== ;;
 
 (use-package marginalia
-  ;; Either bind `marginalia-cycle' globally or only in the minibuffer
   :bind (("M-A" . marginalia-cycle)
          :map minibuffer-local-map
          ("M-A" . marginalia-cycle))
@@ -349,11 +351,11 @@
          (shell-mode . corfu-mode)
          (eshell-mode . corfu-mode))
   :custom
-  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+  (corfu-cycle t)                  ;; Enable cycling for `corfu-next/previous'
   (corfu-auto nil)                 ;; Enable auto completion
-  (corfu-separator ?\s)          ;; Orderless field separator
-  (corfu-quit-no-match 'separator) ; Don't quit if there is `corfu-separator' inserted
-  (corfu-echo-documentation nil) ;; Disable documentation in the echo area
+  (corfu-separator ?\s)            ;; Orderless field separator
+  (corfu-quit-no-match 'separator) ;; Don't quit if there is `corfu-separator' inserted
+  (corfu-echo-documentation nil)   ;; Disable documentation in the echo area
   (corfu-scroll-margin 4)
 
   :config
@@ -374,7 +376,6 @@
 ;; Add extensions
 (use-package cape
   :config
-  ;; Add `completion-at-point-functions', used by `completion-at-point'.
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   (add-to-list 'completion-at-point-functions #'cape-file)
   ;;(add-to-list 'completion-at-point-functions #'cape-history)
@@ -455,6 +456,8 @@
   (let ((map global-map))
     (define-key map (kbd "M-/") #'dabbrev-expand)
     (define-key map (kbd "C-M-/") #'dabbrev-completion)))
+
+;; (global-set-key [remap dabbrev-expand] 'hippie-expand)
 
 ;; Orderless ========================================= ;;
 
@@ -601,10 +604,6 @@
 ;; vterm ================================================ ;;
 
 (use-package vterm)
-
-;; FIDO/IComplete ===================================== ;;
-
-(setq icomplete-compute-delay 0)
 
 ;; Vertico ============================================= ;;
 
@@ -824,7 +823,6 @@
 
 (use-package consult-dir
   :after consult
-
   :bind (("C-x C-d" . consult-dir)
          :map minibuffer-local-completion-map
          ("C-x C-d" . consult-dir)
@@ -833,7 +831,6 @@
 ;; Embark ============================================ ;;
 
 (use-package embark
-
   :bind
   (("C-." . embark-act)
    ("M-." . embark-dwim)
@@ -848,9 +845,7 @@
                  nil
                  (window-parameters (mode-line-format . none)))))
 
-;; Consult users will also want the embark-consult package.
 (use-package embark-consult
-                                        ; only need to install it, embark loads it after consult if found
   :after (consult embark)
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
@@ -919,9 +914,8 @@
    flymake-fringe-indicator-position 'left-fringe
    flymake-suppress-zero-counters t
    flymake-start-on-flymake-mode t
-   ;; flymake-no-changes-timeout 0.5
-   ;; flymake-start-on-save-buffer t
    ;; flymake-no-changes-timeout 0.1
+   ;; flymake-start-on-save-buffer t
    flymake-proc-compilation-prevents-syntax-check t
    flymake-wrap-around nil
    flymake-mode-line-format
@@ -1047,7 +1041,6 @@
   )
 
 (use-package rustic
-
   :bind (:map rustic-mode-map
               ("M-j" . lsp-ui-imenu)
               ("M-?" . lsp-find-references)
@@ -1058,14 +1051,13 @@
               ("C-c C-c Q" . lsp-workspace-shutdown)
               ("C-c C-c s" . lsp-rust-analyzer-status))
   :config
-  (setq rustic-lsp-client 'eglot)
+  (setq rustic-lsp-client 'eglot
+        rustic-format-on-save t)
   ;; uncomment for less flashiness
   ;; (setq lsp-eldoc-hook nil)
   ;; (setq lsp-enable-symbol-highlighting nil)
   ;; (setq lsp-signature-auto-activate nil)
 
-  ;; comment to disable rustfmt on save
-  (setq rustic-format-on-save t)
   (add-hook 'rustic-mode-hook 'kdb-rustic-mode-hook))
 
 (defun kdb-rustic-mode-hook ()
@@ -1076,10 +1068,7 @@
 
 ;; Elisp ========================================= ;;
 
-;; (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
-
 (use-package sly
-
   :hook ((lisp-mode . sly-symbol-completion-mode))
   :custom (inferior-lisp-program (locate-file "sbcl" exec-path))
   :bind (:map sly-mode-map
@@ -1189,8 +1178,6 @@
   (electric-indent-local-mode -1)
   ;; (auto-fill-mode 1)
   )
-
-;; (add-hook 'org-mode-hook 'org-indent-mode)
 
 (use-package org-modern
   :config
@@ -1479,7 +1466,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
-)
+ )
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
