@@ -1265,8 +1265,8 @@
 ;; Org Roam ===================================== ;;
 
 (use-package org-roam
-  :if (or (eq system-type 'gnu/linux)
-          (eq system-type 'darwin))
+  ;; :if (or (eq system-type 'gnu/linux)
+  ;;         (eq system-type 'darwin))
   :custom
   (org-roam-directory (file-truename "~/roam"))
   :bind (("C-c n l" . org-roam-buffer-toggle)
@@ -1284,13 +1284,10 @@
   (require 'org-roam-protocol))
 
 (use-package org-roam-ui
-  :if (or (eq system-type 'gnu/linux)
-          (eq system-type 'darwin))
+  ;; :if (or (eq system-type 'gnu/linux)
+  ;;         (eq system-type 'darwin))
   :elpaca (org-roam-ui :host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
   :after org-roam
-  ;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
-  ;;         a hookable mode anymore, you're advised to pick something yourself
-  ;;         if you don't care about startup time, use
   ;;  :hook (after-init . org-roam-ui-mode)
   :config
   (setq org-roam-ui-sync-theme t

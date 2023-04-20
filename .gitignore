@@ -13,6 +13,7 @@ eshell/history
 eshell/lastdir
 devdocs/
 saveplace
+bookmarks
 savehist
 projects
 recentf
@@ -26,3 +27,4 @@ elisp/
 straight/
 elpaca/
 treesitter/
+org-roam.db
