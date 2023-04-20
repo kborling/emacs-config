@@ -283,7 +283,7 @@
          ("C-k" . crux-smart-kill-line)
          ("M-<return>" . crux-smart-open-line-above)
          ("C-x w" . crux-rename-file-and-buffer)
-         ("C-c d" . crux-duplicate-current-line-or-region)
+         ("C-z" . crux-duplicate-current-line-or-region)
          ("C-c M-d" . crux-duplicate-and-comment-current-line-or-region)
          ([(shift return)] . crux-smart-open-line)))
 
@@ -1269,16 +1269,25 @@
   ;;         (eq system-type 'darwin))
   :custom
   (org-roam-directory (file-truename "~/roam"))
+  (org-roam-completion-everywhere t)
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
          ("C-c n g" . org-roam-graph)
          ("C-c n i" . org-roam-node-insert)
          ("C-c n c" . org-roam-capture)
          ;; Dailies
-         ("C-c n j" . org-roam-dailies-capture-today))
+         ("C-c d c" . org-roam-dailies-capture-today)
+         ("C-c d t" . org-roam-dailies-goto-today)
+         ("C-c d p" . org-roam-dailies-goto-previous-note)
+         ("C-c d n" . org-roam-dailies-goto-next-note)
+         ("C-c d C" . org-roam-dailies-capture-date)
+         ("C-c d d" . org-roam-dailies-goto-date))
   :config
   ;; If you're using a vertical completion framework, you might want a more informative completion interface
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  (setq org-roam-dailies-capture-templates
+      '(("d" "default" entry "* %<%I:%M %p>: %?"
+         :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
   (org-roam-db-autosync-mode)
   ;; If using org-roam-protocol
   (require 'org-roam-protocol))
