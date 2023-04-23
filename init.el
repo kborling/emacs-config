@@ -1174,6 +1174,15 @@
    ediff-split-window-function 'split-window-horizontally
    ediff-window-setup-function 'ediff-setup-windows-plain))
 
+;; Jinx Spellcheck ============================== ;;
+
+;; See https://github.com/minad/jinx for installing enchant
+(use-package jinx
+  :if (file-exists-p (locate-file "enchant-2" exec-path))
+  :config
+  (dolist (hook '(text-mode-hook org-mode-hook))
+  (add-hook hook #'jinx-mode)))
+
 ;; Org Mode ===================================== ;;
 
 ;;; Org Mode
