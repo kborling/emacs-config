@@ -206,15 +206,15 @@
   (define-key map (kbd "C-c f f") #'toggle-frame-fullscreen))
 
 ;; Theming ================================================ ;;
-(let ((font "Comic Code"))
+(let ((font "Berkeley Mono"))
   (set-face-attribute 'default nil
-                      :family font :weight 'regular :height 140)
+                      :family font :weight 'regular :height 150)
   (set-face-attribute 'bold nil
                       :family font :weight 'medium)
   (set-face-attribute 'italic nil
                       :family font :weight 'regular :slant 'italic))
 (set-face-attribute 'variable-pitch nil
-                    :family "Berkeley Mono Variable" :height 150 :weight 'regular)
+                    :family "Berkeley Mono Variable" :height 170 :weight 'regular)
 (set-fontset-font t 'unicode
                   (font-spec :name "Inconsolata Light" :size 16) nil)
 
@@ -226,7 +226,10 @@
 
 (use-package uwu-theme
   :config
-  (setq uwu-distinct-line-numbers 'nil)
+  (setq
+   uwu-distinct-line-numbers 'nil
+   uwu-scale-org-headlines t
+   uwu-use-variable-pitch t)
   (load-theme 'uwu t))
 
 ;; Frame ============================================== ;;
@@ -393,8 +396,8 @@
   ;; :custom
   ;; (tempel-trigger-prefix "<")
 
-  :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
-         ("M-*" . tempel-insert))
+  :bind (("C-<tab>" . tempel-complete) ;; Alternative tempel-expand
+         ("M-+" . tempel-insert))
 
   :init
   ;; Setup completion at point
@@ -1177,9 +1180,10 @@
 (defun kdb-org-mode-setup ()
   "Setup org mode."
   (org-indent-mode)
-  ;; (variable-pitch-mode 1)
+  (variable-pitch-mode 1)
   (visual-line-mode 1)
   (electric-indent-local-mode -1)
+  (setq cursor-type 'bar)
   ;; (auto-fill-mode 1)
   )
 
@@ -1269,7 +1273,7 @@
   ;;         (eq system-type 'darwin))
   :custom
   (org-roam-directory (file-truename "~/roam"))
-  (org-roam-completion-everywhere t)
+  ;; (org-roam-completion-everywhere t)
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
          ("C-c n g" . org-roam-graph)
