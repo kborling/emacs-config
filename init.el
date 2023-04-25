@@ -203,12 +203,12 @@
   (define-key map (kbd "C-c o d") #'dired)
   (define-key map (kbd "C-c o s") #'speedbar)
 
-  (define-key map (kbd "C-c f f") #'toggle-frame-fullscreen))
+  (define-key map (kbd "C-c t f") #'toggle-frame-fullscreen))
 
 ;; Theming ================================================ ;;
-(let ((font "Berkeley Mono"))
+(let ((font "Comic Code"))
   (set-face-attribute 'default nil
-                      :family font :weight 'regular :height 150)
+                      :family font :weight 'regular :height 140)
   (set-face-attribute 'bold nil
                       :family font :weight 'medium)
   (set-face-attribute 'italic nil
@@ -286,7 +286,7 @@
          ("C-k" . crux-smart-kill-line)
          ("M-<return>" . crux-smart-open-line-above)
          ("C-x w" . crux-rename-file-and-buffer)
-         ("C-z" . crux-duplicate-current-line-or-region)
+         ("C-c C-d" . crux-duplicate-current-line-or-region)
          ("C-c M-d" . crux-duplicate-and-comment-current-line-or-region)
          ([(shift return)] . crux-smart-open-line)))
 
@@ -311,7 +311,7 @@
          ("C-c g f" . magit-fetch-all)
          ("C-c g b" . magit-branch)
          ("C-c g d" . magit-diff)
-         ;; ("C-c g r" . magit-remote)
+         ("C-c g r" . magit-remote)
          ("C-c g z" . magit-stash)
          ("C-c g Z" . magit-apply)
          ("C-c g t" . #'magit-quick-status)
@@ -365,8 +365,8 @@
 
   :config
   (corfu-popupinfo-mode 1)
-  (setq corfu-popupinfo-delay 0.0)
-  ;; (corfu-indexed-mode 1)
+  (setq corfu-popupinfo-delay 0.2)
+
   (corfu-history-mode 1)
 
   (define-key corfu-map (kbd "<tab>") #'corfu-complete)
@@ -460,6 +460,7 @@
    dabbrev-upcase-means-case-search t)
   (let ((map global-map))
     (define-key map (kbd "M-/") #'dabbrev-expand)
+    (define-key map (kbd "M-\\") #'hippie-expand)
     (define-key map (kbd "C-M-/") #'dabbrev-completion)))
 
 ;; (global-set-key [remap dabbrev-expand] 'hippie-expand)
@@ -1014,6 +1015,8 @@
   :after org)
 
 (use-package typescript-ts-mode
+  :if (or (eq system-type 'gnu/linux)
+          (eq system-type 'darwin))
   :elpaca nil
   :init
   ;; Associate ts files with `typescript-ts-mode'.
@@ -1178,10 +1181,11 @@
 
 ;; See https://github.com/minad/jinx for installing enchant
 (use-package jinx
-  :if (file-exists-p (locate-file "enchant-2" exec-path))
+  :if (or (eq system-type 'gnu/linux)
+          (eq system-type 'darwin))
   :config
   (dolist (hook '(text-mode-hook org-mode-hook))
-  (add-hook hook #'jinx-mode)))
+    (add-hook hook #'jinx-mode)))
 
 ;; Org Mode ===================================== ;;
 
@@ -1299,8 +1303,8 @@
   ;; If you're using a vertical completion framework, you might want a more informative completion interface
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
   (setq org-roam-dailies-capture-templates
-      '(("d" "default" entry "* %<%I:%M %p>: %?"
-         :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+        '(("d" "default" entry "* %<%I:%M %p>: %?"
+           :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
   (org-roam-db-autosync-mode)
   ;; If using org-roam-protocol
   (require 'org-roam-protocol))
@@ -1499,7 +1503,7 @@
       (unless (derived-mode-p 'prog-mode)
         (setq mode-line-format old-mode-line-format))))
 
-  :bind ("C-c m" . kdb-olivetti-mode))
+  :bind ("C-c t m" . kdb-olivetti-mode))
 
 ;; Macos ========================================== ;;
 
