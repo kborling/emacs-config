@@ -320,13 +320,13 @@
 (defun magit-status-refresh-buffer-quick ()
   "Refresh the current `magit-status' buffer."
   (magit-insert-section (status)
-                        (magit-insert-heading "Quick status")
-                        (insert "\n")
-                        (magit-insert-error-header)
-                        (magit-insert-head-branch-header)
-                        (insert "\n")
-                        (magit-insert-unstaged-changes)
-                        (magit-insert-staged-changes)))
+    (magit-insert-heading "Quick status")
+    (insert "\n")
+    (magit-insert-error-header)
+    (magit-insert-head-branch-header)
+    (insert "\n")
+    (magit-insert-unstaged-changes)
+    (magit-insert-staged-changes)))
 
 (defun magit-quick-status ()
   "Toggle quick magit status."
@@ -1042,31 +1042,16 @@
 
 (use-package rust-mode
   :mode ("\\.rs\\'")
-  ;; :hook (rust-mode . lsp-deferred)
   :config
   (add-hook 'rust-mode-hook
             (lambda () (setq indent-tabs-mode nil)))
   (setq rust-format-on-save t)
-  (define-key rust-mode-map (kbd "C-c C-c") 'rust-run)
-  )
+  (define-key rust-mode-map (kbd "C-c C-c") 'rust-run))
 
 (use-package rustic
-  :bind (:map rustic-mode-map
-              ("M-j" . lsp-ui-imenu)
-              ("M-?" . lsp-find-references)
-              ("C-c C-c l" . flycheck-list-errors) ;; todo use flymake
-              ("C-c C-c a" . lsp-execute-code-action)
-              ("C-c C-c r" . lsp-rename)
-              ("C-c C-c q" . lsp-workspace-restart)
-              ("C-c C-c Q" . lsp-workspace-shutdown)
-              ("C-c C-c s" . lsp-rust-analyzer-status))
   :config
   (setq rustic-lsp-client 'eglot
         rustic-format-on-save t)
-  ;; uncomment for less flashiness
-  ;; (setq lsp-eldoc-hook nil)
-  ;; (setq lsp-enable-symbol-highlighting nil)
-  ;; (setq lsp-signature-auto-activate nil)
 
   (add-hook 'rustic-mode-hook 'kdb-rustic-mode-hook))
 
