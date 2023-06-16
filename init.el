@@ -86,7 +86,7 @@
 
 ;; Elpaca ========================================== ;;
 
-(defvar elpaca-installer-version 0.3)
+(defvar elpaca-installer-version 0.4)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
 (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
 (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
@@ -101,6 +101,7 @@
   (add-to-list 'load-path (if (file-exists-p build) build repo))
   (unless (file-exists-p repo)
     (make-directory repo t)
+    (when (< emacs-major-version 28) (require 'subr-x))
     (condition-case-unless-debug err
         (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
                  ((zerop (call-process "git" nil buffer t "clone"
@@ -206,9 +207,9 @@
   (define-key map (kbd "C-c t f") #'toggle-frame-fullscreen))
 
 ;; Theming ================================================ ;;
-(let ((font "Comic Code"))
+(let ((font "Iosevka"))
   (set-face-attribute 'default nil
-                      :family font :weight 'regular :height 140)
+                      :family font :weight 'regular :height 160)
   (set-face-attribute 'bold nil
                       :family font :weight 'medium)
   (set-face-attribute 'italic nil
@@ -298,7 +299,13 @@
   :config
   (global-hl-todo-mode))
 
-;; Magit ============================================== ;;
+;; Rainbow Mode ======================================== ;;
+
+(use-package rainbow-mode
+  :diminish
+  :hook ((prog-mode) . rainbow-mode))
+
+;; Magit =============================================== ;;
 
 (use-package magit
   :bind (
@@ -1014,22 +1021,22 @@
 (use-package ob-typescript
   :after org)
 
-(use-package typescript-ts-mode
-  :if (or (eq system-type 'gnu/linux)
-          (eq system-type 'darwin))
-  :elpaca nil
-  :init
-  ;; Associate ts files with `typescript-ts-mode'.
-  (add-to-list 'auto-mode-alist (cons "\\.ts\\'" 'typescript-ts-mode))
-  (add-hook 'typescript-ts-mode-hook #'eglot-ensure)
-  :custom (typescript-ts-mode-indent-offset 4)
-  :ensure nil)
+;; (use-package typescript-ts-mode
+;;   :if (or (eq system-type 'gnu/linux)
+;;           (eq system-type 'darwin))
+;;   :elpaca nil
+;;   :init
+;;   ;; Associate ts files with `typescript-ts-mode'.
+;;   (add-to-list 'auto-mode-alist (cons "\\.ts\\'" 'typescript-ts-mode))
+;;   (add-hook 'typescript-ts-mode-hook #'eglot-ensure)
+;;   :custom (typescript-ts-mode-indent-offset 4)
+;;   :ensure nil)
 
 ;; Treesitter Modules ========================================== ;;
 
 ;; https://github.com/casouri/tree-sitter-module
-(add-to-list 'treesit-extra-load-path
-             (expand-file-name "~/.emacs.d/treesitter/tree-sitter-module/dist"))
+;; (add-to-list 'treesit-extra-load-path
+;;              (expand-file-name "~/.emacs.d/treesitter/tree-sitter-module/dist"))
 
 ;; EditorConfig ======================================== ;;
 
@@ -1127,7 +1134,7 @@
 
 ;; Ansi-term ====================================== ;;
 
-(setq explicit-shell-file-name (locate-file "zsh" exec-path))
+(setq explicit-shell-file-name (locate-file "fish" exec-path))
 (defadvice ansi-term (before force-bash)
   "Set the default shell to bash."
   (interactive (list explicit-shell-file-name)))
