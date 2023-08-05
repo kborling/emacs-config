@@ -86,7 +86,7 @@
 
 ;; Elpaca ========================================== ;;
 
-(defvar elpaca-installer-version 0.4)
+(defvar elpaca-installer-version 0.5)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
 (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
 (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
@@ -113,7 +113,7 @@
                                        "--eval" "(byte-recompile-directory \".\" 0 'force)")))
                  ((require 'elpaca))
                  ((elpaca-generate-autoloads "elpaca" repo)))
-            (kill-buffer buffer)
+            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
           (error "%s" (with-current-buffer buffer (buffer-string))))
       ((error) (warn "%s" err) (delete-directory repo 'recursive))))
   (unless (require 'elpaca-autoloads nil t)
@@ -207,9 +207,9 @@
   (define-key map (kbd "C-c t f") #'toggle-frame-fullscreen))
 
 ;; Theming ================================================ ;;
-(let ((font "Iosevka"))
+(let ((font "IntelOne Mono"))
   (set-face-attribute 'default nil
-                      :family font :weight 'regular :height 160)
+                      :family font :weight 'regular :height 150)
   (set-face-attribute 'bold nil
                       :family font :weight 'medium)
   (set-face-attribute 'italic nil
@@ -1256,6 +1256,7 @@
    'org-babel-load-languages
    '((emacs-lisp . t)
      (shell . t)
+     (restclient . t)
      (python . t))))
 
 ;; Org Files
