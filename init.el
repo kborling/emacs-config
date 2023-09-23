@@ -207,9 +207,9 @@
   (define-key map (kbd "C-c t f") #'toggle-frame-fullscreen))
 
 ;; Theming ================================================ ;;
-(let ((font "IntelOne Mono"))
+(let ((font "Comic Code"))
   (set-face-attribute 'default nil
-                      :family font :weight 'regular :height 150)
+                      :family font :weight 'regular :height 130)
   (set-face-attribute 'bold nil
                       :family font :weight 'medium)
   (set-face-attribute 'italic nil
@@ -1135,10 +1135,10 @@
 ;; Ansi-term ====================================== ;;
 
 (setq explicit-shell-file-name (locate-file "fish" exec-path))
-(defadvice ansi-term (before force-bash)
+(defadvice kdb-ansi-term (before force-bash)
   "Set the default shell to bash."
   (interactive (list explicit-shell-file-name)))
-(ad-activate 'ansi-term)
+(ad-activate 'kdb-ansi-term)
 
 (defun kdb-term-exec-hook ()
   "Kill the terminal after exit."
