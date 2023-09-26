@@ -54,6 +54,7 @@
  mouse-yank-at-point t
  require-final-newline t
  load-prefer-newer t
+ set-mark-command-repeat-pop t
  global-mark-ring-max 50000
  bookmark-save-flag 1)
 
@@ -209,7 +210,7 @@
 ;; Theming ================================================ ;;
 (let ((font "Comic Code"))
   (set-face-attribute 'default nil
-                      :family font :weight 'regular :height 130)
+                      :family font :weight 'regular :height 140)
   (set-face-attribute 'bold nil
                       :family font :weight 'medium)
   (set-face-attribute 'italic nil
@@ -266,7 +267,6 @@
 ;; Diminish ========================================== ;;
 
 (use-package diminish
-
   :config
   (diminish 'subword-mode)
   (diminish 'eldoc-mode))
@@ -321,8 +321,7 @@
          ("C-c g r" . magit-remote)
          ("C-c g z" . magit-stash)
          ("C-c g Z" . magit-apply)
-         ("C-c g t" . #'magit-quick-status)
-         ))
+         ("C-c g t" . #'magit-quick-status)))
 
 (defun magit-status-refresh-buffer-quick ()
   "Refresh the current `magit-status' buffer."
@@ -910,12 +909,26 @@
   (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '(rust-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '(rustic-mode . ("rls" "--stdio")))
+  (add-to-list 'eglot-server-programs '((c++-mode c-mode)
+                 . ("clangd"
+                       "-j=8"
+                       "--log=error"
+                       "--malloc-trim"
+                       "--background-index"
+                       "--clang-tidy"
+                       "--cross-file-rename"
+                       "--completion-style=detailed"
+                       "--pch-storage=memory"
+                       "--header-insertion=never"
+                       "--header-insertion-decorators=0")))
 
   ;; Automatically start
   (add-hook 'typescript-mode-hook 'eglot-ensure)
+  (add-hook 'c++-mode-hook 'eglot-ensure)
+  (add-hook 'c-mode-hook 'eglot-ensure)
   ;; (add-hook 'web-mode-hook 'eglot-ensure)
   ;; (add-hook 'csharp-mode-hook 'eglot-ensure)
-  ;; (add-hook 'rust-mode-hook 'eglot-ensure)
+  (add-hook 'rust-mode-hook 'eglot-ensure)
   )
 
 (use-package consult-eglot
@@ -956,18 +969,18 @@
                     (cons 'flymake-eldoc-function
                           (delq 'flymake-eldoc-function eldoc-documentation-functions))))))
 
-(use-package flymake-eslint
-  :config
-  (add-hook 'typescript-mode-hook
-            (lambda ()
-              (flymake-eslint-enable))))
+;; (use-package flymake-eslint
+;;   :config
+;;   (add-hook 'typescript-mode-hook
+;;             (lambda ()
+;;               (flymake-eslint-enable))))
 
-(use-package flymake-stylelint
-  :elpaca (flymake-stylelint :type git :host github :repo "orzechowskid/flymake-stylelint")
-  :config
-  (add-hook 'scss-mode-hook
-            (lambda ()
-              (flymake-stylelint-enable))))
+;; (use-package flymake-stylelint
+;;   :elpaca (flymake-stylelint :type git :host github :repo "orzechowskid/flymake-stylelint")
+;;   :config
+;;   (add-hook 'scss-mode-hook
+;;             (lambda ()
+;;               (flymake-stylelint-enable))))
 
 ;; Emmet Mode ====================================== ;;
 
@@ -1067,6 +1080,17 @@
   (when buffer-file-name
     (setq-local buffer-save-without-query t))
   (add-hook 'before-save-hook 'lsp-format-buffer nil t))
+
+;; C++ =========================================== ;;
+
+(with-eval-after-load 'cc-mode
+  (defun c-indent-then-complete ()
+    "Make completion work again."
+    (interactive)
+    (if (= 0 (c-indent-line-or-region))
+	(completion-at-point)))
+  (dolist (map (list c-mode-map c++-mode-map))
+    (define-key map (kbd "<tab>") #'c-indent-then-complete)))
 
 ;; Elisp ========================================= ;;
 
