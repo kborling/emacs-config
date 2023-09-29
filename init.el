@@ -326,13 +326,13 @@
 (defun magit-status-refresh-buffer-quick ()
   "Refresh the current `magit-status' buffer."
   (magit-insert-section (status)
-    (magit-insert-heading "Quick status")
-    (insert "\n")
-    (magit-insert-error-header)
-    (magit-insert-head-branch-header)
-    (insert "\n")
-    (magit-insert-unstaged-changes)
-    (magit-insert-staged-changes)))
+                        (magit-insert-heading "Quick status")
+                        (insert "\n")
+                        (magit-insert-error-header)
+                        (magit-insert-head-branch-header)
+                        (insert "\n")
+                        (magit-insert-unstaged-changes)
+                        (magit-insert-staged-changes)))
 
 (defun magit-quick-status ()
   "Toggle quick magit status."
@@ -403,7 +403,10 @@
   ;; (tempel-trigger-prefix "<")
 
   :bind (("C-<tab>" . tempel-complete) ;; Alternative tempel-expand
-         ("M-+" . tempel-insert))
+         ("M-+" . tempel-insert)
+         ("RET" . tempel-done)
+         ("<tab>" . tempel-next)
+         ("<backtab>" . tempel-previous))
 
   :init
   ;; Setup completion at point
@@ -490,8 +493,8 @@
   :config
   (setq
    completion-styles
-   '(substring basic orderless)
-   ;; '(basic substring initials flex partial-completion orderless))
+   ;; '(substring basic orderless)
+   '(basic substring initials flex orderless)
    completion-category-defaults nil
    completion-category-overrides
    '((file (styles . (basic substring partial-completion orderless)))
@@ -910,17 +913,17 @@
   (add-to-list 'eglot-server-programs '(rust-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '(rustic-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '((c++-mode c-mode)
-                 . ("clangd"
-                       "-j=8"
-                       "--log=error"
-                       "--malloc-trim"
-                       "--background-index"
-                       "--clang-tidy"
-                       "--cross-file-rename"
-                       "--completion-style=detailed"
-                       "--pch-storage=memory"
-                       "--header-insertion=never"
-                       "--header-insertion-decorators=0")))
+                                        . ("clangd"
+                                           "-j=8"
+                                           "--log=error"
+                                           "--malloc-trim"
+                                           "--background-index"
+                                           "--clang-tidy"
+                                           "--cross-file-rename"
+                                           "--completion-style=detailed"
+                                           "--pch-storage=memory"
+                                           "--header-insertion=never"
+                                           "--header-insertion-decorators=0")))
 
   ;; Automatically start
   (add-hook 'typescript-mode-hook 'eglot-ensure)
@@ -1088,7 +1091,7 @@
     "Make completion work again."
     (interactive)
     (if (= 0 (c-indent-line-or-region))
-	(completion-at-point)))
+	      (completion-at-point)))
   (dolist (map (list c-mode-map c++-mode-map))
     (define-key map (kbd "<tab>") #'c-indent-then-complete)))
 
@@ -1452,14 +1455,13 @@
   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
   ;; Enable recursive minibuffers
-  (setq enable-recursive-minibuffers t)
+  ;; (setq enable-recursive-minibuffers t)
   :config
   (setq
    window-divider-default-right-width 1
    window-divider-default-bottom-width 1
    window-divider-default-places t)
   (window-divider-mode -1))
-
 
 ;; EWW =============================================== ;;
 
