@@ -403,10 +403,10 @@
   ;; (tempel-trigger-prefix "<")
 
   :bind (("C-<tab>" . tempel-complete) ;; Alternative tempel-expand
-         ("M-+" . tempel-insert)
-         ("RET" . tempel-done)
-         ("<tab>" . tempel-next)
-         ("<backtab>" . tempel-previous))
+         ("M-+" . tempel-insert))
+         ;; ("RET" . tempel-done)
+         ;; ("<tab>" . tempel-next)
+         ;; ("<backtab>" . tempel-previous))
 
   :init
   ;; Setup completion at point
