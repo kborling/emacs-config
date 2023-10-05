@@ -194,18 +194,19 @@
   ;; Misc
   (define-key map (kbd "C-x C-b") #'ibuffer)
   (define-key map (kbd "M-z") #'zap-up-to-char)
-  ;; Isearch
+  (define-key map (kbd "C-z") #'zap-to-char)
+  ;; isearch
   (define-key map (kbd "C-s") #'isearch-forward-regexp)
   (define-key map (kbd "C-r") #'isearch-backward-regexp)
   (define-key map (kbd "C-M-s") #'isearch-forward)
   (define-key map (kbd "C-M-r") #'isearch-backward)
-  ;; Open applications
+  ;; Open stuff
   (define-key map (kbd "C-c o e") #'eshell)
   (define-key map (kbd "C-c o t") #'vterm)
-  (define-key map (kbd "C-c o d") #'dired)
+  (define-key map (kbd "C-c o d") #'dired-jump-other-window)
   (define-key map (kbd "C-c o s") #'speedbar)
-
-  (define-key map (kbd "C-c t f") #'toggle-frame-fullscreen))
+  ;; Toggle stuff
+  (define-key map (kbd "C-c o f") #'toggle-frame-fullscreen))
 
 ;; Theming ================================================ ;;
 (let ((font "Comic Code"))
@@ -289,6 +290,9 @@
          ("C-x w" . crux-rename-file-and-buffer)
          ("C-c C-d" . crux-duplicate-current-line-or-region)
          ("C-c M-d" . crux-duplicate-and-comment-current-line-or-region)
+         ("C-x 4 t" . crux-transpose-windows)
+         ("C-^" . crux-top-join-line)
+         ("C-<tab>" . crux-cleanup-buffer-or-region)
          ([(shift return)] . crux-smart-open-line)))
 
 (global-set-key [remap kill-whole-line] #'crux-kill-whole-line)
@@ -326,13 +330,13 @@
 (defun magit-status-refresh-buffer-quick ()
   "Refresh the current `magit-status' buffer."
   (magit-insert-section (status)
-                        (magit-insert-heading "Quick status")
-                        (insert "\n")
-                        (magit-insert-error-header)
-                        (magit-insert-head-branch-header)
-                        (insert "\n")
-                        (magit-insert-unstaged-changes)
-                        (magit-insert-staged-changes)))
+    (magit-insert-heading "Quick status")
+    (insert "\n")
+    (magit-insert-error-header)
+    (magit-insert-head-branch-header)
+    (insert "\n")
+    (magit-insert-unstaged-changes)
+    (magit-insert-staged-changes)))
 
 (defun magit-quick-status ()
   "Toggle quick magit status."
@@ -402,11 +406,8 @@
   ;; :custom
   ;; (tempel-trigger-prefix "<")
 
-  :bind (("C-<tab>" . tempel-complete) ;; Alternative tempel-expand
+  :bind (("M-*" . tempel-complete) ;; Alternative tempel-expand
          ("M-+" . tempel-insert))
-         ;; ("RET" . tempel-done)
-         ;; ("<tab>" . tempel-next)
-         ;; ("<backtab>" . tempel-previous))
 
   :init
   ;; Setup completion at point
@@ -849,7 +850,7 @@
 
 (use-package embark
   :bind
-  (("C-." . embark-act)
+  (("C-," . embark-act)
    ("M-." . embark-dwim)
    ("C-h B" . embark-bindings))
   :init
@@ -895,7 +896,7 @@
   (define-key eglot-mode-map (kbd "C-c c f") 'eglot-format-buffer)
   (define-key eglot-mode-map (kbd "C-c c o") 'eglot-code-action-organize-imports)
   (define-key eglot-mode-map (kbd "C-c c a") 'eglot-code-actions)
-  (define-key eglot-mode-map (kbd "C-<tab>") 'eglot-code-actions)
+  (define-key eglot-mode-map (kbd "C-.") 'eglot-code-actions)
   (define-key eglot-mode-map (kbd "C-c c q") 'eglot-code-action-quickfix)
   (define-key eglot-mode-map (kbd "C-c c e") 'eglot-code-action-extract)
   (define-key eglot-mode-map (kbd "C-c c j") 'eglot-code-action-inline)
@@ -908,7 +909,7 @@
   ;; (define-key eglot-mode-map (kbd "C-c c d") 'xref-find-definitions))
   :custom
   ;; Language Servers
-  ;; (add-to-list 'eglot-server-programs '(csharp-mode . ("omnisharp" "-lsp")))
+  (add-to-list 'eglot-server-programs '(csharp-mode . ("omnisharp" "-lsp")))
   (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '(rust-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '(rustic-mode . ("rls" "--stdio")))
@@ -1091,7 +1092,7 @@
     "Make completion work again."
     (interactive)
     (if (= 0 (c-indent-line-or-region))
-	      (completion-at-point)))
+        (completion-at-point)))
   (dolist (map (list c-mode-map c++-mode-map))
     (define-key map (kbd "<tab>") #'c-indent-then-complete)))
 
