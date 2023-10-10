@@ -37,6 +37,9 @@
  kept-old-versions 2
  create-lockfiles nil)
 
+;; Improve LSP performance
+(fset #'jsonrpc--log-event #'ignore)
+
 ;; User ============================================= ;;
 (setq user-full-name "Kevin Borling"
       user-mail-address "kborling@protonmail.com")
@@ -292,7 +295,7 @@
          ("C-c M-d" . crux-duplicate-and-comment-current-line-or-region)
          ("C-x 4 t" . crux-transpose-windows)
          ("C-^" . crux-top-join-line)
-         ("C-<tab>" . crux-cleanup-buffer-or-region)
+         ("<backtab>" . crux-cleanup-buffer-or-region)
          ([(shift return)] . crux-smart-open-line)))
 
 (global-set-key [remap kill-whole-line] #'crux-kill-whole-line)
@@ -874,7 +877,8 @@
   :elpaca nil
   :config
   (global-eldoc-mode 1)
-  (setq eldoc-echo-area-use-multiline-p t))
+  (setq eldoc-echo-area-use-multiline-p t
+        eldoc-idle-delay 0.75))
 
 ;; (use-package eldoc-box
 ;;   :after eldoc
@@ -889,6 +893,10 @@
   :elpaca nil
   :config
   (setq eglot-sync-connect 0
+        eglot-events-buffer-size 0
+        eglot-ignored-server-capabilities '(:hoverProvider
+                                            :documentHighlightProvider)
+        eglot-autoshutdown t
         eglot-confirm-server-initiated-edits nil)
   ;; (add-to-list 'eglot-stay-out-of 'flymake)
   ;; Keybindings
@@ -926,13 +934,23 @@
                                            "--header-insertion=never"
                                            "--header-insertion-decorators=0")))
 
-  ;; Automatically start
-  (add-hook 'typescript-mode-hook 'eglot-ensure)
-  (add-hook 'c++-mode-hook 'eglot-ensure)
-  (add-hook 'c-mode-hook 'eglot-ensure)
-  ;; (add-hook 'web-mode-hook 'eglot-ensure)
-  ;; (add-hook 'csharp-mode-hook 'eglot-ensure)
-  (add-hook 'rust-mode-hook 'eglot-ensure)
+  ;; Show all of the available eldoc information when we want it. This way Flymake errors
+  ;; don't just get clobbered by docstrings.
+  (add-hook 'eglot-managed-mode-hook
+            (lambda ()
+              "Make sure Eldoc will show us all of the feedback at point."
+              (setq-local eldoc-documentation-strategy
+                          #'eldoc-documentation-compose)))
+  (dolist (mode '(css-mode
+                  html-mode
+                  js-mode
+                  typescript-mode
+                  c-mode
+                  c++-mode
+                  rust-mode
+                  csharp-mode
+                  typescript-mode))
+    (add-hook (intern (concat (symbol-name mode) "-hook")) #'eglot-ensure))
   )
 
 (use-package consult-eglot
@@ -962,8 +980,8 @@
     (define-key map (kbd "C-c f s") #'flymake-start)
     (define-key map (kbd "C-c f d") #'flymake-show-buffer-diagnostics)
     (define-key map (kbd "C-c f D") #'flymake-show-project-diagnostics)
-    (define-key map (kbd "C-c f n") #'flymake-goto-next-error)
-    (define-key map (kbd "C-c f p") #'flymake-goto-prev-error))
+    (define-key map (kbd "M-n") #'flymake-goto-next-error)
+    (define-key map (kbd "M-p") #'flymake-goto-prev-error))
   :init
   (add-hook 'prog-mode-hook 'flymake-mode)
   (add-hook 'text-mode-hook 'flymake-mode)
@@ -1381,11 +1399,11 @@
   (other-window 1))
 (global-set-key (kbd "C-x M-k") 'kill-buffer-other-window)
 
-(defun indent-current-buffer ()
-  "Indent the current buffer while maintaining cursor position."
-  (interactive)
-  (indent-region (point-min) (point-max)))
-(global-set-key (kbd "<backtab>") 'indent-current-buffer)
+;; (defun indent-current-buffer ()
+;;   "Indent the current buffer while maintaining cursor position."
+;;   (interactive)
+;;   (indent-region (point-min) (point-max)))
+;; (global-set-key (kbd "<backtab>") 'indent-current-buffer)
 
 (defun copy-whole-buffer ()
   "Copy the current buffer while maintaining cursor position."
@@ -1549,7 +1567,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(package-selected-packages '(olivetti)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
