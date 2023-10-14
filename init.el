@@ -363,44 +363,43 @@
 
 ;; Corfu ============================================= ;;
 
-(use-package corfu
-  :elpaca (:files (:defaults "extensions/*"))
-  :hook ((prog-mode . corfu-mode)
-         (shell-mode . corfu-mode)
-         (eshell-mode . corfu-mode))
-  :custom
-  (corfu-cycle t)                  ;; Enable cycling for `corfu-next/previous'
-  (corfu-auto nil)                 ;; Enable auto completion
-  (corfu-separator ?\s)            ;; Orderless field separator
-  (corfu-quit-no-match 'separator) ;; Don't quit if there is `corfu-separator' inserted
-  (corfu-echo-documentation nil)   ;; Disable documentation in the echo area
-  (corfu-scroll-margin 4)
+;; (use-package corfu
+;;   :elpaca (:files (:defaults "extensions/*"))
+;;   :hook ((prog-mode . corfu-mode)
+;;          (shell-mode . corfu-mode)
+;;          (eshell-mode . corfu-mode))
+;;   :custom
+;;   (corfu-cycle t)                  ;; Enable cycling for `corfu-next/previous'
+;;   (corfu-auto nil)                 ;; Enable auto completion
+;;   (corfu-separator ?\s)            ;; Orderless field separator
+;;   (corfu-quit-no-match 'separator) ;; Don't quit if there is `corfu-separator' inserted
+;;   (corfu-echo-documentation nil)   ;; Disable documentation in the echo area
+;;   (corfu-scroll-margin 4)
 
-  :config
-  (corfu-popupinfo-mode 1)
-  (setq corfu-popupinfo-delay 0.2)
+;;   :config
+;;   (corfu-popupinfo-mode 1)
+;;   (setq corfu-popupinfo-delay 0.2)
 
-  (corfu-history-mode 1)
+;;   (corfu-history-mode 1)
 
-  (define-key corfu-map (kbd "<tab>") #'corfu-complete)
+;;   (define-key corfu-map (kbd "<tab>") #'corfu-complete)
 
-  (defun corfu-move-to-minibuffer ()
-    "Use corfu for completions in the minibuffer."
-    (interactive)
-    (let (completion-cycle-threshold completion-cycling)
-      (apply #'consult-completion-in-region completion-in-region--data)))
-  (define-key corfu-map "\M-m" #'corfu-move-to-minibuffer))
+;;   (defun corfu-move-to-minibuffer ()
+;;     "Use corfu for completions in the minibuffer."
+;;     (interactive)
+;;     (let (completion-cycle-threshold completion-cycling)
+;;       (apply #'consult-completion-in-region completion-in-region--data)))
+;;   (define-key corfu-map "\M-m" #'corfu-move-to-minibuffer))
 
-;; Add extensions
-(use-package cape
-  :config
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  ;;(add-to-list 'completion-at-point-functions #'cape-history)
-  (add-to-list 'completion-at-point-functions #'cape-keyword)
-  (add-to-list 'completion-at-point-functions #'cape-symbol)
-  ;; (add-to-list 'completion-at-point-functions #'cape-line)
-  )
+;; (use-package cape
+;;   :config
+;;   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+;;   (add-to-list 'completion-at-point-functions #'cape-file)
+;;   ;;(add-to-list 'completion-at-point-functions #'cape-history)
+;;   (add-to-list 'completion-at-point-functions #'cape-keyword)
+;;   (add-to-list 'completion-at-point-functions #'cape-symbol)
+;;   ;; (add-to-list 'completion-at-point-functions #'cape-line)
+;;   )
 
 ;; Templates ================================================
 
@@ -410,7 +409,7 @@
   ;; (tempel-trigger-prefix "<")
 
   :bind (("M-*" . tempel-complete) ;; Alternative tempel-expand
-         ("M-+" . tempel-insert))
+         ("C-<tab>" . tempel-insert))
 
   :init
   ;; Setup completion at point
@@ -426,6 +425,10 @@
   ;; either locally or globally. `expand-abbrev' is bound to C-x '.
   ;; (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
   ;; (global-tempel-abbrev-mode)
+  )
+
+(use-package tempel-collection
+  :after tempel
   )
 
 ;; TAGS ============================================== ;;
@@ -626,6 +629,33 @@
   :if (or (eq system-type 'gnu/linux)
           (eq system-type 'darwin)))
 
+;; IDO ================================================= ;;
+
+;; (use-package ido-completing-read+
+;;   :config
+;;   (ido-mode t)
+;;   (ido-everywhere t)
+;;   (ido-ubiquitous-mode 1)
+;;   (setq ido-enable-flex-matching t)
+;;   (setq ido-use-filename-at-point 'guess)
+;;   (setq ido-use-virtual-buffers t)
+;;   (setq ido-create-new-buffer 'always)
+;;   (setq ido-file-extensions-order '(".org" ".ts" ".js" ".html" ".json" ".txt" ".el" ".ini" ".cfg" ".cnf"))
+;;   ;; (add-to-list 'ido-ignore-files "\.bak" "")
+;;   ;; (add-to-list 'completion-ignored-extensions ".bak" ".o" ".a" ".so" ".git" "node_modules")
+;;   (setq magit-completing-read-function 'magit-ido-completing-read)
+
+;;     (global-set-key
+;;      "\M-x"
+;;      (lambda ()
+;;        (interactive)
+;;        (call-interactively
+;;         (intern
+;;          (ido-completing-read
+;;           "M-x "
+;;           (all-completions "" obarray 'commandp))))))
+;;     )
+
 ;; Vertico ============================================= ;;
 
 (use-package vertico
@@ -633,6 +663,7 @@
   :init
   (vertico-mode)
   (vertico-reverse-mode)
+  :config
   (setq vertico-cycle t)
   ;; :bind
   ;; ("C-s" . vertico-next)
@@ -655,6 +686,22 @@
     (message " "))
 
   :bind ("C-=" . kdb-vertico-reverse-mode))
+
+;; Company =========================================== ;;
+
+(use-package company
+  :hook ((prog-mode . company-mode)
+         (shell-mode . company-mode)
+         (eshell-mode . company-mode))
+  :diminish company-mode
+  :bind (:map company-active-map
+              ("<tab>" . company-complete-selection))
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0))
+
+(use-package company-box
+  :hook (company-mode . company-box-mode))
 
 ;; Dired ============================================= ;;
 
@@ -991,19 +1038,6 @@
                     (cons 'flymake-eldoc-function
                           (delq 'flymake-eldoc-function eldoc-documentation-functions))))))
 
-;; (use-package flymake-eslint
-;;   :config
-;;   (add-hook 'typescript-mode-hook
-;;             (lambda ()
-;;               (flymake-eslint-enable))))
-
-;; (use-package flymake-stylelint
-;;   :elpaca (flymake-stylelint :type git :host github :repo "orzechowskid/flymake-stylelint")
-;;   :config
-;;   (add-hook 'scss-mode-hook
-;;             (lambda ()
-;;               (flymake-stylelint-enable))))
-
 ;; Emmet Mode ====================================== ;;
 
 (use-package emmet-mode
@@ -1011,7 +1045,8 @@
   :preface (defvar emmet-mode-keymap (make-sparse-keymap))
   :bind (:map emmet-mode-keymap
               ("<C-tab>" . emmet-expand-line))
-  :hook ((html-mode) . emmet-mode))
+  :hook ((html-mode . emmet-mode)
+         (web-mode . emmet-mode)))
 
 ;; Web Mode ======================================== ;;
 
