@@ -184,8 +184,12 @@
   (define-key map (kbd "C-c C-r") #'query-replace)
 
   (define-key map (kbd "C-;") #'comment-line)
-  (define-key map (kbd "C-x f") #'project-find-file)
   (define-key map (kbd "C-x /") #'set-fill-column)
+
+  ;; Project
+  (define-key map (kbd "C-x f") #'project-find-file)
+  (define-key map (kbd "M-s g") #'project-find-regexp)
+  (define-key map (kbd "M-s d") #'project-find-dir)
 
   (define-key map (kbd "M-(") #'insert-pair)
   (define-key map (kbd "M-\"") #'insert-pair)
@@ -196,6 +200,7 @@
   (define-key map (kbd "C-c C-n") #'next-buffer)
   ;; Misc
   (define-key map (kbd "C-x C-b") #'ibuffer)
+  (define-key map (kbd "C-x C-r") #'recentf)
   (define-key map (kbd "M-z") #'zap-up-to-char)
   (define-key map (kbd "C-z") #'zap-to-char)
   ;; isearch
@@ -231,6 +236,7 @@
   :elpaca (myron-themes :host github :repo "neeasade/myron-themes" :files ("*.el" "themes/*.el")))
 
 (use-package uwu-theme
+  :elpaca (uwu-themes :host github :repo "kborling/uwu-theme" :files ("uwu-theme.el"))
   :config
   (setq
    uwu-distinct-line-numbers 'nil
@@ -352,6 +358,21 @@
     (message "Quick magit status turned on"))
   (magit-refresh-all))
 
+;; Yasnippet ========================================= ;;
+
+(use-package yasnippet
+    :hook ((prog-mode . yas-minor-mode)
+         (org-mode . yas-minor-mode))
+  :config
+  (define-key yas-keymap (kbd "M-j") 'yas-next-field-or-maybe-expand)
+  (define-key yas-keymap (kbd "M-k") 'yas-prev-field)
+  (define-key yas-minor-mode-map (kbd "C-<tab>") 'yas-expand))
+  ;; (yas-global-mode 1))
+
+(use-package yasnippet-snippets
+  :requires yasnippet)
+
+
 ;; Marginalia ======================================== ;;
 
 (use-package marginalia
@@ -360,76 +381,6 @@
          ("M-A" . marginalia-cycle))
   :init
   (marginalia-mode))
-
-;; Corfu ============================================= ;;
-
-;; (use-package corfu
-;;   :elpaca (:files (:defaults "extensions/*"))
-;;   :hook ((prog-mode . corfu-mode)
-;;          (shell-mode . corfu-mode)
-;;          (eshell-mode . corfu-mode))
-;;   :custom
-;;   (corfu-cycle t)                  ;; Enable cycling for `corfu-next/previous'
-;;   (corfu-auto nil)                 ;; Enable auto completion
-;;   (corfu-separator ?\s)            ;; Orderless field separator
-;;   (corfu-quit-no-match 'separator) ;; Don't quit if there is `corfu-separator' inserted
-;;   (corfu-echo-documentation nil)   ;; Disable documentation in the echo area
-;;   (corfu-scroll-margin 4)
-
-;;   :config
-;;   (corfu-popupinfo-mode 1)
-;;   (setq corfu-popupinfo-delay 0.2)
-
-;;   (corfu-history-mode 1)
-
-;;   (define-key corfu-map (kbd "<tab>") #'corfu-complete)
-
-;;   (defun corfu-move-to-minibuffer ()
-;;     "Use corfu for completions in the minibuffer."
-;;     (interactive)
-;;     (let (completion-cycle-threshold completion-cycling)
-;;       (apply #'consult-completion-in-region completion-in-region--data)))
-;;   (define-key corfu-map "\M-m" #'corfu-move-to-minibuffer))
-
-;; (use-package cape
-;;   :config
-;;   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-;;   (add-to-list 'completion-at-point-functions #'cape-file)
-;;   ;;(add-to-list 'completion-at-point-functions #'cape-history)
-;;   (add-to-list 'completion-at-point-functions #'cape-keyword)
-;;   (add-to-list 'completion-at-point-functions #'cape-symbol)
-;;   ;; (add-to-list 'completion-at-point-functions #'cape-line)
-;;   )
-
-;; Templates ================================================
-
-(use-package tempel
-  ;; Require trigger prefix before template name when completing.
-  ;; :custom
-  ;; (tempel-trigger-prefix "<")
-
-  :bind (("M-*" . tempel-complete) ;; Alternative tempel-expand
-         ("C-<tab>" . tempel-insert))
-
-  :init
-  ;; Setup completion at point
-  (defun tempel-setup-capf ()
-    (setq-local completion-at-point-functions
-                (cons #'tempel-expand
-                      completion-at-point-functions)))
-
-  (add-hook 'prog-mode-hook 'tempel-setup-capf)
-  (add-hook 'text-mode-hook 'tempel-setup-capf)
-
-  ;; Optionally make the Tempel templates available to Abbrev,
-  ;; either locally or globally. `expand-abbrev' is bound to C-x '.
-  ;; (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
-  ;; (global-tempel-abbrev-mode)
-  )
-
-(use-package tempel-collection
-  :after tempel
-  )
 
 ;; TAGS ============================================== ;;
 
@@ -507,8 +458,8 @@
    '((file (styles . (basic substring partial-completion orderless)))
      (project-file (styles . (basic substring partial-completion orderless)))
      (imenu (styles . (basic substring orderless)))
-     (kill-ring (styles . (basic substring orderless)))
-     (consult-location (styles . (basic substring orderless)))))
+     (kill-ring (styles . (basic substring orderless)))))
+     ;; (consult-location (styles . (basic substring orderless)))))
 
   (setq
    completion-cycle-threshold 2
@@ -629,63 +580,43 @@
   :if (or (eq system-type 'gnu/linux)
           (eq system-type 'darwin)))
 
-;; IDO ================================================= ;;
+;; IDO + SMEX ================================================= ;;
 
-;; (use-package ido-completing-read+
-;;   :config
-;;   (ido-mode t)
-;;   (ido-everywhere t)
-;;   (ido-ubiquitous-mode 1)
-;;   (setq ido-enable-flex-matching t)
-;;   (setq ido-use-filename-at-point 'guess)
-;;   (setq ido-use-virtual-buffers t)
-;;   (setq ido-create-new-buffer 'always)
-;;   (setq ido-file-extensions-order '(".org" ".ts" ".js" ".html" ".json" ".txt" ".el" ".ini" ".cfg" ".cnf"))
-;;   ;; (add-to-list 'ido-ignore-files "\.bak" "")
-;;   ;; (add-to-list 'completion-ignored-extensions ".bak" ".o" ".a" ".so" ".git" "node_modules")
-;;   (setq magit-completing-read-function 'magit-ido-completing-read)
-
-;;     (global-set-key
-;;      "\M-x"
-;;      (lambda ()
-;;        (interactive)
-;;        (call-interactively
-;;         (intern
-;;          (ido-completing-read
-;;           "M-x "
-;;           (all-completions "" obarray 'commandp))))))
-;;     )
-
-;; Vertico ============================================= ;;
-
-(use-package vertico
-  :elpaca (:files (:defaults "extensions/*"))
-  :init
-  (vertico-mode)
-  (vertico-reverse-mode)
+(use-package ido
+  :elpaca nil
   :config
-  (setq vertico-cycle t)
-  ;; :bind
-  ;; ("C-s" . vertico-next)
-  ;; ("C-r" . vertico-previous)
+  (ido-mode t)
+  (ido-everywhere t)
+  (setq
+   ido-enable-flex-matching t
+   ido-use-filename-at-point 'guess
+   ido-use-virtual-buffers t
+   ido-use-faces t
+   ido-create-new-buffer 'always
+   ido-file-extensions-order '(".org" ".ts" ".js" ".html" ".json" ".txt" ".el" ".ini" ".cfg" ".cnf")
+   ;; (add-to-list 'ido-ignore-files "\.bak" "")
+   ;; (add-to-list 'completion-ignored-extensions ".bak" ".o" ".a" ".so" ".git" "node_modules")
+   magit-completing-read-function 'magit-ido-completing-read))
 
-  (define-minor-mode kdb-vertico-reverse-mode
-    "Toggle between `vertico-reverse-mode' and 'vertico-flat-mode'."
-    :init-value nil
-    :global nil
-    :require 'vertico-mode
-    :diminish kdb-vertico-reverse-mode
-    (if kdb-vertico-reverse-mode
-        (progn
-          (vertico-reverse-mode)
-          (vertico-flat-mode -1)
-          )
-      (vertico-reverse-mode -1)
-      (vertico-flat-mode)
-      )
-    (message " "))
+(use-package ido-vertical-mode
+  :requires ido
+  :config
+  (setq ido-vertical-define-keys 'C-n-and-C-p-only)
+  (let ((map global-map))
+    (define-key map (kbd "C-=") #'ido-vertical-mode)))
 
-  :bind ("C-=" . kdb-vertico-reverse-mode))
+(use-package ido-completing-read+
+  :requires ido
+  :config
+  (ido-ubiquitous-mode 1))
+
+(use-package flx-ido :requires ido :config (flx-ido-mode))
+
+(use-package smex
+  :config
+  (let ((map global-map))
+    (define-key map (kbd "M-x") #'smex)
+    (define-key map (kbd "M-X") #'smex-major-mode-commands)))
 
 ;; Company =========================================== ;;
 
@@ -701,6 +632,7 @@
   (company-idle-delay 0))
 
 (use-package company-box
+  :diminish company-box-mode
   :hook (company-mode . company-box-mode))
 
 ;; Dired ============================================= ;;
@@ -786,138 +718,6 @@
 
   (add-hook 'after-init-hook #'savehist-mode))
 
-;; Consult ============================================ ;;
-
-(use-package consult
-  :bind (;; C-c bindings (mode-specific-map)
-         ("C-c h" . consult-history)
-         ("M-X" . consult-mode-command)
-         ("C-c k" . consult-kmacro)
-         ("C-h t" . consult-theme)
-         ;; C-x bindings (ctl-x-map)
-         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
-         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
-         ("C-x C-r" . consult-recent-file)
-         ;; Custom M-# bindings for fast register access
-         ("M-R" . consult-register-load)
-         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
-         ("C-M-r" . consult-register)
-         ;; Other custom bindings
-         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
-         ;; M-g bindings (goto-map)
-         ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
-         ("M-g g" . consult-goto-line)             ;; orig. goto-line
-         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
-         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
-         ("M-g m" . consult-mark)
-         ("M-g k" . consult-global-mark)
-         ("M-g i" . consult-imenu)
-         ("M-g I" . consult-imenu-multi)
-         ;; M-s bindings (search-map)
-         ("M-s d" . consult-find)
-         ("M-s D" . consult-locate)
-         ("M-s g" . consult-grep)
-         ("M-s G" . consult-git-grep)
-         ("M-s r" . consult-ripgrep)
-         ("M-s l" . consult-line)
-         ("M-s L" . consult-line-multi)
-         ("M-s m" . consult-multi-occur)
-         ("M-s k" . consult-keep-lines)
-         ("M-s u" . consult-focus-lines)
-         ;; Isearch integration
-         ("M-s e" . consult-isearch-history)
-         :map isearch-mode-map
-         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
-         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
-         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
-         ;; Minibuffer history
-         :map minibuffer-local-map
-         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
-
-  ;; Enable automatic preview at point in the *Completions* buffer.
-  :hook (completion-list-mode . consult-preview-at-point-mode)
-
-  ;; The :init configuration is always executed (Not lazy)
-  :init
-
-  (setq register-preview-delay 0.5
-        register-preview-function #'consult-register-format)
-
-  ;; This adds thin lines, sorting and hides the mode line of the window.
-  (advice-add #'register-preview :override #'consult-register-window)
-
-  ;; Optionally replace `completing-read-multiple' with an enhanced version.
-  ;; (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
-
-  ;; Enable consult previews
-  (add-hook 'completion-list-mode-hook #'consult-preview-at-point-mode)
-
-  ;; Use Consult to select xref locations with preview
-  (setq xref-show-xrefs-function #'consult-xref
-        xref-show-definitions-function #'consult-xref)
-
-  ;; Use `consult-completion-in-region' if vertico is enabled.
-  ;; Otherwise use the default `completion--in-region' function.
-  (setq completion-in-region-function
-        (lambda (&rest args)
-          (apply (if vertico-mode
-                     #'consult-completion-in-region
-                   #'completion--in-region)
-                 args)))
-
-  :config
-  (consult-customize
-   consult-theme
-   :preview-key '(:debounce 0.2 any)
-   consult-ripgrep consult-git-grep consult-grep
-   consult-bookmark consult-recent-file consult-xref
-   consult--source-bookmark consult--source-file-register
-   consult--source-recent-file consult--source-project-recent-file
-   :preview-key '(:debounce 0.4 any)
-   consult-line :prompt "Search: "
-   :preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
-  (setq consult-narrow-key "<") ;; (kbd "C-+")
-  (setq consult-project-root-function
-        (lambda ()
-          (when-let (project (project-current))
-            (car (project-roots project))))))
-
-(use-package consult-dir
-  :after consult
-  :bind (("C-x C-d" . consult-dir)
-         :map minibuffer-local-completion-map
-         ("C-x C-d" . consult-dir)
-         ("C-x C-j" . consult-dir-jump-file)))
-
-;; Embark ============================================ ;;
-
-(use-package embark
-  :bind
-  (("C-," . embark-act)
-   ("M-." . embark-dwim)
-   ("C-h B" . embark-bindings))
-  :init
-  ;; Optionally replace the key help with a completing-read interface
-  (setq prefix-help-command #'embark-prefix-help-command)
-  :config
-  ;; Hide the mode line of the Embark live/completions buffers
-  (add-to-list 'display-buffer-alist
-               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-                 nil
-                 (window-parameters (mode-line-format . none)))))
-
-(use-package embark-consult
-  :after (consult embark)
-  :hook
-  (embark-collect-mode . consult-preview-at-point-mode))
-
 ;; Eldoc Box ========================================= ;;
 
 (use-package eldoc
@@ -1000,8 +800,8 @@
     (add-hook (intern (concat (symbol-name mode) "-hook")) #'eglot-ensure))
   )
 
-(use-package consult-eglot
-  :after (consult eglot))
+;; (use-package consult-eglot
+;;   :after (consult eglot))
 
 ;; Flymake ========================================= ;;
 (use-package flymake
@@ -1501,7 +1301,7 @@
   (defun crm-indicator (args)
     (cons (concat "[CRM] " (car args)) (cdr args)))
   ;; (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
-  (advice-add #'consult-completing-read-multiple :filter-args #'crm-indicator)
+  ;; (advice-add #'consult-completing-read-multiple :filter-args #'crm-indicator)
 
   ;; Do not allow the cursor in the minibuffer prompt
   (setq minibuffer-prompt-properties

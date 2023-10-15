@@ -2,6 +2,7 @@
 .cache
 .lsp-session-v1
 .mc-lists.el
+smex-items
 ido.last
 tramp
 package-quickstart.el
