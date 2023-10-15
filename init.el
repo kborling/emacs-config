@@ -229,6 +229,28 @@
 (set-fontset-font t 'unicode
                   (font-spec :name "Inconsolata Light" :size 16) nil)
 
+(defun choose-and-set-font ()
+  "Choose a font and font size interactively and set them as the default font."
+  (interactive)
+  (let* ((font-list (split-string (shell-command-to-string "fc-list : family") "\n" t))
+         (chosen-font (completing-read "Select a font: " font-list nil t))
+         (font-size (* (string-to-number (read-string "Enter a font size (e.g., 10, 12, 14, ...): ")) 10)))
+    (if (and (member chosen-font font-list) (>= font-size 1))
+        (progn
+          (let ((font-height font-size))
+            (set-face-attribute 'default nil
+                                :family chosen-font :weight 'regular :height font-height)
+            (set-face-attribute 'bold nil
+                                :family chosen-font :weight 'medium)
+            (set-face-attribute 'italic nil
+                                :family chosen-font :weight 'regular :slant 'italic)
+            (set-fontset-font t 'unicode
+                              (font-spec :name chosen-font :size font-height) nil))
+          (message "Font set to %s" chosen-font))
+      (message "Invalid font choice: %s" chosen-font))))
+
+(global-set-key (kbd "C-c t f") 'choose-and-set-font)
+
 ;; Custom themes
 (use-package doom-themes)
 
@@ -243,6 +265,17 @@
    uwu-scale-org-headlines t
    uwu-use-variable-pitch t)
   (load-theme 'uwu t))
+
+(defun toggle-theme ()
+  "Toggle between available themes."
+  (interactive)
+  (let* ((current-theme (car custom-enabled-themes))
+         (available-themes (mapcar 'symbol-name (custom-available-themes)))
+         (chosen-theme (completing-read "Select a theme: " available-themes nil t nil nil current-theme)))
+    (mapc #'disable-theme custom-enabled-themes)
+    (load-theme (intern chosen-theme) t)))
+
+(global-set-key (kbd "C-c t t") 'toggle-theme)
 
 ;; Frame ============================================== ;;
 
@@ -363,24 +396,16 @@
 (use-package yasnippet
     :hook ((prog-mode . yas-minor-mode)
          (org-mode . yas-minor-mode))
-  :config
-  (define-key yas-keymap (kbd "M-j") 'yas-next-field-or-maybe-expand)
-  (define-key yas-keymap (kbd "M-k") 'yas-prev-field)
-  (define-key yas-minor-mode-map (kbd "C-<tab>") 'yas-expand))
-  ;; (yas-global-mode 1))
+    :config
+    ;; (add-to-list 'hippie-expand-try-functions-list 'yas-hippie-try-expand)
+    (define-key yas-minor-mode-map (kbd "<tab>") nil)
+    (define-key yas-minor-mode-map (kbd "TAB") nil)
+    (define-key yas-keymap (kbd "C-2") 'yas-next-field-or-maybe-expand)
+    (define-key yas-keymap (kbd "C-1") 'yas-prev-field)
+    (define-key yas-minor-mode-map (kbd "C-<tab>") 'yas-expand))
 
 (use-package yasnippet-snippets
   :requires yasnippet)
-
-
-;; Marginalia ======================================== ;;
-
-(use-package marginalia
-  :bind (("M-A" . marginalia-cycle)
-         :map minibuffer-local-map
-         ("M-A" . marginalia-cycle))
-  :init
-  (marginalia-mode))
 
 ;; TAGS ============================================== ;;
 
@@ -429,7 +454,7 @@
     (define-key map (kbd "M-/") #'dabbrev-expand)
     (define-key map (kbd "M-\\") #'hippie-expand)
     (define-key map (kbd "C-M-/") #'dabbrev-completion)))
-
+hippie-expand-try-functions-list
 ;; (global-set-key [remap dabbrev-expand] 'hippie-expand)
 
 ;; Orderless ========================================= ;;
@@ -580,7 +605,7 @@
   :if (or (eq system-type 'gnu/linux)
           (eq system-type 'darwin)))
 
-;; IDO + SMEX ================================================= ;;
+;; IDO + AMX ================================================= ;;
 
 (use-package ido
   :elpaca nil
@@ -612,11 +637,9 @@
 
 (use-package flx-ido :requires ido :config (flx-ido-mode))
 
-(use-package smex
+(use-package amx
   :config
-  (let ((map global-map))
-    (define-key map (kbd "M-x") #'smex)
-    (define-key map (kbd "M-X") #'smex-major-mode-commands)))
+  (amx-mode 1))
 
 ;; Company =========================================== ;;
 
@@ -727,13 +750,6 @@
   (setq eldoc-echo-area-use-multiline-p t
         eldoc-idle-delay 0.75))
 
-;; (use-package eldoc-box
-;;   :after eldoc
-;;   :diminish
-;;   :config
-;;   (add-hook 'eglot--managed-mode-hook #'eldoc-box-hover-mode t)
-;;   )
-
 ;; Eglot ============================================== ;;
 
 (use-package eglot
@@ -797,11 +813,7 @@
                   rust-mode
                   csharp-mode
                   typescript-mode))
-    (add-hook (intern (concat (symbol-name mode) "-hook")) #'eglot-ensure))
-  )
-
-;; (use-package consult-eglot
-;;   :after (consult eglot))
+    (add-hook (intern (concat (symbol-name mode) "-hook")) #'eglot-ensure)))
 
 ;; Flymake ========================================= ;;
 (use-package flymake

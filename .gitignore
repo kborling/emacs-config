@@ -3,6 +3,7 @@
 .lsp-session-v1
 .mc-lists.el
 smex-items
+amx-items
 ido.last
 tramp
 package-quickstart.el
