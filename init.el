@@ -229,28 +229,6 @@
 (set-fontset-font t 'unicode
                   (font-spec :name "Inconsolata Light" :size 16) nil)
 
-(defun choose-and-set-font ()
-  "Choose a font and font size interactively and set them as the default font."
-  (interactive)
-  (let* ((font-list (split-string (shell-command-to-string "fc-list : family") "\n" t))
-         (chosen-font (completing-read "Select a font: " font-list nil t))
-         (font-size (* (string-to-number (read-string "Enter a font size (e.g., 10, 12, 14, ...): ")) 10)))
-    (if (and (member chosen-font font-list) (>= font-size 1))
-        (progn
-          (let ((font-height font-size))
-            (set-face-attribute 'default nil
-                                :family chosen-font :weight 'regular :height font-height)
-            (set-face-attribute 'bold nil
-                                :family chosen-font :weight 'medium)
-            (set-face-attribute 'italic nil
-                                :family chosen-font :weight 'regular :slant 'italic)
-            (set-fontset-font t 'unicode
-                              (font-spec :name chosen-font :size font-height) nil))
-          (message "Font set to %s" chosen-font))
-      (message "Invalid font choice: %s" chosen-font))))
-
-(global-set-key (kbd "C-c t f") 'choose-and-set-font)
-
 ;; Custom themes
 (use-package doom-themes)
 
@@ -265,17 +243,6 @@
    uwu-scale-org-headlines t
    uwu-use-variable-pitch t)
   (load-theme 'uwu t))
-
-(defun toggle-theme ()
-  "Toggle between available themes."
-  (interactive)
-  (let* ((current-theme (car custom-enabled-themes))
-         (available-themes (mapcar 'symbol-name (custom-available-themes)))
-         (chosen-theme (completing-read "Select a theme: " available-themes nil t nil nil current-theme)))
-    (mapc #'disable-theme custom-enabled-themes)
-    (load-theme (intern chosen-theme) t)))
-
-(global-set-key (kbd "C-c t t") 'toggle-theme)
 
 ;; Frame ============================================== ;;
 
@@ -488,7 +455,7 @@ hippie-expand-try-functions-list
 
   (setq
    completion-cycle-threshold 2
-   completion-flex-nospace nil ; though I don't use the built-in `flex' style..
+   completion-flex-nospace nil
    completion-pcm-complete-word-inserts-delimiters nil
    completion-pcm-word-delimiters "-_./:| "
    completion-ignore-case t
@@ -618,6 +585,8 @@ hippie-expand-try-functions-list
    ido-use-virtual-buffers t
    ido-use-faces t
    ido-create-new-buffer 'always
+   ido-max-prospects 10
+   ;; ido-max-directory-size 20
    ido-file-extensions-order '(".org" ".ts" ".js" ".html" ".json" ".txt" ".el" ".ini" ".cfg" ".cnf")
    ;; (add-to-list 'ido-ignore-files "\.bak" "")
    ;; (add-to-list 'completion-ignored-extensions ".bak" ".o" ".a" ".so" ".git" "node_modules")
@@ -640,6 +609,30 @@ hippie-expand-try-functions-list
 (use-package amx
   :config
   (amx-mode 1))
+
+;; Helm ============================================== ;;
+
+(use-package helm
+    :bind (;; C-c bindings (mode-specific-map)
+         ("M-y" . helm-show-kill-ring)
+         ;; M-s bindings (search-map)
+         ("M-s l" . helm-locate)
+         ("M-s g" . helm-do-grep-ag)
+         ;; ("M-s r" . helm-rg)
+         ("M-s i" . helm-imenu)
+         ("M-s o" . helm-occur)
+         ("M-s m" . helm-mark-ring)
+         ("M-s M" . helm-all-mark-rings)
+         ("M-s f" . helm-find)
+         ;; Isearch integration
+         ("M-s e" . helm-occur-from-isearch)
+         :map isearch-mode-map
+         ("M-e" . helm-occur-from-isearch)
+         ("M-s e" . helm-occur-from-isearch)
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . helm-minibuffer-history)
+         ("M-r" . helm-minibuffer-history)))
 
 ;; Company =========================================== ;;
 
@@ -1221,6 +1214,41 @@ hippie-expand-try-functions-list
   (load-file (expand-file-name (locate-user-emacs-file "init.el"))))
 (global-set-key (kbd "C-c e r") 'config-reload)
 
+;; Utilities ====================================== ;;
+
+(defun choose-and-set-font ()
+  "Choose a font and font size interactively and set them as the default font."
+  (interactive)
+  (let* ((font-list (split-string (shell-command-to-string "fc-list : family") "\n" t))
+         (chosen-font (completing-read "Select a font: " font-list nil t))
+         (font-size (* (string-to-number (read-string "Enter a font size (e.g., 10, 12, 14, ...): ")) 10)))
+    (if (and (member chosen-font font-list) (>= font-size 10))
+        (progn
+          (let ((font-height font-size)) ; You can adjust the font height as needed
+            (set-face-attribute 'default nil
+                                :family chosen-font :weight 'regular :height font-height)
+            (set-face-attribute 'bold nil
+                                :family chosen-font :weight 'medium)
+            (set-face-attribute 'italic nil
+                                :family chosen-font :weight 'regular :slant 'italic)
+            (set-fontset-font t 'unicode
+                              (font-spec :name chosen-font :size font-height) nil))
+          (message "Font set to %s" chosen-font))
+      (message "Invalid font choice: %s" chosen-font))))
+
+(global-set-key (kbd "C-c t f") 'choose-and-set-font)
+
+(defun toggle-theme ()
+  "Toggle between available themes."
+  (interactive)
+  (let* ((current-theme (car custom-enabled-themes))
+         (available-themes (mapcar 'symbol-name (custom-available-themes)))
+         (chosen-theme (completing-read "Select a theme: " available-themes nil t nil nil current-theme)))
+    (mapc #'disable-theme custom-enabled-themes)
+    (load-theme (intern chosen-theme) t)))
+
+(global-set-key (kbd "C-c t t") 'toggle-theme)
+
 ;; Buffers ======================================== ;;
 
 ;; Hide useless buffers
@@ -1265,7 +1293,7 @@ hippie-expand-try-functions-list
 ;; Popups ========================================= ;;
 
 (use-package popper
-  :bind (("C-`"   . popper-toggle-latest)
+  :bind (("C-`"   . popper-toggle)
          ("M-`"   . popper-cycle)
          ("C-M-`" . popper-toggle-type))
   :init
