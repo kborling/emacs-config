@@ -618,7 +618,7 @@ hippie-expand-try-functions-list
          ;; M-s bindings (search-map)
          ("M-s l" . helm-locate)
          ("M-s g" . helm-do-grep-ag)
-         ;; ("M-s r" . helm-rg)
+         ("M-s r" . helm-rg)
          ("M-s i" . helm-imenu)
          ("M-s o" . helm-occur)
          ("M-s m" . helm-mark-ring)
@@ -633,6 +633,8 @@ hippie-expand-try-functions-list
          :map minibuffer-local-map
          ("M-s" . helm-minibuffer-history)
          ("M-r" . helm-minibuffer-history)))
+
+(use-package helm-rg)
 
 ;; Company =========================================== ;;
 
