@@ -105,11 +105,18 @@ c-mode :when (re-search-backward "^\\S-*$" (line-beginning-position) 'noerror)
 (incc "#include \"" (p (concat (file-name-base (or (buffer-file-name) (buffer-name))) ".h")) "\"")
 
 js-mode js2-mode typescript-mode
+(forEach "forEach((" p ") => { " q " })")
 (for "for (let i = 0;" " i < " p "; i++) { " q " }")
-(while "while ( " p " ) { " q " }")
-;; ${1:collection}.forEach(function (${2:elem}) {
-;;   $0
-;; });
+(while "while (" p ") { " q " }")
+(if "if (" p ") { " q " }")
+(elseif "else if (" p ") { " q " }")
+(else "else { " q " }")
+(switch "switch (" p ") { " q " }")
+(case "case " p ": " q "break")
+(func "" p " (" p ") { " q " }")
+(arrow "const " p " = (" p ") => { " q " }")
+(log "console.log(" p ")")
+(error "console.error(" p ")")
 
 org-mode
 
