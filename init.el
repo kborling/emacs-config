@@ -506,11 +506,15 @@
    '(basic substring initials flex orderless)
    completion-category-defaults nil
    completion-category-overrides
-   '((file (styles . (basic substring partial-completion orderless)))
-     (project-file (styles . (basic substring partial-completion orderless)))
+   '((file (styles . (basic partial-completion orderless)))
+     (project-file (styles . (basic partial-completion orderless)))
+     (bookmark (styles . (basic substring)))
+     (library (styles . (basic substring)))
+     (embark-keybinding (styles . (basic substring)))
      (imenu (styles . (basic substring orderless)))
-     (kill-ring (styles . (basic substring orderless)))
-     (consult-location (styles . (basic substring orderless)))))
+     (consult-location (styles . (basic substring orderless)))
+     (kill-ring (styles . (emacs22 orderless)))
+     (eglot (styles . (emacs22 substring orderless)))))
 
   (setq
    completion-cycle-threshold 2
