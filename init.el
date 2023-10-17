@@ -1060,6 +1060,12 @@
 ;; (add-to-list 'treesit-extra-load-path
 ;;              (expand-file-name "~/.emacs.d/treesitter/tree-sitter-module/dist"))
 
+;; Angular ============================================= ;;
+
+(use-package angular-mode
+  :elpaca (angular-mode :host github :repo "kborling/angular-mode" :files ("*.el"))
+  :mode ("\\.component.html\\'" "\\.component.scss\\'" "\\.component.ts\\'" "\\.component.spec.ts\\'"))
+
 ;; EditorConfig ======================================== ;;
 
 (use-package editorconfig
