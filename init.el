@@ -505,8 +505,8 @@
    '(basic substring initials flex orderless)
    completion-category-defaults nil
    completion-category-overrides
-   '((file (styles . (basic partial-completion orderless)))
-     (project-file (styles . (basic partial-completion orderless)))
+   '((file (styles . (basic substring partial-completion orderless)))
+     (project-file (styles . (basic substring partial-completion orderless)))
      (bookmark (styles . (basic substring)))
      (library (styles . (basic substring)))
      (embark-keybinding (styles . (basic substring)))
@@ -846,7 +846,7 @@
   (advice-add #'register-preview :override #'consult-register-window)
 
   ;; Optionally replace `completing-read-multiple' with an enhanced version.
-  (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
+  ;; (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
 
   ;; Enable consult previews
   (add-hook 'completion-list-mode-hook #'consult-preview-at-point-mode)
