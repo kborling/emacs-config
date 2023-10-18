@@ -757,6 +757,9 @@
          ("M-X" . consult-mode-command)
          ("C-c k" . consult-kmacro)
          ("C-h t" . consult-theme)
+         ("C-c m" . consult-man)
+         ("C-c i" . consult-info)
+         ([remap Info-search] . consult-info)
          ;; C-x bindings (ctl-x-map)
          ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
          ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
@@ -782,14 +785,14 @@
          ("M-g i" . consult-imenu)
          ("M-g I" . consult-imenu-multi)
          ;; M-s bindings (search-map)
-         ("M-s d" . consult-find)
-         ("M-s D" . consult-locate)
+         ("M-s f" . consult-find)
+         ("M-s F" . consult-fd)
+         ;; ("M-s D" . consult-locate)
          ("M-s g" . consult-grep)
          ("M-s G" . consult-git-grep)
          ("M-s r" . consult-ripgrep)
          ("M-s l" . consult-line)
          ("M-s L" . consult-line-multi)
-         ("M-s m" . consult-multi-occur)
          ("M-s k" . consult-keep-lines)
          ("M-s u" . consult-focus-lines)
          ;; Isearch integration
@@ -846,11 +849,22 @@
    :preview-key '(:debounce 0.4 any)
    consult-line :prompt "Search: "
    :preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
+
   (setq consult-narrow-key "<") ;; (kbd "C-+")
-  (setq consult-project-root-function
-        (lambda ()
-          (when-let (project (project-current))
-            (car (project-roots project))))))
+
+  ;; Ignore certain directories when using 'consult-find'
+  (setq consult-find-args "find . -not ( -wholename */.* -prune -o -name node_modules -prune )")
+
+  ;; By default `consult-project-function' uses `project-root' from project.el.
+  ;; Optionally configure a different project root function.
+  ;;;; 2. vc.el (vc-root-dir)
+  ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
+  ;;;; 3. locate-dominating-file
+  ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
+  ;;;; 4. projectile.el (projectile-project-root)
+  ;; (autoload 'projectile-project-root "projectile")
+  ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
+  )
 
 (use-package consult-dir
   :after consult
@@ -889,6 +903,17 @@
   (global-eldoc-mode 1)
   (setq eldoc-echo-area-use-multiline-p t
         eldoc-idle-delay 0.75))
+
+;; Project ============================================ ;;
+
+(use-package project
+  :elpaca nil
+  :config
+  (setq vc-directory-exclusion-list
+        (nconc vc-directory-exclusion-list
+               '("node_modules"
+                 ".sl")))
+  (setq project-vc-extra-root-markers '(".envrc" "package.json" ".project" ".sl")))
 
 ;; Eglot ============================================== ;;
 
