@@ -629,42 +629,63 @@
     (define-key map (kbd "C-c <") #'winner-redo)
     (define-key map (kbd "C-c >") #'winner-undo)))
 
+;; EAT ================================================== ;;
+
+(use-package eat
+ :elpaca (eat
+       :host codeberg
+       :repo "akib/emacs-eat"
+       :files ("*.el" ("term" "term/*.el") "*.texi"
+               "*.ti" ("terminfo/e" "terminfo/e/*")
+               ("terminfo/65" "terminfo/65/*")
+               ("integration" "integration/*")
+               (:exclude ".dir-locals.el" "*-tests.el")))
+ :config
+ (add-hook 'eshell-load-hook #'eat-eshell-mode))
+
 ;; vterm ================================================ ;;
 
 (use-package vterm
   :if (or (eq system-type 'gnu/linux)
           (eq system-type 'darwin)))
 
+;; Fido ================================================ ;;
+
+(fido-mode)
+(global-set-key (kbd "C-=") 'fido-vertical-mode)
+;; (setq ido-auto-merge-delay-time 0.2)
+
 ;; Vertico ============================================= ;;
 
 (use-package vertico
   :elpaca (:files (:defaults "extensions/*"))
   :init
-  (vertico-mode)
-  (vertico-flat-mode)
+  ;; (vertico-mode)
+  ;; (vertico-flat-mode)
   :config
   (setq vertico-cycle t)
   ;; :bind
   ;; ("C-s" . vertico-next)
   ;; ("C-r" . vertico-previous)
 
-  (define-minor-mode kdb-vertico-reverse-mode
-    "Toggle between `vertico-reverse-mode' and 'vertico-flat-mode'."
-    :init-value nil
-    :global nil
-    :require 'vertico-mode
-    :diminish kdb-vertico-reverse-mode
-    (if kdb-vertico-reverse-mode
-        (progn
-          (vertico-reverse-mode)
-          (vertico-flat-mode -1)
-          )
-      (vertico-reverse-mode -1)
-      (vertico-flat-mode)
-      )
-    (message " "))
+  ;; (define-minor-mode kdb-vertico-reverse-mode
+  ;;   "Toggle between `vertico-reverse-mode' and 'vertico-flat-mode'."
+  ;;   :init-value nil
+  ;;   :global nil
+  ;;   :require 'vertico-mode
+  ;;   :diminish kdb-vertico-reverse-mode
+  ;;   (if kdb-vertico-reverse-mode
+  ;;       (progn
+  ;;         (vertico-reverse-mode)
+  ;;         (vertico-flat-mode -1)
+  ;;         )
+  ;;     (vertico-reverse-mode -1)
+  ;;     (vertico-flat-mode)
+  ;;     )
+  ;;   (message " "))
 
-  :bind ("C-=" . kdb-vertico-reverse-mode))
+  ;; :bind ("C-=" . kdb-vertico-reverse-mode)
+  )
 
 ;; Dired ============================================= ;;
 
@@ -820,7 +841,7 @@
   (advice-add #'register-preview :override #'consult-register-window)
 
   ;; Optionally replace `completing-read-multiple' with an enhanced version.
-  ;; (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
+  (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
 
   ;; Enable consult previews
   (add-hook 'completion-list-mode-hook #'consult-preview-at-point-mode)
@@ -1579,8 +1600,7 @@
       (global-set-key (read-kbd-macro (concat "<" multiple "wheel-" direction ">")) 'ignore)))
   (global-set-key (kbd "M-`") 'ns-next-frame)
   (global-set-key (kbd "M-h") 'ns-do-hide-emacs)
-  (global-set-key (kbd "M-˙") 'ns-do-hide-others)
-  (global-set-key (kbd "M-ˍ") 'ns-do-hide-others))
+  (global-set-key (kbd "M-_") 'ns-do-hide-others))
 
 ;; Custom ========================================= ;;
 
