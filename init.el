@@ -1118,8 +1118,7 @@
 ;; Angular ============================================= ;;
 
 (use-package angular-mode
-  :elpaca (angular-mode :host github :repo "kborling/angular-mode" :files ("*.el"))
-  :mode ("\\.component.html\\'" "\\.component.scss\\'" "\\.component.ts\\'" "\\.component.spec.ts\\'"))
+  :elpaca (angular-mode :host github :repo "kborling/angular-mode" :files ("*.el")))
 
 ;; EditorConfig ======================================== ;;
 
