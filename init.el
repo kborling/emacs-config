@@ -502,7 +502,6 @@
   :config
   (setq
    completion-styles
-   ;; '(substring basic orderless)
    '(basic substring initials flex orderless)
    completion-category-defaults nil
    completion-category-overrides
@@ -651,9 +650,15 @@
 
 ;; Fido ================================================ ;;
 
-(fido-mode)
-(global-set-key (kbd "C-=") 'fido-vertical-mode)
-;; (setq ido-auto-merge-delay-time 0.2)
+(use-package icomplete
+  :elpaca nil
+  :init
+  (fido-mode)
+  :config
+  (setq icomplete-compute-delay 0)
+  (add-hook 'icomplete-minibuffer-setup-hook 'flex-styles)
+  (defun flex-styles () (setq-local completion-styles '(basic substring initials flex orderless)))
+  (global-set-key (kbd "C-=") 'fido-vertical-mode))
 
 ;; Vertico ============================================= ;;
 
