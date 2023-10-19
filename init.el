@@ -212,9 +212,16 @@
   (define-key map (kbd "C-c o f") #'toggle-frame-fullscreen))
 
 ;; Theming ================================================ ;;
+
+(defvar default-font-size
+  (cond
+   ((eq system-type 'windows-nt) 105)
+   ((eq system-type 'gnu/linux) 110)
+   ((eq system-type 'darwin) 140)))
+
 (let ((font "Comic Code"))
   (set-face-attribute 'default nil
-                      :family font :weight 'regular :height 140)
+                      :family font :weight 'regular :height default-font-size)
   (set-face-attribute 'bold nil
                       :family font :weight 'medium)
   (set-face-attribute 'italic nil
@@ -501,19 +508,18 @@
   :elpaca nil
   :config
   (setq
-   completion-styles
-   '(basic substring initials flex orderless)
+   ;; completion-styles '(basic substring initials flex orderless)
    completion-category-defaults nil
-   completion-category-overrides
-   '((file (styles . (basic substring partial-completion orderless)))
-     (project-file (styles . (basic substring partial-completion orderless)))
-     (bookmark (styles . (basic substring)))
-     (library (styles . (basic substring)))
-     (embark-keybinding (styles . (basic substring)))
-     (imenu (styles . (basic substring orderless)))
-     (consult-location (styles . (basic substring orderless)))
-     (kill-ring (styles . (emacs22 orderless)))
-     (eglot (styles . (emacs22 substring orderless)))))
+   completion-category-overrides nil)
+   ;; '((file (styles . (basic substring partial-completion orderless)))
+   ;;   (project-file (styles . (basic substring partial-completion orderless)))
+   ;;   (bookmark (styles . (basic substring)))
+   ;;   (library (styles . (basic substring)))
+   ;;   (embark-keybinding (styles . (basic substring)))
+   ;;   (imenu (styles . (basic substring orderless)))
+   ;;   (consult-location (styles . (basic substring orderless)))
+   ;;   (kill-ring (styles . (emacs22 orderless)))
+   ;;   (eglot (styles . (emacs22 substring orderless)))))
 
   (setq
    completion-cycle-threshold 2
@@ -650,14 +656,37 @@
 
 ;; Fido ================================================ ;;
 
+(use-package fussy
+  :config
+  (setq fussy-use-cache t)
+  (setq fussy-filter-fn 'fussy-filter-default)
+  (setq fussy-compare-same-score-fn 'fussy-histlen->strlen<)
+
+  (advice-add 'corfu--capf-wrapper :before 'fussy-wipe-cache)
+
+  (add-hook 'corfu-mode-hook
+            (lambda ()
+              (setq-local fussy-max-candidate-limit 5000
+                          fussy-default-regex-fn 'fussy-pattern-first-letter
+                          fussy-prefer-prefix nil)))
+
+  (with-eval-after-load 'eglot
+    (add-to-list 'completion-category-overrides
+                 '(eglot (styles fussy basic))))
+  )
+
 (use-package icomplete
   :elpaca nil
   :init
   (fido-mode)
   :config
-  (setq icomplete-compute-delay 0)
-  (add-hook 'icomplete-minibuffer-setup-hook 'flex-styles)
-  (defun flex-styles () (setq-local completion-styles '(basic substring initials flex orderless)))
+  (setq icomplete-tidy-shadowed-file-names t
+        icomplete-show-matches-on-no-input t
+        icomplete-compute-delay 0
+        icomplete-delay-completions-threshold 50)
+  (add-hook 'icomplete-minibuffer-setup-hook
+            (lambda () (setq-local completion-styles '(fussy basic))))
+          ;; (lambda () (setq-local completion-styles '(basic substring initials flex orderless))))
   (global-set-key (kbd "C-=") 'fido-vertical-mode))
 
 ;; Vertico ============================================= ;;
@@ -1465,7 +1494,7 @@
 ;; Popups ========================================= ;;
 
 (use-package popper
-  :bind (("C-`"   . popper-toggle-latest)
+  :bind (("C-`"   . popper-toggle)
          ("M-`"   . popper-cycle)
          ("C-M-`" . popper-toggle-type))
   :init
