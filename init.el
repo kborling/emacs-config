@@ -215,7 +215,7 @@
 
 (defvar default-font-size
   (cond
-   ((eq system-type 'windows-nt) 105)
+   ((eq system-type 'windows-nt) 100)
    ((eq system-type 'gnu/linux) 110)
    ((eq system-type 'darwin) 140)))
 
@@ -302,7 +302,7 @@
          ("C-c M-d" . crux-duplicate-and-comment-current-line-or-region)
          ("C-x 4 t" . crux-transpose-windows)
          ("C-^" . crux-top-join-line)
-         ("<backtab>" . crux-cleanup-buffer-or-region)
+
          ([(shift return)] . crux-smart-open-line)))
 
 (global-set-key [remap kill-whole-line] #'crux-kill-whole-line)
@@ -340,13 +340,13 @@
 (defun magit-status-refresh-buffer-quick ()
   "Refresh the current `magit-status' buffer."
   (magit-insert-section (status)
-    (magit-insert-heading "Quick status")
-    (insert "\n")
-    (magit-insert-error-header)
-    (magit-insert-head-branch-header)
-    (insert "\n")
-    (magit-insert-unstaged-changes)
-    (magit-insert-staged-changes)))
+                        (magit-insert-heading "Quick status")
+                        (insert "\n")
+                        (magit-insert-error-header)
+                        (magit-insert-head-branch-header)
+                        (insert "\n")
+                        (magit-insert-unstaged-changes)
+                        (magit-insert-staged-changes)))
 
 (defun magit-quick-status ()
   "Toggle quick magit status."
@@ -490,40 +490,16 @@
 
 ;; (global-set-key [remap dabbrev-expand] 'hippie-expand)
 
-;; Orderless ========================================= ;;
-
-(use-package orderless
-  :config
-  (setq orderless-component-separator " +")
-  (setq orderless-matching-styles
-        '( orderless-prefixes orderless-initialism
-           orderless-flex orderless-regexp))
-  (let ((map minibuffer-local-completion-map))
-    (define-key map (kbd "SPC") nil)
-    (define-key map (kbd "?") nil)))
-
 ;; Completion Styles ================================= ;;
 
 (use-package minibuffer
   :elpaca nil
   :config
   (setq
-   ;; completion-styles '(basic substring initials flex orderless)
    completion-category-defaults nil
-   completion-category-overrides nil)
-   ;; '((file (styles . (basic substring partial-completion orderless)))
-   ;;   (project-file (styles . (basic substring partial-completion orderless)))
-   ;;   (bookmark (styles . (basic substring)))
-   ;;   (library (styles . (basic substring)))
-   ;;   (embark-keybinding (styles . (basic substring)))
-   ;;   (imenu (styles . (basic substring orderless)))
-   ;;   (consult-location (styles . (basic substring orderless)))
-   ;;   (kill-ring (styles . (emacs22 orderless)))
-   ;;   (eglot (styles . (emacs22 substring orderless)))))
-
-  (setq
+   completion-category-overrides nil
    completion-cycle-threshold 2
-   completion-flex-nospace nil ; though I don't use the built-in `flex' style..
+   completion-flex-nospace nil
    completion-pcm-complete-word-inserts-delimiters nil
    completion-pcm-word-delimiters "-_./:| "
    completion-ignore-case t
@@ -543,7 +519,7 @@
 
    read-buffer-completion-ignore-case t
    read-file-name-completion-ignore-case t
-   ;; (setq enable-recursive-minibuffers t)
+   ;; enable-recursive-minibuffers t
    read-answer-short t
    resize-mini-windows t
    minibuffer-eldef-shorten-default t
@@ -551,7 +527,7 @@
    minibuffer-prompt-properties
    '(read-only t cursor-intangible t face minibuffer-prompt))
 
-  (setq-default case-fold-search t)   ; For general regexp
+  (setq-default case-fold-search t)
 
   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
@@ -637,16 +613,16 @@
 ;; EAT ================================================== ;;
 
 (use-package eat
- :elpaca (eat
-       :host codeberg
-       :repo "akib/emacs-eat"
-       :files ("*.el" ("term" "term/*.el") "*.texi"
-               "*.ti" ("terminfo/e" "terminfo/e/*")
-               ("terminfo/65" "terminfo/65/*")
-               ("integration" "integration/*")
-               (:exclude ".dir-locals.el" "*-tests.el")))
- :config
- (add-hook 'eshell-load-hook #'eat-eshell-mode))
+  :elpaca (eat
+           :host codeberg
+           :repo "akib/emacs-eat"
+           :files ("*.el" ("term" "term/*.el") "*.texi"
+                   "*.ti" ("terminfo/e" "terminfo/e/*")
+                   ("terminfo/65" "terminfo/65/*")
+                   ("integration" "integration/*")
+                   (:exclude ".dir-locals.el" "*-tests.el")))
+  :config
+  (add-hook 'eshell-load-hook #'eat-eshell-mode))
 
 ;; vterm ================================================ ;;
 
@@ -654,13 +630,14 @@
   :if (or (eq system-type 'gnu/linux)
           (eq system-type 'darwin)))
 
-;; Fido ================================================ ;;
+;; Fussy =============================================== ;;
 
 (use-package fussy
   :config
   (setq fussy-use-cache t)
   (setq fussy-filter-fn 'fussy-filter-default)
   (setq fussy-compare-same-score-fn 'fussy-histlen->strlen<)
+  (push 'fussy completion-styles)
 
   (advice-add 'corfu--capf-wrapper :before 'fussy-wipe-cache)
 
@@ -672,8 +649,9 @@
 
   (with-eval-after-load 'eglot
     (add-to-list 'completion-category-overrides
-                 '(eglot (styles fussy basic))))
-  )
+                 '(eglot (styles fussy basic)))))
+
+;; Fido ================================================ ;;
 
 (use-package icomplete
   :elpaca nil
@@ -686,40 +664,7 @@
         icomplete-delay-completions-threshold 50)
   (add-hook 'icomplete-minibuffer-setup-hook
             (lambda () (setq-local completion-styles '(fussy basic))))
-          ;; (lambda () (setq-local completion-styles '(basic substring initials flex orderless))))
   (global-set-key (kbd "C-=") 'fido-vertical-mode))
-
-;; Vertico ============================================= ;;
-
-(use-package vertico
-  :elpaca (:files (:defaults "extensions/*"))
-  :init
-  ;; (vertico-mode)
-  ;; (vertico-flat-mode)
-  :config
-  (setq vertico-cycle t)
-  ;; :bind
-  ;; ("C-s" . vertico-next)
-  ;; ("C-r" . vertico-previous)
-
-  ;; (define-minor-mode kdb-vertico-reverse-mode
-  ;;   "Toggle between `vertico-reverse-mode' and 'vertico-flat-mode'."
-  ;;   :init-value nil
-  ;;   :global nil
-  ;;   :require 'vertico-mode
-  ;;   :diminish kdb-vertico-reverse-mode
-  ;;   (if kdb-vertico-reverse-mode
-  ;;       (progn
-  ;;         (vertico-reverse-mode)
-  ;;         (vertico-flat-mode -1)
-  ;;         )
-  ;;     (vertico-reverse-mode -1)
-  ;;     (vertico-flat-mode)
-  ;;     )
-  ;;   (message " "))
-
-  ;; :bind ("C-=" . kdb-vertico-reverse-mode)
-  )
 
 ;; Dired ============================================= ;;
 
@@ -738,7 +683,7 @@
    dired-create-destination-dirs 'ask
    dired-vc-rename-file t
    dired-do-revert-buffer (lambda (dir) (not (file-remote-p dir)))
-
+   dired-kill-when-opening-new-dired-buffer t
    dired-clean-up-buffers-too t
    dired-clean-confirm-killing-deleted-buffers t
    dired-x-hands-off-my-keys t
@@ -752,7 +697,8 @@
    image-dired-thumbs-per-row 4)
 
   (add-hook 'dired-mode-hook #'dired-hide-details-mode)
-  (add-hook 'dired-mode-hook #'hl-line-mode))
+  (add-hook 'dired-mode-hook #'hl-line-mode)
+  )
 
 ;; Xref ============================================== ;;
 
@@ -1219,8 +1165,8 @@
 
 (use-package json-mode
   :mode ("\\.json\\'"))
-  ;; :config
-  ;; (push '(json-mode . json-ts-mode) major-mode-remap-alist))
+;; :config
+;; (push '(json-mode . json-ts-mode) major-mode-remap-alist))
 
 ;; Restclient ==================================== ;;
 
@@ -1475,11 +1421,12 @@
   (other-window 1))
 (global-set-key (kbd "C-x M-k") 'kill-buffer-other-window)
 
-;; (defun indent-current-buffer ()
-;;   "Indent the current buffer while maintaining cursor position."
-;;   (interactive)
-;;   (indent-region (point-min) (point-max)))
-;; (global-set-key (kbd "<backtab>") 'indent-current-buffer)
+(defun format-current-buffer ()
+  "Format the current buffer while maintaining cursor position."
+  (interactive)
+  (indent-region (point-min) (point-max))
+  (whitespace-cleanup))
+(global-set-key (kbd "<backtab>") 'format-current-buffer)
 
 (defun copy-whole-buffer ()
   "Copy the current buffer while maintaining cursor position."
@@ -1638,17 +1585,9 @@
 ;; Custom ========================================= ;;
 
 (custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
  '(package-selected-packages '(olivetti)))
 
 (custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
  '(corfu-popupinfo ((t (:inherit corfu-default :height 1.0)))))
 
 ;; Local Variables:
