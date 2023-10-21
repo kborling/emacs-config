@@ -37,9 +37,6 @@
  kept-old-versions 2
  create-lockfiles nil)
 
-;; Improve LSP performance
-(fset #'jsonrpc--log-event #'ignore)
-
 ;; User ============================================= ;;
 (setq user-full-name "Kevin Borling"
       user-mail-address "kborling@protonmail.com")
@@ -87,6 +84,9 @@
 
 (autoload 'zap-up-to-char "misc"
   "Kill up to, but not including ARGth occurrence of CHAR." t)
+
+;; Improve LSP performance
+(fset #'jsonrpc--log-event #'ignore)
 
 ;; Elpaca ========================================== ;;
 
@@ -238,6 +238,7 @@
   :elpaca (myron-themes :host github :repo "neeasade/myron-themes" :files ("*.el" "themes/*.el")))
 
 (use-package uwu-theme
+  :elpaca (uwu-theme :host github :repo "kborling/uwu-theme" :files ("*.el"))
   :config
   (setq
    uwu-distinct-line-numbers 'nil
@@ -820,9 +821,6 @@
   ;; This adds thin lines, sorting and hides the mode line of the window.
   (advice-add #'register-preview :override #'consult-register-window)
 
-  ;; Optionally replace `completing-read-multiple' with an enhanced version.
-  ;; (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
-
   ;; Enable consult previews
   (add-hook 'completion-list-mode-hook #'consult-preview-at-point-mode)
 
@@ -830,14 +828,14 @@
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref)
 
-  ;; Use `consult-completion-in-region' if vertico is enabled.
+  ;; Use `consult-completion-in-region' if fido is enabled.
   ;; Otherwise use the default `completion--in-region' function.
-  (setq completion-in-region-function
-        (lambda (&rest args)
-          (apply (if vertico-mode
-                     #'consult-completion-in-region
-                   #'completion--in-region)
-                 args)))
+  ;; (setq completion-in-region-function
+  ;;       (lambda (&rest args)
+  ;;         (apply (if fido-mode
+  ;;                    #'consult-completion-in-region
+  ;;                  #'completion--in-region)
+  ;;                args)))
 
   :config
   (consult-customize
@@ -944,7 +942,7 @@
   (define-key eglot-mode-map (kbd "C-c c t") 'eglot-find-typeDefinition)
   (define-key eglot-mode-map (kbd "C-c c h") 'eldoc)
   ;; (define-key eglot-mode-map (kbd "C-c c d") 'xref-find-definitions))
-  :custom
+
   ;; Language Servers
   (add-to-list 'eglot-server-programs '(csharp-mode . ("omnisharp" "-lsp")))
   (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
@@ -963,6 +961,25 @@
                                            "--header-insertion=never"
                                            "--header-insertion-decorators=0")))
 
+
+  (defvar node-modules-path
+    (let* ((global-prefix (string-trim (shell-command-to-string "npm config get --global prefix")))
+           (modules-path (if (eq system-type 'windows-nt)
+                             "node_modules"
+                           "lib/node_modules")))
+      (expand-file-name modules-path global-prefix)))
+
+  (add-to-list 'eglot-server-programs
+               `(angular-template-mode .
+                                       ;; ("node"
+                                       ;;  ,(expand-file-name "@angular/language-server" node-modules-path)
+                                       ("ngserver"
+                                        "--ngProbeLocations"
+                                        ,node-modules-path
+                                        "--tsProbeLocations"
+                                        ,node-modules-path
+                                        "--stdio")))
+
   ;; Show all of the available eldoc information when we want it. This way Flymake errors
   ;; don't just get clobbered by docstrings.
   (add-hook 'eglot-managed-mode-hook
@@ -972,6 +989,7 @@
                           #'eldoc-documentation-compose)))
   (dolist (mode '(css-mode
                   html-mode
+                  angular-template-mode
                   js-mode
                   typescript-mode
                   c-mode
@@ -1093,7 +1111,11 @@
 ;; Angular ============================================= ;;
 
 (use-package angular-mode
-  :elpaca (angular-mode :host github :repo "kborling/angular-mode" :files ("*.el")))
+  :elpaca (angular-mode :host github :repo "kborling/angular-mode" :files ("*.el"))
+  :config
+  (define-derived-mode angular-template-mode web-mode "Angular"
+    "A major mode derived from web-mode, for editing angular template files with LSP support.")
+  (add-to-list 'auto-mode-alist '("\\.component.html\\'" . angular-template-mode)))
 
 ;; EditorConfig ======================================== ;;
 
@@ -1585,9 +1607,17 @@
 ;; Custom ========================================= ;;
 
 (custom-set-variables
- '(package-selected-packages '(olivetti)))
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages '(eglot)))
 
 (custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(corfu-popupinfo ((t (:inherit corfu-default :height 1.0)))))
 
 ;; Local Variables:
