@@ -234,6 +234,8 @@
 ;; Custom themes
 (use-package doom-themes)
 
+(use-package gruber-darker-theme)
+
 (use-package myron-themes
   :elpaca (myron-themes :host github :repo "neeasade/myron-themes" :files ("*.el" "themes/*.el")))
 
@@ -945,7 +947,7 @@
 
   ;; Language Servers
   (add-to-list 'eglot-server-programs '(csharp-mode . ("omnisharp" "-lsp")))
-  (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
+  ;; (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '(rust-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '(rustic-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '((c++-mode c-mode)
@@ -969,16 +971,15 @@
                            "lib/node_modules")))
       (expand-file-name modules-path global-prefix)))
 
+  ;; FIXME: The LSP starts, but doesn't connect to buffer events.
   (add-to-list 'eglot-server-programs
-               `(angular-template-mode .
-                                       ;; ("node"
-                                       ;;  ,(expand-file-name "@angular/language-server" node-modules-path)
-                                       ("ngserver"
-                                        "--ngProbeLocations"
-                                        ,node-modules-path
-                                        "--tsProbeLocations"
-                                        ,node-modules-path
-                                        "--stdio")))
+               `(angular-template-mode . ("ngserver"
+                                          "--stdio"
+                                          "--ngProbeLocations"
+                                          ,node-modules-path
+                                          "--tsProbeLocations"
+                                          ,node-modules-path
+                                          )))
 
   ;; Show all of the available eldoc information when we want it. This way Flymake errors
   ;; don't just get clobbered by docstrings.
@@ -987,6 +988,7 @@
               "Make sure Eldoc will show us all of the feedback at point."
               (setq-local eldoc-documentation-strategy
                           #'eldoc-documentation-compose)))
+
   (dolist (mode '(css-mode
                   html-mode
                   angular-template-mode
@@ -1111,11 +1113,11 @@
 ;; Angular ============================================= ;;
 
 (use-package angular-mode
-  :elpaca (angular-mode :host github :repo "kborling/angular-mode" :files ("*.el"))
-  :config
-  (define-derived-mode angular-template-mode web-mode "Angular"
-    "A major mode derived from web-mode, for editing angular template files with LSP support.")
-  (add-to-list 'auto-mode-alist '("\\.component.html\\'" . angular-template-mode)))
+  :elpaca (angular-mode :host github :repo "kborling/angular-mode" :files ("*.el")))
+
+(define-derived-mode angular-template-mode web-mode "Angular"
+  "A major mode derived from 'web-mode', for editing angular template files with LSP support.")
+(add-to-list 'auto-mode-alist '("\\.component.html\\'" . angular-template-mode))
 
 ;; EditorConfig ======================================== ;;
 
