@@ -343,13 +343,13 @@
 (defun magit-status-refresh-buffer-quick ()
   "Refresh the current `magit-status' buffer."
   (magit-insert-section (status)
-                        (magit-insert-heading "Quick status")
-                        (insert "\n")
-                        (magit-insert-error-header)
-                        (magit-insert-head-branch-header)
-                        (insert "\n")
-                        (magit-insert-unstaged-changes)
-                        (magit-insert-staged-changes)))
+    (magit-insert-heading "Quick status")
+    (insert "\n")
+    (magit-insert-error-header)
+    (magit-insert-head-branch-header)
+    (insert "\n")
+    (magit-insert-unstaged-changes)
+    (magit-insert-staged-changes)))
 
 (defun magit-quick-status ()
   "Toggle quick magit status."
@@ -1113,7 +1113,19 @@
 ;; Angular ============================================= ;;
 
 (use-package angular-mode
-  :elpaca (angular-mode :host github :repo "kborling/angular-mode" :files ("*.el")))
+  :elpaca (angular-mode :host github :repo "kborling/angular-mode" :files ("*.el"))
+  :config
+  (defun angular-open-interface ()
+    "Open an Angular interface file in the project."
+    (interactive)
+    (angular-open-file "interface"))
+  (global-set-key (kbd "C-c a o f") 'angular-open-interface)
+
+  (defun angular-open-scss ()
+    "Open an Angular scss file in the project."
+    (interactive)
+    (angular-open-file "*" "scss"))
+  (global-set-key (kbd "C-c a o v") 'angular-open-scss))
 
 (define-derived-mode angular-template-mode web-mode "Angular"
   "A major mode derived from 'web-mode', for editing angular template files with LSP support.")
@@ -1613,7 +1625,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages '(eglot)))
+ )
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
