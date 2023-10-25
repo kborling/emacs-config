@@ -1119,13 +1119,7 @@
     "Open an Angular interface file in the project."
     (interactive)
     (angular-open-file "interface"))
-  (global-set-key (kbd "C-c a o f") 'angular-open-interface)
-
-  (defun angular-open-scss ()
-    "Open an Angular scss file in the project."
-    (interactive)
-    (angular-open-file "*" "scss"))
-  (global-set-key (kbd "C-c a o v") 'angular-open-scss))
+  (global-set-key (kbd "C-c a o f") 'angular-open-interface))
 
 (define-derived-mode angular-template-mode web-mode "Angular"
   "A major mode derived from 'web-mode', for editing angular template files with LSP support.")
