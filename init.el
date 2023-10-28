@@ -947,7 +947,8 @@
 
   ;; Language Servers
   (add-to-list 'eglot-server-programs '(csharp-mode . ("omnisharp" "-lsp")))
-  ;; (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
+  (add-to-list 'eglot-server-programs `(js-mode . ("quick-lint-js" "--lsp-server")))
+  (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '(rust-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '(rustic-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '((c++-mode c-mode)
@@ -962,7 +963,6 @@
                                            "--pch-storage=memory"
                                            "--header-insertion=never"
                                            "--header-insertion-decorators=0")))
-
 
   (defvar node-modules-path
     (let* ((global-prefix (string-trim (shell-command-to-string "npm config get --global prefix")))
@@ -997,8 +997,7 @@
                   c-mode
                   c++-mode
                   rust-mode
-                  csharp-mode
-                  typescript-mode))
+                  csharp-mode))
     (add-hook (intern (concat (symbol-name mode) "-hook")) #'eglot-ensure))
   )
 
@@ -1057,32 +1056,11 @@
   :config
   (push '(css-mode . css-ts-mode) major-mode-remap-alist))
 
-;; Javascript Mode ================================= ;;
-
-(use-package js2-mode
-  :mode ("\\.js\\'")
-  ;; :hook (js2-mode . lsp-deferred)
-  :config
-  (push '(js2-mode . js-ts-mode) major-mode-remap-alist)
-  ;; (add-hook 'js2-mode-hook #'js2-imenu-extras-mode)
-  (add-hook 'js2-mode-hook #'js2-refactor-mode)
-  (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
-  (define-key js2-mode-map (kbd "C-\\") #'js2r-log-this)
-  ;; js-mode (which js2 is based on) binds "M-." which conflicts with xref, so
-  ;; unbind it.
-  (define-key js-mode-map (kbd "M-.") nil)
-  (add-hook 'js2-mode-hook (lambda ()
-                             (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t))))
-
-(use-package js2-refactor)
-(use-package xref-js2
-  :config
-  (js2r-add-keybindings-with-prefix "C-c C-r"))
+;; Node Modules ================================= ;;
 
 (use-package add-node-modules-path
   :config
-
-  (dolist (mode '(typescript-mode js2-mode))
+  (dolist (mode '(typescript-mode js-mode))
     (add-hook mode 'add-node-modules-path)))
 
 ;; Typescript Mode ================================= ;;
@@ -1123,7 +1101,18 @@
 
 (define-derived-mode angular-template-mode web-mode "Angular"
   "A major mode derived from 'web-mode', for editing angular template files with LSP support.")
+;; TODO Mode must manually be set
 (add-to-list 'auto-mode-alist '("\\.component.html\\'" . angular-template-mode))
+
+;; Quick-lint =========================================== ;;
+
+;;https://github.com/quick-lint/quick-lint-js/tree/master/plugin/emacs
+(use-package flymake-quicklintjs
+  :elpaca (flymake-quicklintjs :host github :repo "quick-lint/quick-lint-js" :files ("plugin/emacs/flymake-quicklintjs.el"))
+  :config
+  (add-hook 'flymake-diagnostic-functions #'flymake-quicklintjs nil t))
+  ;; (setq flymake-quicklintjs-experimental-typescript t))
+
 
 ;; EditorConfig ======================================== ;;
 
