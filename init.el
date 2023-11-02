@@ -217,7 +217,7 @@
   (cond
    ((eq system-type 'windows-nt) 100)
    ((eq system-type 'gnu/linux) 110)
-   ((eq system-type 'darwin) 140)))
+   ((eq system-type 'darwin) 150)))
 
 (let ((font "Comic Code"))
   (set-face-attribute 'default nil
@@ -227,14 +227,14 @@
   (set-face-attribute 'italic nil
                       :family font :weight 'regular :slant 'italic))
 (set-face-attribute 'variable-pitch nil
-                    :family "Berkeley Mono Variable" :height 170 :weight 'regular)
+                    :family "Berkeley Mono Variable" :height (+ default-font-size 20) :weight 'regular)
 (set-fontset-font t 'unicode
                   (font-spec :name "Inconsolata Light" :size 16) nil)
 
 ;; Custom themes
 (use-package doom-themes)
 
-(use-package gruber-darker-theme)
+(use-package haki-theme)
 
 (use-package myron-themes
   :elpaca (myron-themes :host github :repo "neeasade/myron-themes" :files ("*.el" "themes/*.el")))
@@ -1113,7 +1113,6 @@
   (add-hook 'flymake-diagnostic-functions #'flymake-quicklintjs nil t))
   ;; (setq flymake-quicklintjs-experimental-typescript t))
 
-
 ;; EditorConfig ======================================== ;;
 
 (use-package editorconfig
@@ -1315,7 +1314,6 @@
    org-confirm-babel-evaluate nil
    org-src-window-setup 'current-window
    org-edit-src-persistent-message nil
-   org-src-fontify-natively t
    org-src-preserve-indentation t
    org-src-tab-acts-natively t
    org-edit-src-content-indentation 0
@@ -1414,6 +1412,28 @@
   (interactive)
   (load-file (expand-file-name (locate-user-emacs-file "init.el"))))
 (global-set-key (kbd "C-c e r") 'config-reload)
+
+;; Utilities ====================================== ;;
+
+(defun choose-and-set-font ()
+  "Choose a font and font size interactively and set them as the default font."
+  (interactive)
+  (let* ((font-list (split-string (shell-command-to-string "fc-list : family") "\n" t))
+         (chosen-font (completing-read "Select a font: " font-list nil t))
+         (font-size (* (string-to-number (read-string "Enter a font size (e.g., 10, 12, 14, ...): ")) 10)))
+    (if (and (member chosen-font font-list) (>= font-size 10))
+        (progn
+          (let ((font-height font-size)) ; You can adjust the font height as needed
+            (set-face-attribute 'default nil
+                                :family chosen-font :weight 'regular :height font-height)
+            (set-face-attribute 'bold nil
+                                :family chosen-font :weight 'medium)
+            (set-face-attribute 'italic nil
+                                :family chosen-font :weight 'regular :slant 'italic))
+          (message "Font set to %s" chosen-font))
+      (message "Invalid font choice: %s" chosen-font))))
+
+(global-set-key (kbd "C-c t f") 'choose-and-set-font)
 
 ;; Buffers ======================================== ;;
 
