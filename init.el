@@ -922,6 +922,7 @@
   :elpaca nil
   :config
   (setq eglot-sync-connect 0
+        eglot-send-changes-idle-time 0
         eglot-events-buffer-size 0
         eglot-ignored-server-capabilities '(:hoverProvider
                                             :documentHighlightProvider)
@@ -1012,7 +1013,7 @@
    flymake-fringe-indicator-position 'left-fringe
    flymake-suppress-zero-counters t
    flymake-start-on-flymake-mode t
-   ;; flymake-no-changes-timeout 0.1
+   flymake-no-changes-timeout 0
    ;; flymake-start-on-save-buffer t
    flymake-proc-compilation-prevents-syntax-check t
    flymake-wrap-around nil
@@ -1423,7 +1424,7 @@
          (font-size (* (string-to-number (read-string "Enter a font size (e.g., 10, 12, 14, ...): ")) 10)))
     (if (and (member chosen-font font-list) (>= font-size 10))
         (progn
-          (let ((font-height font-size)) ; You can adjust the font height as needed
+          (let ((font-height font-size))
             (set-face-attribute 'default nil
                                 :family chosen-font :weight 'regular :height font-height)
             (set-face-attribute 'bold nil
