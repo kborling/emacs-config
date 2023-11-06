@@ -343,13 +343,13 @@
 (defun magit-status-refresh-buffer-quick ()
   "Refresh the current `magit-status' buffer."
   (magit-insert-section (status)
-    (magit-insert-heading "Quick status")
-    (insert "\n")
-    (magit-insert-error-header)
-    (magit-insert-head-branch-header)
-    (insert "\n")
-    (magit-insert-unstaged-changes)
-    (magit-insert-staged-changes)))
+                        (magit-insert-heading "Quick status")
+                        (insert "\n")
+                        (magit-insert-error-header)
+                        (magit-insert-head-branch-header)
+                        (insert "\n")
+                        (magit-insert-unstaged-changes)
+                        (magit-insert-staged-changes)))
 
 (defun magit-quick-status ()
   "Toggle quick magit status."
@@ -1112,7 +1112,7 @@
   :elpaca (flymake-quicklintjs :host github :repo "quick-lint/quick-lint-js" :files ("plugin/emacs/flymake-quicklintjs.el"))
   :config
   (add-hook 'flymake-diagnostic-functions #'flymake-quicklintjs nil t))
-  ;; (setq flymake-quicklintjs-experimental-typescript t))
+;; (setq flymake-quicklintjs-experimental-typescript t))
 
 ;; EditorConfig ======================================== ;;
 
@@ -1501,7 +1501,19 @@
   (popper-mode +1)
   (popper-echo-mode +1))
 
-;; Window Splits ================================== ;;
+;; Window Management ================================== ;;
+
+(use-package windmove
+  :elpaca nil
+  :config
+  (global-set-key (kbd "C-S-h") 'windmove-left)
+  (global-set-key (kbd "C-S-s") 'windmove-right)
+  (global-set-key (kbd "C-S-t") 'windmove-up)
+  (global-set-key (kbd "C-S-n") 'windmove-down)
+  (global-set-key (kbd "C-M-S-h") 'windmove-swap-states-left)
+  (global-set-key (kbd "C-M-S-s") 'windmove-swap-states-right)
+  (global-set-key (kbd "C-M-S-t") 'windmove-swap-states-up)
+  (global-set-key (kbd "C-M-S-n") 'windmove-swap-states-down))
 
 ;; (defun split-and-follow-horizontally ()
 ;;   "Focus follows horizontal split."
