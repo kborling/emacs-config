@@ -194,6 +194,7 @@
 
   (define-key map (kbd "C-c C-p") #'previous-buffer)
   (define-key map (kbd "C-c C-n") #'next-buffer)
+  (define-key map (kbd "C-o") #'other-window)
   ;; Misc
   (define-key map (kbd "C-x C-b") #'ibuffer)
   (define-key map (kbd "M-z") #'zap-up-to-char)
