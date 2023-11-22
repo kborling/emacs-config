@@ -374,45 +374,45 @@
 
 ;; Corfu ============================================= ;;
 
-(use-package corfu
-  :elpaca (:files (:defaults "extensions/*"))
-  :hook ((prog-mode . corfu-mode)
-         (shell-mode . corfu-mode)
-         (eshell-mode . corfu-mode))
-  :custom
-  (corfu-cycle t)                  ;; Enable cycling for `corfu-next/previous'
-  (corfu-auto nil)                 ;; Enable auto completion
-  (corfu-separator ?\s)            ;; Orderless field separator
-  (corfu-quit-no-match 'separator) ;; Don't quit if there is `corfu-separator' inserted
-  (corfu-echo-documentation nil)   ;; Disable documentation in the echo area
-  (corfu-scroll-margin 4)
+;; (use-package corfu
+;;   :elpaca (:files (:defaults "extensions/*"))
+;;   :hook ((prog-mode . corfu-mode)
+;;          (shell-mode . corfu-mode)
+;;          (eshell-mode . corfu-mode))
+;;   :custom
+;;   (corfu-cycle t)                  ;; Enable cycling for `corfu-next/previous'
+;;   (corfu-auto nil)                 ;; Enable auto completion
+;;   (corfu-separator ?\s)            ;; Orderless field separator
+;;   (corfu-quit-no-match 'separator) ;; Don't quit if there is `corfu-separator' inserted
+;;   (corfu-echo-documentation nil)   ;; Disable documentation in the echo area
+;;   (corfu-scroll-margin 4)
 
-  :config
-  (corfu-popupinfo-mode 1)
-  (setq corfu-popupinfo-delay 0.2)
+;;   :config
+;;   (corfu-popupinfo-mode 1)
+;;   (setq corfu-popupinfo-delay 0.2)
 
-  (corfu-history-mode 1)
+;;   (corfu-history-mode 1)
 
-  (define-key corfu-map (kbd "<tab>") #'corfu-complete)
+;;   (define-key corfu-map (kbd "<tab>") #'corfu-complete)
 
-  (defun corfu-move-to-minibuffer ()
-    "Use corfu for completions in the minibuffer."
-    (interactive)
-    (let (completion-cycle-threshold completion-cycling)
-      (apply #'consult-completion-in-region completion-in-region--data)))
-  (define-key corfu-map "\M-m" #'corfu-move-to-minibuffer))
+;;   (defun corfu-move-to-minibuffer ()
+;;     "Use corfu for completions in the minibuffer."
+;;     (interactive)
+;;     (let (completion-cycle-threshold completion-cycling)
+;;       (apply #'consult-completion-in-region completion-in-region--data)))
+;;   (define-key corfu-map "\M-m" #'corfu-move-to-minibuffer))
 
-(use-package cape
-  :config
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  ;;(add-to-list 'completion-at-point-functions #'cape-history)
-  (add-to-list 'completion-at-point-functions #'cape-keyword)
-  (add-to-list 'completion-at-point-functions #'cape-symbol)
-  ;; (add-to-list 'completion-at-point-functions #'cape-line)
+;; (use-package cape
+;;   :config
+;;   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+;;   (add-to-list 'completion-at-point-functions #'cape-file)
+;;   ;;(add-to-list 'completion-at-point-functions #'cape-history)
+;;   (add-to-list 'completion-at-point-functions #'cape-keyword)
+;;   (add-to-list 'completion-at-point-functions #'cape-symbol)
+;;   ;; (add-to-list 'completion-at-point-functions #'cape-line)
 
-  ;; https://github.com/minad/corfu/wiki#continuously-update-the-candidates
-  (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
+;;   ;; https://github.com/minad/corfu/wiki#continuously-update-the-candidates
+;;   (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
 
 ;; Templates ================================================
 
@@ -643,13 +643,13 @@
   (setq fussy-compare-same-score-fn 'fussy-histlen->strlen<)
   (push 'fussy completion-styles)
 
-  (advice-add 'corfu--capf-wrapper :before 'fussy-wipe-cache)
+  ;; (advice-add 'corfu--capf-wrapper :before 'fussy-wipe-cache)
 
-  (add-hook 'corfu-mode-hook
-            (lambda ()
-              (setq-local fussy-max-candidate-limit 5000
-                          fussy-default-regex-fn 'fussy-pattern-first-letter
-                          fussy-prefer-prefix nil)))
+  ;; (add-hook 'corfu-mode-hook
+  ;;           (lambda ()
+  ;;             (setq-local fussy-max-candidate-limit 5000
+  ;;                         fussy-default-regex-fn 'fussy-pattern-first-letter
+  ;;                         fussy-prefer-prefix nil)))
 
   (with-eval-after-load 'eglot
     (add-to-list 'completion-category-overrides
@@ -917,6 +917,18 @@
                  ".sl")))
   (setq project-vc-extra-root-markers '(".envrc" "package.json" ".project" ".sl")))
 
+;; LSP-Bridge ========================================= ;;
+
+(use-package yasnippet)
+(use-package markdown-mode)
+
+(use-package lsp-bridge
+  :elpaca '(lsp-bridge :type git :host github :repo "kborling/lsp-bridge" :branch "feat/angular-langserver"
+            :files (:defaults "*.el" "*.py" "acm" "core" "langserver" "multiserver" "resources")
+            :build (:not compile))
+  :init
+  (global-lsp-bridge-mode))
+
 ;; Eglot ============================================== ;;
 
 (use-package eglot
@@ -991,16 +1003,16 @@
               (setq-local eldoc-documentation-strategy
                           #'eldoc-documentation-compose)))
 
-  (dolist (mode '(css-mode
-                  html-mode
-                  angular-template-mode
-                  js-mode
-                  typescript-mode
-                  c-mode
-                  c++-mode
-                  rust-mode
-                  csharp-mode))
-    (add-hook (intern (concat (symbol-name mode) "-hook")) #'eglot-ensure))
+  ;; (dolist (mode '(css-mode
+  ;;                 html-mode
+  ;;                 angular-template-mode
+  ;;                 js-mode
+  ;;                 typescript-mode
+  ;;                 c-mode
+  ;;                 c++-mode
+  ;;                 rust-mode
+  ;;                 csharp-mode))
+  ;;   (add-hook (intern (concat (symbol-name mode) "-hook")) #'eglot-ensure))
   )
 
 (use-package consult-eglot
