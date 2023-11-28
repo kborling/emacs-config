@@ -59,12 +59,25 @@
 
 (when (fboundp 'tool-bar-mode)
   (tool-bar-mode -1))
+(when (fboundp 'menu-bar-mode)
+  (menu-bar-mode -1))
 (when (fboundp 'scroll-bar-mode)
   (scroll-bar-mode -1))
 (when (fboundp 'horizontal-scroll-bar-mode)
   (horizontal-scroll-bar-mode -1))
 
+;; Frame ============================================== ;;
+
 (setq frame-resize-pixelwise t)
+
+;; Make frame transparency overridable
+(let ((frame-transparency '(96 . 96)))
+  ;; Set frame transparency
+  (set-frame-parameter (selected-frame) 'alpha frame-transparency)
+  (add-to-list 'default-frame-alist `(alpha . ,frame-transparency)))
+;; (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
+;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
+(add-to-list 'default-frame-alist '(undecorated . t))
 
 ;; disable package.el
 (setq package-enable-at-startup nil)

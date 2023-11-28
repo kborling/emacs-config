@@ -58,6 +58,8 @@
  global-mark-ring-max 50000
  bookmark-save-flag 1)
 
+(setq-default cursor-type 'hollow)
+
 ;; Remember cursor place
 (setq
  save-place-file (locate-user-emacs-file "saveplace")
@@ -218,7 +220,7 @@
   (cond
    ((eq system-type 'windows-nt) 100)
    ((eq system-type 'gnu/linux) 110)
-   ((eq system-type 'darwin) 150)))
+   ((eq system-type 'darwin) 130)))
 
 (let ((font "Comic Code"))
   (set-face-attribute 'default nil
@@ -248,16 +250,6 @@
    uwu-scale-org-headlines t
    uwu-use-variable-pitch t)
   (load-theme 'uwu t))
-
-;; Frame ============================================== ;;
-
-;; Make frame transparency overridable
-(let ((frame-transparency '(96 . 96)))
-  ;; Set frame transparency
-  (set-frame-parameter (selected-frame) 'alpha frame-transparency)
-  (add-to-list 'default-frame-alist `(alpha . ,frame-transparency)))
-;; (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
-;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; Recent Files ====================================== ;;
 
@@ -670,6 +662,26 @@
             (lambda () (setq-local completion-styles '(fussy basic))))
   (global-set-key (kbd "C-=") 'fido-vertical-mode))
 
+;; IDO =============================================== ;;
+
+(use-package ido
+  :elpaca nil
+  :config
+  (ido-mode t)
+  (ido-everywhere t)
+  (setq
+   ido-enable-flex-matching t
+   ido-use-filename-at-point 'guess
+   ido-use-virtual-buffers t
+   ido-use-faces t
+   ido-create-new-buffer 'always
+   ido-max-prospects 10
+   ;; ido-max-directory-size 20
+   ido-file-extensions-order '(".org" ".ts" ".js" ".html" ".json" ".scss" ".txt" ".el" ".ini" ".cfg" ".cnf")
+   ;; (add-to-list 'ido-ignore-files "\.bak" "")
+   ;; (add-to-list 'completion-ignored-extensions ".bak" ".o" ".a" ".so" ".git" "node_modules")
+   magit-completing-read-function 'magit-ido-completing-read))
+
 ;; Dired ============================================= ;;
 
 (use-package dired
@@ -948,8 +960,9 @@
   ;; (define-key eglot-mode-map (kbd "C-c c d") 'xref-find-definitions))
 
   ;; Language Servers
+  ;; (add-to-list 'eglot-server-programs '(gdscript-mode . ("localhost" 6008)))
   (add-to-list 'eglot-server-programs '(csharp-mode . ("omnisharp" "-lsp")))
-  (add-to-list 'eglot-server-programs `(js-mode . ("quick-lint-js" "--lsp-server")))
+  (add-to-list 'eglot-server-programs '(js-mode . ("quick-lint-js" "--lsp-server")))
   (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '(rust-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '(rustic-mode . ("rls" "--stdio")))
@@ -996,6 +1009,7 @@
                   angular-template-mode
                   js-mode
                   typescript-mode
+                  gdscript-mode
                   c-mode
                   c++-mode
                   rust-mode
@@ -1175,6 +1189,15 @@
         (pop-to-buffer buf)))))
 
 (use-package package-lint)
+
+
+;; Godot ========================================= ;;
+
+(use-package gdscript-mode
+  :elpaca (gdscript-mode
+           :type git
+           :host github
+           :repo "godotengine/emacs-gdscript-mode"))
 
 ;; YAML ========================================== ;;
 
@@ -1624,6 +1647,7 @@
 (when (equal system-type 'darwin)
   (setq mac-command-modifier 'meta)
   (setq mac-option-modifier 'none)
+  (setq ns-pop-up-frames nil)
   ;; Make mouse wheel / trackpad scrolling less jerky
   (setq mouse-wheel-scroll-amount '(1
                                     ((shift) . 5)
@@ -1642,7 +1666,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(package-selected-packages '(eglot)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
