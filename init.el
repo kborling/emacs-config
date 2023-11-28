@@ -89,6 +89,7 @@
 
 ;; Improve LSP performance
 (fset #'jsonrpc--log-event #'ignore)
+(add-hook 'focus-out-hook 'garbage-collect)
 
 ;; Elpaca ========================================== ;;
 
