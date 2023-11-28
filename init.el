@@ -337,13 +337,13 @@
 (defun magit-status-refresh-buffer-quick ()
   "Refresh the current `magit-status' buffer."
   (magit-insert-section (status)
-                        (magit-insert-heading "Quick status")
-                        (insert "\n")
-                        (magit-insert-error-header)
-                        (magit-insert-head-branch-header)
-                        (insert "\n")
-                        (magit-insert-unstaged-changes)
-                        (magit-insert-staged-changes)))
+    (magit-insert-heading "Quick status")
+    (insert "\n")
+    (magit-insert-error-header)
+    (magit-insert-head-branch-header)
+    (insert "\n")
+    (magit-insert-unstaged-changes)
+    (magit-insert-staged-changes)))
 
 (defun magit-quick-status ()
   "Toggle quick magit status."
@@ -958,7 +958,7 @@
   ;; (add-to-list 'eglot-server-programs '(gdscript-mode . ("localhost" 6008)))
   (add-to-list 'eglot-server-programs '(csharp-mode . ("omnisharp" "-lsp")))
   (add-to-list 'eglot-server-programs '(js-mode . ("quick-lint-js" "--lsp-server")))
-  (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
+  (add-to-list 'eglot-server-programs '(typescript-ts-mode . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '(rust-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '(rustic-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '((c++-mode c-mode)
@@ -1003,7 +1003,7 @@
                   html-mode
                   angular-template-mode
                   js-mode
-                  typescript-mode
+                  typescript-ts-mode
                   gdscript-mode
                   c-mode
                   c++-mode
@@ -1076,28 +1076,33 @@
 
 ;; Typescript Mode ================================= ;;
 
-(use-package typescript-mode
-  :mode "\\.ts\\'")
-
 (use-package ob-typescript
   :after org)
 
-;; (use-package typescript-ts-mode
-;;   :if (or (eq system-type 'gnu/linux)
-;;           (eq system-type 'darwin))
-;;   :elpaca nil
-;;   :init
-;;   ;; Associate ts files with `typescript-ts-mode'.
-;;   (add-to-list 'auto-mode-alist (cons "\\.ts\\'" 'typescript-ts-mode))
-;;   (add-hook 'typescript-ts-mode-hook #'eglot-ensure)
-;;   :custom (typescript-ts-mode-indent-offset 4)
-;;   :ensure nil)
+(use-package typescript-ts-mode
+  :elpaca nil
+  :mode ("\\.ts\\'")
+  :init
+  ;; Associate ts files with `typescript-ts-mode'.
+  (add-to-list 'auto-mode-alist (cons "\\.ts\\'" 'typescript-ts-mode))
+  (add-hook 'typescript-ts-mode-hook #'eglot-ensure)
+  :custom (typescript-ts-mode-indent-offset 4))
 
 ;; Treesitter Modules ========================================== ;;
 
-;; https://github.com/casouri/tree-sitter-module
-;; (add-to-list 'treesit-extra-load-path
-;;              (expand-file-name "~/.emacs.d/treesitter/tree-sitter-module/dist"))
+;; TODO: Clone repo https://github.com/casouri/tree-sitter-module to ~/.emacs.d/tree-sitter
+;; TODO: Build languages (ex. './batch.sh' or './build.sh' 'typescript' )
+
+(add-to-list 'treesit-extra-load-path
+             (expand-file-name "~/.emacs.d/tree-sitter/tree-sitter-module/dist"))
+
+(setq major-mode-remap-alist
+      '((yaml-mode . yaml-ts-mode)
+        (bash-mode . bash-ts-mode)
+        (js-mode . js-ts-mode)
+        (json-mode . json-ts-mode)
+        (css-mode . css-ts-mode)
+        (python-mode . python-ts-mode)))
 
 ;; Angular ============================================= ;;
 
@@ -1203,8 +1208,6 @@
 
 (use-package json-mode
   :mode ("\\.json\\'"))
-;; :config
-;; (push '(json-mode . json-ts-mode) major-mode-remap-alist))
 
 ;; Restclient ==================================== ;;
 

@@ -28,6 +28,6 @@ site-lisp/
 elisp/
 straight/
 elpaca/
-treesitter/
+tree-sitter/
 org-roam.db
 .org-id-locations
