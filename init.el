@@ -138,6 +138,11 @@
   ;; Assume :elpaca t unless otherwise specified.
   (setq elpaca-use-package-by-default t))
 
+;; Install by copying on Windows
+(if (eq system-type 'windows-nt)
+    (elpaca-no-symlink-mode)
+    nil)
+
 (elpaca-wait)
 
 ;; Electric Pairs ====================================== ;;
