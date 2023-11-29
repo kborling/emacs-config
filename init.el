@@ -1101,7 +1101,7 @@
                                 (js-indent-line)
                                 (forward-line 1))))))))
 
-;; Treesitter Modules ========================================== ;;
+;; Treesitter ========================================== ;;
 
 (use-package treesit-auto
   :custom
@@ -1109,6 +1109,18 @@
   :config
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
+
+(use-package combobulate
+  :elpaca (combobulate :host github :repo "mickeynp/combobulate")
+  :preface
+  (setq combobulate-key-prefix "C-c r")
+  :hook ((python-ts-mode . combobulate-mode)
+         (js-ts-mode . combobulate-mode)
+         (css-ts-mode . combobulate-mode)
+         (yaml-ts-mode . combobulate-mode)
+         (json-ts-mode . combobulate-mode)
+         (typescript-ts-mode . combobulate-mode)
+         (tsx-ts-mode . combobulate-mode)))
 
 ;; Angular ============================================= ;;
 
