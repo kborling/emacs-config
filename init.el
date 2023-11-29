@@ -766,6 +766,12 @@
 
   (add-hook 'after-init-hook #'savehist-mode))
 
+;; SmartScan ========================================== ;;
+
+(use-package smartscan
+  :config
+  (global-smartscan-mode 1))
+
 ;; Consult ============================================ ;;
 
 (use-package consult
@@ -1044,8 +1050,8 @@
     (define-key map (kbd "C-c f s") #'flymake-start)
     (define-key map (kbd "C-c f d") #'flymake-show-buffer-diagnostics)
     (define-key map (kbd "C-c f D") #'flymake-show-project-diagnostics)
-    (define-key map (kbd "M-n") #'flymake-goto-next-error)
-    (define-key map (kbd "M-p") #'flymake-goto-prev-error))
+    (define-key map (kbd "C-c f n") #'flymake-goto-next-error)
+    (define-key map (kbd "C-c f p") #'flymake-goto-prev-error))
   :init
   (add-hook 'prog-mode-hook 'flymake-mode)
   (add-hook 'text-mode-hook 'flymake-mode)
