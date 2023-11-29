@@ -1082,7 +1082,19 @@
 (use-package typescript-ts-mode
   :elpaca nil
   :mode ("\\.ts\\'")
-  :custom (typescript-ts-mode-indent-offset 4))
+  :custom (typescript-ts-mode-indent-offset 4)
+  :config
+  ;; Add intdentation support
+  (add-hook 'typescript-ts-mode-hook
+            (lambda ()
+              (setq-local indent-line-function 'js-indent-line)
+              (setq-local indent-region-function
+                          (lambda (start end)
+                            (save-excursion
+                              (goto-char start)
+                              (while (< (point) end)
+                                (js-indent-line)
+                                (forward-line 1))))))))
 
 ;; Treesitter Modules ========================================== ;;
 
