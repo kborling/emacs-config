@@ -77,7 +77,9 @@
   (add-to-list 'default-frame-alist `(alpha . ,frame-transparency)))
 ;; (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
 ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
-(add-to-list 'default-frame-alist '(undecorated . t))
+
+(when (or (equal system-type 'darwin) (equal system-type 'gnu/linux))
+          (add-to-list 'default-frame-alist '(undecorated . t)))
 
 ;; disable package.el
 (setq package-enable-at-startup nil)
