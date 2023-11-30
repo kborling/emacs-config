@@ -992,7 +992,6 @@
                            "lib/node_modules")))
       (expand-file-name modules-path global-prefix)))
 
-  ;; FIXME: The LSP starts, but doesn't connect to buffer events.
   (add-to-list 'eglot-server-programs
                `(angular-template-mode . ("ngserver"
                                           "--stdio"
@@ -1069,14 +1068,28 @@
   :bind (:map emmet-mode-keymap
               ("<C-tab>" . emmet-expand-line))
   :hook ((html-mode . emmet-mode)
+         (html-ts-mode . emmet-mode)
          (web-mode . emmet-mode)))
 
 ;; Web Mode ======================================== ;;
 
-(use-package web-mode
-  :mode ("\\.html\\'" "\\.css\\'" "\\.tsx\\'" "\\.cshtml\\'" "\\.astro\\'")
+;; (use-package web-mode
+;;   :mode ("\\.html\\'" "\\.css\\'" "\\.tsx\\'" "\\.cshtml\\'" "\\.astro\\'"))
+
+;; HTML Mode ====================================== ;;
+
+;; (use-package html-mode
+;;   :elpaca nil
+;;   :mode ("\\.html\\'"))
+
+(use-package html-ts-mode
+  :elpaca (html-ts-mode :host github :repo "mickeynp/html-ts-mode" :files ("*.el"))
+  :mode ("\\.html\\'")
   :config
-  (push '(css-mode . css-ts-mode) major-mode-remap-alist))
+  ;; Add intdentation support
+  (add-hook 'html-ts-mode-hook
+            (lambda ()
+              (setq-local indent-line-function 'sgml-indent-line))))
 
 ;; Node Modules ================================= ;;
 
@@ -1116,6 +1129,7 @@
   :hook ((python-ts-mode . combobulate-mode)
          (js-ts-mode . combobulate-mode)
          (css-ts-mode . combobulate-mode)
+         (html-ts-mode . combobulate-mode)
          (yaml-ts-mode . combobulate-mode)
          (json-ts-mode . combobulate-mode)
          (typescript-ts-mode . combobulate-mode)
@@ -1132,10 +1146,10 @@
     (angular-open-file "interface"))
   (global-set-key (kbd "C-c a o f") 'angular-open-interface))
 
-(define-derived-mode angular-template-mode web-mode "Angular"
-  "A major mode derived from 'web-mode', for editing angular template files with LSP support.")
+(define-derived-mode angular-template-mode html-ts-mode "Angular Template"
+  "A major mode derived from 'html-ts-mode', for editing angular template files with LSP support.")
 ;; TODO Mode must manually be set
-(add-to-list 'auto-mode-alist '("\\.component.html\\'" . angular-template-mode))
+(add-to-list 'auto-mode-alist '("\\.component\\.html\\'" . angular-template-mode))
 
 ;; Quick-lint =========================================== ;;
 
