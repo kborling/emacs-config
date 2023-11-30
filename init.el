@@ -1098,14 +1098,7 @@
   ;; Add intdentation support
   (add-hook 'typescript-ts-mode-hook
             (lambda ()
-              (setq-local indent-line-function 'js-indent-line)
-              (setq-local indent-region-function
-                          (lambda (start end)
-                            (save-excursion
-                              (goto-char start)
-                              (while (< (point) end)
-                                (js-indent-line)
-                                (forward-line 1))))))))
+              (setq-local indent-line-function 'js-indent-line))))
 
 ;; Treesitter ========================================== ;;
 
@@ -1667,8 +1660,8 @@
 ;; Macos ========================================== ;;
 
 (when (equal system-type 'darwin)
-  (setq mac-command-modifier 'meta)
-  (setq mac-option-modifier 'none)
+  ;; (setq mac-command-modifier 'meta)
+  ;; (setq mac-option-modifier 'none)
   (setq ns-pop-up-frames nil)
   ;; Make mouse wheel / trackpad scrolling less jerky
   (setq mouse-wheel-scroll-amount '(1
