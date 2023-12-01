@@ -967,12 +967,12 @@
 
   ;; Language Servers
   ;; (add-to-list 'eglot-server-programs '(gdscript-mode . ("localhost" 6008)))
-  (add-to-list 'eglot-server-programs '(csharp-mode . ("omnisharp" "-lsp")))
-  (add-to-list 'eglot-server-programs '(js-mode . ("quick-lint-js" "--lsp-server")))
+  (add-to-list 'eglot-server-programs '(csharp-ts-mode . ("omnisharp" "-lsp")))
+  (add-to-list 'eglot-server-programs '(js-ts-mode . ("quick-lint-js" "--lsp-server")))
   (add-to-list 'eglot-server-programs '(typescript-ts-mode . ("typescript-language-server" "--stdio")))
-  (add-to-list 'eglot-server-programs '(rust-mode . ("rls" "--stdio")))
+  (add-to-list 'eglot-server-programs '(rust-ts-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '(rustic-mode . ("rls" "--stdio")))
-  (add-to-list 'eglot-server-programs '((c++-mode c-mode)
+  (add-to-list 'eglot-server-programs '((c++-ts-mode c-ts-mode)
                                         . ("clangd"
                                            "-j=8"
                                            "--log=error"
@@ -1009,10 +1009,10 @@
               (setq-local eldoc-documentation-strategy
                           #'eldoc-documentation-compose)))
 
-  (dolist (mode '(css-mode
-                  html-mode
+  (dolist (mode '(css-ts-mode
+                  html-ts-mode
                   angular-template-mode
-                  js-mode
+                  js-ts-mode
                   typescript-ts-mode
                   gdscript-mode
                   c-mode
@@ -1068,25 +1068,15 @@
   :bind (:map emmet-mode-keymap
               ("<C-tab>" . emmet-expand-line))
   :hook ((html-mode . emmet-mode)
-         (html-ts-mode . emmet-mode)
-         (web-mode . emmet-mode)))
-
-;; Web Mode ======================================== ;;
-
-;; (use-package web-mode
-;;   :mode ("\\.html\\'" "\\.css\\'" "\\.tsx\\'" "\\.cshtml\\'" "\\.astro\\'"))
+         (html-ts-mode . emmet-mode)))
 
 ;; HTML Mode ====================================== ;;
-
-;; (use-package html-mode
-;;   :elpaca nil
-;;   :mode ("\\.html\\'"))
 
 (use-package html-ts-mode
   :elpaca (html-ts-mode :host github :repo "mickeynp/html-ts-mode" :files ("*.el"))
   :mode ("\\.html\\'")
   :config
-  ;; Add intdentation support
+  ;; Add indentation support
   (add-hook 'html-ts-mode-hook
             (lambda ()
               (setq-local indent-line-function 'sgml-indent-line))))
@@ -1108,7 +1098,7 @@
   :mode ("\\.ts\\'")
   :custom (typescript-ts-mode-indent-offset 4)
   :config
-  ;; Add intdentation support
+  ;; Add indentation support
   (add-hook 'typescript-ts-mode-hook
             (lambda ()
               (setq-local indent-line-function 'js-indent-line))))
@@ -1175,7 +1165,6 @@
   (add-hook 'rust-mode-hook
             (lambda () (setq indent-tabs-mode nil)))
   (setq rust-format-on-save t)
-  (define-key rust-mode-map (kbd "C-c C-c") 'rust-run))
 
 (use-package rustic
   :config
@@ -1221,7 +1210,6 @@
 
 (use-package package-lint)
 
-
 ;; Godot ========================================= ;;
 
 (use-package gdscript-mode
@@ -1229,16 +1217,6 @@
            :type git
            :host github
            :repo "godotengine/emacs-gdscript-mode"))
-
-;; YAML ========================================== ;;
-
-(use-package yaml-mode
-  :mode ("\\.yaml\\'"))
-
-;; JSON ========================================== ;;
-
-(use-package json-mode
-  :mode ("\\.json\\'"))
 
 ;; Restclient ==================================== ;;
 
