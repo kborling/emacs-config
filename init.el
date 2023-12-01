@@ -967,12 +967,12 @@
 
   ;; Language Servers
   ;; (add-to-list 'eglot-server-programs '(gdscript-mode . ("localhost" 6008)))
-  (add-to-list 'eglot-server-programs '(csharp-ts-mode . ("omnisharp" "-lsp")))
+  (add-to-list 'eglot-server-programs '(csharp-mode . ("omnisharp" "-lsp")))
   (add-to-list 'eglot-server-programs '(js-ts-mode . ("quick-lint-js" "--lsp-server")))
   (add-to-list 'eglot-server-programs '(typescript-ts-mode . ("typescript-language-server" "--stdio")))
-  (add-to-list 'eglot-server-programs '(rust-ts-mode . ("rls" "--stdio")))
+  (add-to-list 'eglot-server-programs '(rust-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '(rustic-mode . ("rls" "--stdio")))
-  (add-to-list 'eglot-server-programs '((c++-ts-mode c-ts-mode)
+  (add-to-list 'eglot-server-programs '((c++-mode c-mode)
                                         . ("clangd"
                                            "-j=8"
                                            "--log=error"
@@ -1164,7 +1164,7 @@
   :config
   (add-hook 'rust-mode-hook
             (lambda () (setq indent-tabs-mode nil)))
-  (setq rust-format-on-save t)
+  (setq rust-format-on-save t))
 
 (use-package rustic
   :config
