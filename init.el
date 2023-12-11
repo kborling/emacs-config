@@ -141,7 +141,7 @@
 ;; Install by copying on Windows
 (if (eq system-type 'windows-nt)
     (elpaca-no-symlink-mode)
-    nil)
+  nil)
 
 (elpaca-wait)
 
@@ -213,12 +213,12 @@
   (define-key map (kbd "C-M-s") #'isearch-forward)
   (define-key map (kbd "C-M-r") #'isearch-backward)
   ;; Open stuff
-  (define-key map (kbd "C-c o e") #'eshell)
-  (define-key map (kbd "C-c o t") #'vterm)
-  (define-key map (kbd "C-c o d") #'dired-jump-other-window)
-  (define-key map (kbd "C-c o s") #'speedbar)
+  (define-key map (kbd "C-c t e") #'eshell)
+  (define-key map (kbd "C-c t t") #'ansi-term)
+  (define-key map (kbd "C-c t d") #'dired-jump-other-window)
+  (define-key map (kbd "C-c t s") #'speedbar)
   ;; Toggle stuff
-  (define-key map (kbd "C-c o f") #'toggle-frame-fullscreen))
+  (define-key map (kbd "C-c t f") #'toggle-frame-fullscreen))
 
 ;; Theming ================================================ ;;
 
@@ -266,7 +266,7 @@
    recentf-save-file (locate-user-emacs-file "recentf")
    recentf-max-saved-items 50
    recentf-exclude '(".gz" ".xz" ".zip" "/elpa/" "/ssh:" "/sudo:"))
-
+  :init
   (add-hook 'after-init-hook #'recentf-mode))
 
 ;; Exec Path ========================================= ;;
@@ -342,13 +342,13 @@
 (defun magit-status-refresh-buffer-quick ()
   "Refresh the current `magit-status' buffer."
   (magit-insert-section (status)
-    (magit-insert-heading "Quick status")
-    (insert "\n")
-    (magit-insert-error-header)
-    (magit-insert-head-branch-header)
-    (insert "\n")
-    (magit-insert-unstaged-changes)
-    (magit-insert-staged-changes)))
+                        (magit-insert-heading "Quick status")
+                        (insert "\n")
+                        (magit-insert-error-header)
+                        (magit-insert-head-branch-header)
+                        (insert "\n")
+                        (magit-insert-unstaged-changes)
+                        (magit-insert-staged-changes)))
 
 (defun magit-quick-status ()
   "Toggle quick magit status."
@@ -606,11 +606,11 @@
 (use-package winner
   :elpaca nil
   :config
-  (add-hook 'after-init-hook #'winner-mode)
-
   (let ((map global-map))
     (define-key map (kbd "C-c <") #'winner-redo)
-    (define-key map (kbd "C-c >") #'winner-undo)))
+    (define-key map (kbd "C-c >") #'winner-undo))
+  :init
+  (add-hook 'after-init-hook #'winner-mode))
 
 ;; EAT ================================================== ;;
 
@@ -763,7 +763,7 @@
    history-length 10000
    history-delete-duplicates t
    savehist-save-minibuffer-history t)
-
+  :init
   (add-hook 'after-init-hook #'savehist-mode))
 
 ;; SmartScan ========================================== ;;
@@ -1075,11 +1075,20 @@
 (use-package html-ts-mode
   :elpaca (html-ts-mode :host github :repo "mickeynp/html-ts-mode" :files ("*.el"))
   :mode ("\\.html\\'")
+  :custom (sgml-basic-offset 4)
   :config
   ;; Add indentation support
   (add-hook 'html-ts-mode-hook
             (lambda ()
-              (setq-local indent-line-function 'sgml-indent-line))))
+              (set (make-local-variable 'sgml-basic-offset) 4)
+              (setq-local indent-line-function 'sgml-indent-line)
+              (setq-local indent-region-function
+                          (lambda (start end)
+                            (save-excursion
+                              (goto-char start)
+                              (while (< (point) end)
+                                (sgml-indent-line)
+                                (forward-line 1))))))))
 
 ;; Node Modules ================================= ;;
 
@@ -1101,7 +1110,14 @@
   ;; Add indentation support
   (add-hook 'typescript-ts-mode-hook
             (lambda ()
-              (setq-local indent-line-function 'js-indent-line))))
+              (setq-local indent-line-function 'js-indent-line)
+              (setq-local indent-region-function
+                          (lambda (start end)
+                            (save-excursion
+                              (goto-char start)
+                              (while (< (point) end)
+                                (js-indent-line)
+                                (forward-line 1))))))))
 
 ;; Treesitter ========================================== ;;
 
@@ -1252,7 +1268,8 @@
 
 ;; Ansi-term ====================================== ;;
 
-(setq explicit-shell-file-name (locate-file "fish" exec-path))
+(setq explicit-shell-file-name (or (locate-file "fish" exec-path)
+                                   "bash"))
 (defadvice kdb-ansi-term (before force-bash)
   "Set the default shell to bash."
   (interactive (list explicit-shell-file-name)))
@@ -1294,7 +1311,7 @@
   :if (or (eq system-type 'gnu/linux)
           (eq system-type 'darwin))
   :config
-  (dolist (hook '(text-mode-hook org-mode-hook))
+  (dolist (hook '(markdown-mode-hook org-mode-hook))
     (add-hook hook #'jinx-mode)))
 
 ;; Org Mode ===================================== ;;
@@ -1475,6 +1492,7 @@
 
 (use-package uniquify
   :elpaca nil
+  :defer 1
   :config
   (setq uniquify-buffer-name-style 'forward))
 
