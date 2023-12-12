@@ -265,7 +265,7 @@
   (setq
    recentf-save-file (locate-user-emacs-file "recentf")
    recentf-max-saved-items 50
-   recentf-exclude '(".gz" ".xz" ".zip" "/elpa/" "/ssh:" "/sudo:"))
+   recentf-exclude '(".gz" ".xz" ".zip" "/elpaca/" "/opt/" "/.rustup/" "/elpa/" "/ssh:" "/sudo:"))
   :init
   (add-hook 'after-init-hook #'recentf-mode))
 
@@ -914,6 +914,16 @@
   :after (consult embark)
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
+
+;; Speedbar ========================================== ;;
+(use-package speedbar
+  :elpaca nil
+  :config
+  (setq speedbar-frame-width 40
+        speedbar-show-unknown-files t))
+
+;; (use-package sr-speedbar
+;;   :after speedbar)
 
 ;; Eldoc Box ========================================= ;;
 
