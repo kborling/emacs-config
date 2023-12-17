@@ -204,7 +204,7 @@
   (define-key map (kbd "C-c C-n") #'next-buffer)
   (define-key map (kbd "C-o") #'other-window)
   ;; Misc
-  (define-key map (kbd "C-x C-b") #'ibuffer)
+  (define-key map (kbd "C-x b") #'ibuffer)
   (define-key map (kbd "M-z") #'zap-up-to-char)
   (define-key map (kbd "C-z") #'zap-to-char)
   ;; isearch
@@ -216,7 +216,7 @@
   (define-key map (kbd "C-c t e") #'eshell)
   (define-key map (kbd "C-c t t") #'ansi-term)
   (define-key map (kbd "C-c t d") #'dired-jump-other-window)
-  (define-key map (kbd "C-c t s") #'speedbar)
+  (define-key map (kbd "C-c t s") #'sr-speedbar-toggle)
   ;; Toggle stuff
   (define-key map (kbd "C-c t f") #'toggle-frame-fullscreen))
 
@@ -684,49 +684,6 @@
 
 (use-package flx-ido :requires ido :config (flx-ido-mode))
 
-;; Helm ============================================== ;;
-
-;; (use-package helm
-;;   :bind (;; C-c bindings (mode-specific-map)
-;;          ;; ("M-x" . 'helm-M-x)
-;;          ("C-x r b" . 'helm-filtered-bookmarks)
-;;          ("C-x C-b" . 'helm-buffers-list)
-;;          ("C-x C-f" . 'helm-find-files)
-;;          ("C-x C-r" . 'helm-recentf)
-;;          ("M-y" . helm-show-kill-ring)
-;;          ;; M-s bindings (search-map)
-;;          ("M-s l" . helm-locate)
-;;          ("M-s g" . helm-do-grep-ag)
-;;          ("M-s r" . helm-rg)
-;;          ("M-s i" . helm-imenu)
-;;          ("M-s o" . helm-occur)
-;;          ("M-s m" . helm-mark-ring)
-;;          ("M-s M" . helm-all-mark-rings)
-;;          ("M-s f" . helm-find)
-;;          ;; Isearch integration
-;;          ("M-s e" . helm-occur-from-isearch)
-;;          :map isearch-mode-map
-;;          ("M-e" . helm-occur-from-isearch)
-;;          ("M-s e" . helm-occur-from-isearch)
-;;          ;; Minibuffer history
-;;          :map minibuffer-local-map
-;;          ("M-s" . helm-minibuffer-history)
-;;          ("M-r" . helm-minibuffer-history))
-;;   :config
-;;   (setq helm-split-window-in-side-p           t
-;;         helm-M-x-fuzzy-match                  t
-;;         helm-recentf-fuzzy-match              t
-;;         helm-move-to-line-cycle-in-source     t
-;;         helm-ff-search-library-in-sexp        t
-;;         helm-scroll-amount                    8
-;;         helm-ff-file-name-history-use-recentf t
-;;         helm-echo-input-in-header-line t)
-;;   (helm-mode 1))
-
-;; (use-package helm-rg)
-
-;; (use-package helm-ls-git)
-
 ;; Dired ============================================= ;;
 
 (use-package dired
@@ -830,7 +787,7 @@
          ([remap Info-search] . consult-info)
          ;; C-x bindings (ctl-x-map)
          ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x C-b" . consult-buffer)                ;; orig. switch-to-buffer
          ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
          ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
          ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
@@ -938,6 +895,11 @@
          ("C-x C-d" . consult-dir)
          ("C-x C-j" . consult-dir-jump-file)))
 
+(use-package consult-todo
+  :after consult
+  :bind (("C-x p t" . consult-todo-project)
+         ("M-s t" . consult-todo)))
+
 ;; Embark ============================================ ;;
 
 (use-package embark
@@ -967,8 +929,11 @@
   (setq speedbar-frame-width 40
         speedbar-show-unknown-files t))
 
-;; (use-package sr-speedbar
-;;   :after speedbar)
+(use-package sr-speedbar
+  :after speedbar
+  :config
+  (setq sr-speedbar-skip-other-window-p t
+        ))
 
 ;; Eldoc Box ========================================= ;;
 
