@@ -824,10 +824,10 @@
          ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
          ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
          ("M-s L" . consult-line-multi))            ;; needed by consult-line to detect isearch
-         ;; Minibuffer history
-         ;; :map minibuffer-local-map
-         ;; ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-         ;; ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+  ;; Minibuffer history
+  ;; :map minibuffer-local-map
+  ;; ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+  ;; ("M-r" . consult-history))                ;; orig. previous-matching-history-element
 
   ;; Enable automatic preview at point in the *Completions* buffer.
   :hook (completion-list-mode . consult-preview-at-point-mode)
@@ -1113,6 +1113,22 @@
   :config
   (dolist (mode '(typescript-ts-mode js-mode))
     (add-hook mode 'add-node-modules-path)))
+
+;; .NET ============================================ ;;
+
+(use-package dotnet
+  :hook (csharp-mode)
+  :bind ((("C-c n n" . dotnet-new)
+          ("C-c n c" . dotnet-clean)
+          ("C-c n t" . dotnet-test)
+          ("C-c n r" . dotnet-run)
+          ("C-c n b" . dotnet-build))))
+
+;; XML Mode ======================================= ;;
+
+(use-package xml-mode
+  :elpaca nil
+  :mode ("\\.csproj\\'" "\\.xml\\'"))
 
 ;; Typescript Mode ================================= ;;
 
