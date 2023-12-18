@@ -241,8 +241,6 @@
                   (font-spec :name "Inconsolata Light" :size 16) nil)
 
 ;; Custom themes
-(use-package doom-themes)
-
 (use-package haki-theme)
 
 (use-package myron-themes
@@ -324,8 +322,7 @@
 ;; Magit =============================================== ;;
 
 (use-package magit
-  :bind (
-         ("C-c g g" . magit-status)
+  :bind (("C-c g g" . magit-status)
          ("C-c g s" . magit-status)
          ("C-c g i" . magit-init)
          ("C-c g c" . magit-clone)
@@ -778,7 +775,7 @@
 
 (use-package consult
   :bind (;; C-c bindings (mode-specific-map)
-         ("C-c h" . consult-history)
+         ;; ("C-c h" . consult-history)
          ("M-X" . consult-mode-command)
          ("C-c k" . consult-kmacro)
          ("C-h t" . consult-theme)
@@ -826,11 +823,11 @@
          ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
          ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
          ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi))            ;; needed by consult-line to detect isearch
          ;; Minibuffer history
-         :map minibuffer-local-map
-         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+         ;; :map minibuffer-local-map
+         ;; ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ;; ("M-r" . consult-history))                ;; orig. previous-matching-history-element
 
   ;; Enable automatic preview at point in the *Completions* buffer.
   :hook (completion-list-mode . consult-preview-at-point-mode)
@@ -1277,6 +1274,26 @@
               ("M-n" . 'copilot-next-completion)
               ("M-p" . 'copilot-previous-completion)))
 
+;; GPT ============================================ ;;
+
+(use-package shell-maker
+  :elpaca (:host github :repo "xenodium/chatgpt-shell" :files ("shell-maker.el")))
+
+(use-package chatgpt-shell
+  :requires shell-maker
+  :elpaca (:host github :repo "xenodium/chatgpt-shell" :files ("chatgpt-shell.el"))
+  :config
+  (setq chatgpt-shell-openai-key
+        (lambda ()
+          (auth-source-pick-first-password :host "api.openai.com")))
+  :bind (("C-c h s" . chatgpt-shell)
+         ("C-c h d" . chatgpt-shell-describe-code)
+         ("C-c h c" . chatgpt-shell-refactor-code)
+         ("C-c h t" . chatgpt-shell-generate-unit-test)
+         ("C-c h p" . chatgpt-shell-proofread-region)
+         ("C-c h x" . chatgpt-shell-restore-session-from-transcript)
+         ("C-c h r" . chatgpt-shell-send-and-review-region)))
+
 ;; Dev Docs ======================================= ;;
 
 (use-package devdocs
@@ -1434,11 +1451,11 @@
   :custom
   (org-roam-directory (file-truename "~/roam"))
   ;; (org-roam-completion-everywhere t)
-  :bind (("C-c n l" . org-roam-buffer-toggle)
-         ("C-c n f" . org-roam-node-find)
-         ("C-c n g" . org-roam-graph)
-         ("C-c n i" . org-roam-node-insert)
-         ("C-c n c" . org-roam-capture)
+  :bind (("C-c r l" . org-roam-buffer-toggle)
+         ("C-c r f" . org-roam-node-find)
+         ("C-c r g" . org-roam-graph)
+         ("C-c r i" . org-roam-node-insert)
+         ("C-c r c" . org-roam-capture)
          ;; Dailies
          ("C-c d c" . org-roam-dailies-capture-today)
          ("C-c d t" . org-roam-dailies-goto-today)
