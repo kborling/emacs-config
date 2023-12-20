@@ -224,17 +224,22 @@
 
 (defvar default-font-size
   (cond
-   ((eq system-type 'windows-nt) 100)
-   ((eq system-type 'gnu/linux) 110)
+   ((eq system-type 'windows-nt) 110)
+   ((eq system-type 'gnu/linux) 120)
    ((eq system-type 'darwin) 130)))
 
-(let ((font "Comic Code"))
-  (set-face-attribute 'default nil
-                      :family font :weight 'regular :height default-font-size)
-  (set-face-attribute 'bold nil
-                      :family font :weight 'medium)
-  (set-face-attribute 'italic nil
-                      :family font :weight 'regular :slant 'italic))
+(defvar default-font-family
+  (cond
+   ((eq system-type 'windows-nt) "Consolas")
+   ((eq system-type 'gnu/linux) "Inconsolata")
+   ((eq system-type 'darwin) "Comic Code")))
+
+(set-face-attribute 'default nil
+                    :family default-font-family :weight 'regular :height default-font-size)
+(set-face-attribute 'bold nil
+                    :family default-font-family :weight 'medium)
+(set-face-attribute 'italic nil
+                    :family default-font-family :weight 'regular :slant 'italic)
 (set-face-attribute 'variable-pitch nil
                     :family "Berkeley Mono Variable" :height (+ default-font-size 20) :weight 'regular)
 (set-fontset-font t 'unicode

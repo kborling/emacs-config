@@ -32,3 +32,4 @@ tree-sitter/
 org-roam.db
 .org-id-locations
 chatgpt/
+session.*
