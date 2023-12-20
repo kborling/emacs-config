@@ -104,7 +104,7 @@ c-mode :when (re-search-backward "^\\S-*$" (line-beginning-position) 'noerror)
 (inc "#include <" (p (concat (file-name-base (or (buffer-file-name) (buffer-name))) ".h")) ">")
 (incc "#include \"" (p (concat (file-name-base (or (buffer-file-name) (buffer-name))) ".h")) "\"")
 
-js-mode js2-mode typescript-mode
+js-mode js-ts-mode js2-mode typescript-mode typescript-ts-mode
 (forEach "forEach((" p ") => { " q " })")
 (for "for (let i = 0;" " i < " p "; i++) { " q " }")
 (while "while (" p ") { " q " }")

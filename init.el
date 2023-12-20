@@ -1670,13 +1670,13 @@
   :elpaca nil
   :config
   (setq
-   browse-url-browser-function 'eww-browse-url ; Use eww as the default browser
-   shr-use-fonts  nil                          ; No special fonts
-   shr-indentation 2                           ; Left-side margin
-   shr-width 120                                ; Fold text to 70 columns
-   shr-use-colors nil             ; t is bad for accessibility
+   browse-url-browser-function 'eww-browse-url
+   shr-use-fonts  nil
+   shr-indentation 2
+   shr-width 120
+   shr-use-colors nil
    shr-max-image-proportion 0.6
-   shr-image-animate nil          ; No GIFs, thank you!
+   shr-image-animate nil
    shr-discard-aria-hidden t
    shr-cookie-policy nil
    eww-restore-desktop t
