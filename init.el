@@ -258,7 +258,13 @@
    uwu-distinct-line-numbers 'nil
    uwu-scale-org-headlines t
    uwu-use-variable-pitch t)
-  (load-theme 'uwu t))
+  ;; (load-theme 'uwu t)
+  )
+
+;; Nano ============================================== ;;
+
+(use-package nano
+  :elpaca (nano :host github :repo "rougier/nano-emacs"))
 
 ;; Recent Files ====================================== ;;
 
@@ -1472,11 +1478,11 @@
   :custom
   (org-roam-directory (file-truename "~/roam"))
   ;; (org-roam-completion-everywhere t)
-  :bind (("C-c r l" . org-roam-buffer-toggle)
-         ("C-c r f" . org-roam-node-find)
-         ("C-c r g" . org-roam-graph)
-         ("C-c r i" . org-roam-node-insert)
-         ("C-c r c" . org-roam-capture)
+  :bind (("C-c o l" . org-roam-buffer-toggle)
+         ("C-c o f" . org-roam-node-find)
+         ("C-c o g" . org-roam-graph)
+         ("C-c o i" . org-roam-node-insert)
+         ("C-c o c" . org-roam-capture)
          ;; Dailies
          ("C-c d c" . org-roam-dailies-capture-today)
          ("C-c d t" . org-roam-dailies-goto-today)
