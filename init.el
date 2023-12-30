@@ -268,7 +268,7 @@
   (setq
    recentf-save-file (locate-user-emacs-file "recentf")
    recentf-max-saved-items 50
-   recentf-exclude '(".gz" ".xz" ".zip" "/elpaca/" "/opt/" "/.rustup/" "/elpa/" "/ssh:" "/sudo:"))
+   recentf-exclude '(".gz" ".xz" ".zip" "/elpaca/" "/opt/" "/.rustup/" "/elpa/" "/ssh:" "/sudo:" "/node_modules/"))
   :init
   (add-hook 'after-init-hook #'recentf-mode))
 
