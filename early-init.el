@@ -101,7 +101,7 @@
 
   (add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory)))
 
-(load-theme 'wombat)
+;; (load-theme 'wombat)
 
 ;; Local Variables:
 ;; no-byte-compile: t

@@ -246,11 +246,6 @@
                   (font-spec :name "Inconsolata Light" :size 16) nil)
 
 ;; Custom themes
-(use-package haki-theme)
-
-(use-package myron-themes
-  :elpaca (myron-themes :host github :repo "neeasade/myron-themes" :files ("*.el" "themes/*.el")))
-
 (use-package uwu-theme
   :elpaca (uwu-theme :host github :repo "kborling/uwu-theme" :files ("*.el"))
   :config
@@ -261,10 +256,51 @@
   ;; (load-theme 'uwu t)
   )
 
-;; Nano ============================================== ;;
+;; Nano/UI ============================================== ;;
 
 (use-package nano
-  :elpaca (nano :host github :repo "rougier/nano-emacs"))
+  :elpaca (nano :host github :repo "rougier/nano-emacs" :files ("*.el")))
+
+(use-package nano-vertico
+  :elpaca (nano-vertico :host github :repo "rougier/nano-vertico" :files ("*.el"))
+  :config
+  (nano-vertico-mode 1))
+
+;; Vertical window divider
+(use-package frame
+  :elpaca nil
+  :custom
+  (window-divider-default-right-width 12)
+  (window-divider-default-bottom-width 1)
+  (window-divider-default-places 'right-only)
+  (window-divider-mode t)
+  :config
+  (setq-default default-frame-alist
+                (append (list
+                         '(font . "Roboto Mono:style=medium:size=15")
+                         '(internal-border-width . 20)
+                         '(left-fringe    . 0)
+                         '(right-fringe   . 0)
+                         '(tool-bar-lines . 0)
+                         '(menu-bar-lines . 0)
+                         '(vertical-scroll-bars . nil))))
+  (setq-default window-resize-pixelwise t)
+  (setq-default frame-resize-pixelwise t))
+;; Make sure new frames use window-divider
+(add-hook 'before-make-frame-hook 'window-divider-mode)
+
+;; Dim inactive windows
+(use-package dimmer
+  :elpaca (:host github :repo "gonewest818/dimmer.el")
+  :hook (after-init . dimmer-mode)
+  :config
+  (setq dimmer-fraction 0.5)
+  (setq dimmer-adjustment-mode :foreground)
+  (setq dimmer-use-colorspace :rgb)
+  (setq dimmer-watch-frame-focus-events nil)
+  (dimmer-configure-which-key)
+  (dimmer-configure-magit)
+  (dimmer-configure-posframe))
 
 ;; Recent Files ====================================== ;;
 
@@ -659,8 +695,8 @@
 
 (use-package icomplete
   :elpaca nil
-  :init
-  (fido-mode)
+  ;; :init
+  ;; (fido-mode)
   :config
   (setq icomplete-tidy-shadowed-file-names t
         icomplete-show-matches-on-no-input t
@@ -668,29 +704,64 @@
         icomplete-delay-completions-threshold 50)
   (add-hook 'icomplete-minibuffer-setup-hook
             (lambda () (setq-local completion-styles '(fussy basic))))
-  (global-set-key (kbd "C-=") 'fido-vertical-mode))
+  ;; (global-set-key (kbd "C-=") 'fido-vertical-mode)
+  )
 
 ;; IDO =============================================== ;;
 
-(use-package ido
-  :elpaca nil
-  :config
-  (ido-mode t)
-  (ido-everywhere t)
-  (setq
-   ido-enable-flex-matching t
-   ido-use-filename-at-point 'guess
-   ido-use-virtual-buffers t
-   ido-use-faces t
-   ido-create-new-buffer 'always
-   ido-max-prospects 10
-   ;; ido-max-directory-size 20
-   ido-file-extensions-order '(".org" ".ts" ".js" ".html" ".json" ".scss" ".txt" ".el" ".ini" ".cfg" ".cnf")
-   ;; (add-to-list 'ido-ignore-files "\.bak" "")
-   ;; (add-to-list 'completion-ignored-extensions ".bak" ".o" ".a" ".so" ".git" "node_modules")
-   magit-completing-read-function 'magit-ido-completing-read))
+;; (use-package ido
+;;   :elpaca nil
+;;   :config
+;;   (ido-mode t)
+;;   (ido-everywhere t)
+;;   (setq
+;;    ido-enable-flex-matching t
+;;    ido-use-filename-at-point 'guess
+;;    ido-use-virtual-buffers t
+;;    ido-use-faces t
+;;    ido-create-new-buffer 'always
+;;    ido-max-prospects 10
+;;    ;; ido-max-directory-size 20
+;;    ido-file-extensions-order '(".org" ".ts" ".js" ".html" ".json" ".scss" ".txt" ".el" ".ini" ".cfg" ".cnf")
+;;    ;; (add-to-list 'ido-ignore-files "\.bak" "")
+;;    ;; (add-to-list 'completion-ignored-extensions ".bak" ".o" ".a" ".so" ".git" "node_modules")
+;;    magit-completing-read-function 'magit-ido-completing-read))
 
-(use-package flx-ido :requires ido :config (flx-ido-mode))
+;; (use-package flx-ido :requires ido :config (flx-ido-mode))
+
+;; Vertico ============================================= ;;
+
+(use-package vertico
+  :elpaca (:files (:defaults "extensions/*"))
+  :init
+  (vertico-mode)
+  (vertico-reverse-mode)
+  ;; (vertico-mode)
+  ;; (vertico-flat-mode)
+  :config
+    ;; Bind C-r and C-s in Vertico minibuffer to 'vertico-next/previous'.
+  (define-key vertico-map (kbd "C-s") 'vertico-next)
+  (define-key vertico-map (kbd "C-r") 'vertico-previous)
+  (setq vertico-cycle t)
+
+
+  (define-minor-mode kdb-vertico-reverse-mode
+    "Toggle between `vertico-reverse-mode' and 'vertico-flat-mode'."
+    :init-value nil
+    :global nil
+    :require 'vertico-mode
+    :diminish kdb-vertico-reverse-mode
+    (if kdb-vertico-reverse-mode
+        (progn
+          (vertico-reverse-mode)
+          (vertico-flat-mode -1)
+          )
+      (vertico-reverse-mode -1)
+      (vertico-flat-mode)
+      )
+    (message " "))
+
+  :bind ("C-=" . kdb-vertico-reverse-mode))
 
 ;; Dired ============================================= ;;
 
@@ -861,12 +932,12 @@
 
   ;; Use `consult-completion-in-region' if fido is enabled.
   ;; Otherwise use the default `completion--in-region' function.
-  ;; (setq completion-in-region-function
-  ;;       (lambda (&rest args)
-  ;;         (apply (if fido-mode
-  ;;                    #'consult-completion-in-region
-  ;;                  #'completion--in-region)
-  ;;                args)))
+  (setq completion-in-region-function
+        (lambda (&rest args)
+          (apply (if vertico-mode
+                     #'consult-completion-in-region
+                   #'completion--in-region)
+                 args)))
 
   :config
   (consult-customize
