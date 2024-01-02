@@ -266,29 +266,6 @@
   :config
   (nano-vertico-mode 1))
 
-;; Vertical window divider
-(use-package frame
-  :elpaca nil
-  :custom
-  (window-divider-default-right-width 12)
-  (window-divider-default-bottom-width 1)
-  (window-divider-default-places 'right-only)
-  (window-divider-mode t)
-  :config
-  (setq-default default-frame-alist
-                (append (list
-                         '(font . "Roboto Mono:style=medium:size=15")
-                         '(internal-border-width . 20)
-                         '(left-fringe    . 0)
-                         '(right-fringe   . 0)
-                         '(tool-bar-lines . 0)
-                         '(menu-bar-lines . 0)
-                         '(vertical-scroll-bars . nil))))
-  (setq-default window-resize-pixelwise t)
-  (setq-default frame-resize-pixelwise t))
-;; Make sure new frames use window-divider
-(add-hook 'before-make-frame-hook 'window-divider-mode)
-
 ;; Dim inactive windows
 (use-package dimmer
   :elpaca (:host github :repo "gonewest818/dimmer.el")
