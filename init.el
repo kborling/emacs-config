@@ -224,13 +224,13 @@
 
 (defvar default-font-size
   (cond
-   ((eq system-type 'windows-nt) 110)
+   ((eq system-type 'windows-nt) 100)
    ((eq system-type 'gnu/linux) 120)
    ((eq system-type 'darwin) 130)))
 
 (defvar default-font-family
   (cond
-   ((eq system-type 'windows-nt) "Consolas")
+   ((eq system-type 'windows-nt) "Cascadia Code")
    ((eq system-type 'gnu/linux) "Inconsolata")
    ((eq system-type 'darwin) "Comic Code")))
 
@@ -307,8 +307,7 @@
          ("C-c M-d" . crux-duplicate-and-comment-current-line-or-region)
          ("C-x 4 t" . crux-transpose-windows)
          ("C-^" . crux-top-join-line)
-
-         ([(shift return)] . crux-smart-open-line)))
+([(shift return)] . crux-smart-open-line)))
 
 (global-set-key [remap kill-whole-line] #'crux-kill-whole-line)
 
@@ -663,28 +662,6 @@
   (add-hook 'icomplete-minibuffer-setup-hook
             (lambda () (setq-local completion-styles '(fussy basic))))
   (global-set-key (kbd "C-=") 'fido-vertical-mode))
-
-;; IDO =============================================== ;;
-
-(use-package ido
-  :elpaca nil
-  :config
-  (ido-mode t)
-  (ido-everywhere t)
-  (setq
-   ido-enable-flex-matching t
-   ido-use-filename-at-point 'guess
-   ido-use-virtual-buffers t
-   ido-use-faces t
-   ido-create-new-buffer 'always
-   ido-max-prospects 10
-   ;; ido-max-directory-size 20
-   ido-file-extensions-order '(".org" ".ts" ".js" ".html" ".json" ".scss" ".txt" ".el" ".ini" ".cfg" ".cnf")
-   ;; (add-to-list 'ido-ignore-files "\.bak" "")
-   ;; (add-to-list 'completion-ignored-extensions ".bak" ".o" ".a" ".so" ".git" "node_modules")
-   magit-completing-read-function 'magit-ido-completing-read))
-
-(use-package flx-ido :requires ido :config (flx-ido-mode))
 
 ;; Dired ============================================= ;;
 
@@ -1728,8 +1705,9 @@
 ;; Macos ========================================== ;;
 
 (when (equal system-type 'darwin)
-  ;; (setq mac-command-modifier 'meta)
-  ;; (setq mac-option-modifier 'none)
+  (customize-set-variable mac-right-option-modifier nil)
+  (customize-set-variable mac-command-modifier 'super)
+  (customize-set-variable ns-function-modifier 'hyper)
   (setq ns-pop-up-frames nil)
   ;; Make mouse wheel / trackpad scrolling less jerky
   (setq mouse-wheel-scroll-amount '(1
@@ -1738,9 +1716,16 @@
   (dolist (multiple '("" "double-" "triple-"))
     (dolist (direction '("right" "left"))
       (global-set-key (read-kbd-macro (concat "<" multiple "wheel-" direction ">")) 'ignore)))
-  (global-set-key (kbd "M-`") 'ns-next-frame)
-  (global-set-key (kbd "M-h") 'ns-do-hide-emacs)
-  (global-set-key (kbd "M-_") 'ns-do-hide-others))
+
+  (keymap-global-set "s-W" #'delete-frame) ; ⌘-W = Close window
+  (keymap-global-set "s-}" #'tab-bar-switch-to-next-tab) ; ⌘-} = Next tab
+  (keymap-global-set "s-{" #'tab-bar-switch-to-prev-tab) ; ⌘-{ = Previous tab
+  (keymap-global-set "s-t" #'tab-bar-new-tab) ;⌘-t = New tab
+  (keymap-global-set "s-w" #'tab-bar-close-tab) ; ⌘-w = Close tab
+
+  (unless (version< emacs-version "28")
+    (keymap-global-set "s-Z" 'undo-redo)) ; ⌘-Z = Redo
+  )
 
 ;; Custom ========================================= ;;
 
