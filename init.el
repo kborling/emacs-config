@@ -307,7 +307,7 @@
          ("C-c M-d" . crux-duplicate-and-comment-current-line-or-region)
          ("C-x 4 t" . crux-transpose-windows)
          ("C-^" . crux-top-join-line)
-([(shift return)] . crux-smart-open-line)))
+         ([(shift return)] . crux-smart-open-line)))
 
 (global-set-key [remap kill-whole-line] #'crux-kill-whole-line)
 
@@ -906,7 +906,17 @@
   :elpaca nil
   :config
   (setq speedbar-frame-width 40
-        speedbar-show-unknown-files t))
+        speedbar-use-images nil
+        speedbar-show-unknown-files t)
+  (customize-set-variable 'speedbar-frame-parameters
+                          '((name . "speedbar")
+                            (title . "speedbar")
+                            (minibuffer . nil)
+                            (border-width . 2)
+                            (menu-bar-lines . 0)
+                            (tool-bar-lines . 0)
+                            (unsplittable . t)
+                            (left-fringe . 10))))
 
 (use-package sr-speedbar
   :after speedbar
