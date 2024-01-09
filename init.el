@@ -921,8 +921,7 @@
 (use-package sr-speedbar
   :after speedbar
   :config
-  (setq sr-speedbar-skip-other-window-p t
-        ))
+  (setq sr-speedbar-skip-other-window-p t))
 
 ;; Eldoc Box ========================================= ;;
 
@@ -1643,7 +1642,7 @@
   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
   ;; Enable recursive minibuffers
-  ;; (setq enable-recursive-minibuffers t)
+  (setq enable-recursive-minibuffers t)
   :config
   (setq
    window-divider-default-right-width 1
