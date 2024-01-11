@@ -659,8 +659,6 @@
         icomplete-show-matches-on-no-input t
         icomplete-compute-delay 0
         icomplete-delay-completions-threshold 50)
-  (add-hook 'icomplete-minibuffer-setup-hook
-            (lambda () (setq-local completion-styles '(fussy basic))))
   (global-set-key (kbd "C-=") 'fido-vertical-mode))
 
 ;; Dired ============================================= ;;
