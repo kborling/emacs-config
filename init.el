@@ -1248,13 +1248,9 @@
 
 (use-package package-lint)
 
-;; Godot ========================================= ;;
+;; Scheme ======================================== ;;
 
-(use-package gdscript-mode
-  :elpaca (gdscript-mode
-           :type git
-           :host github
-           :repo "godotengine/emacs-gdscript-mode"))
+(use-package geiser-guile)
 
 ;; Restclient ==================================== ;;
 
