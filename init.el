@@ -210,8 +210,8 @@
   ;; isearch
   (define-key map (kbd "C-s") #'isearch-forward-regexp)
   (define-key map (kbd "C-r") #'isearch-backward-regexp)
-  (define-key map (kbd "C-M-s") #'isearch-forward)
-  (define-key map (kbd "C-M-r") #'isearch-backward)
+  (define-key map (kbd "C-M-s") #'isearch-forward-symbol-at-point)
+
   ;; Open stuff
   (define-key map (kbd "C-c t e") #'eshell)
   (define-key map (kbd "C-c t t") #'ansi-term)
@@ -538,12 +538,19 @@
   (minibuffer-depth-indicate-mode 1)
   (minibuffer-electric-default-mode 1))
 
+(defun stop-using-minibuffer ()
+  "Xill the minibuffer."
+  (when (and (>= (recursion-depth) 1) (active-minibuffer-window))
+    (abort-recursive-edit)))
+
+(add-hook 'mouse-leave-buffer-hook 'stop-using-minibuffer)
+
 ;; Modeline ============================================= ;;
 (setq
  mode-line-compact nil
  mode-line-percent-position '(-3 "%p")
  mode-line-position-column-line-format '(" %l,%c")
- mode-line-defining-kbd-macr
+ mode-line-defining-kbd-macro
  (propertize " Macro" 'face 'mode-line-emphasis))
 
 (setq-default mode-line-modes
@@ -772,7 +779,7 @@
          ("C-x C-r" . consult-recent-file)
          ;; Custom M-# bindings for fast register access
          ("M-R" . consult-register-load)
-         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("M-S" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
          ("C-M-r" . consult-register)
          ;; Other custom bindings
          ("M-y" . consult-yank-pop)                ;; orig. yank-pop
@@ -1141,6 +1148,9 @@
                                 (js-indent-line)
                                 (forward-line 1))))))))
 
+;; Nix ================================================= ;;
+(use-package nix-mode)
+
 ;; Treesitter ========================================== ;;
 
 (use-package treesit-auto
@@ -1306,7 +1316,7 @@
 
 ;; Ansi-term ====================================== ;;
 
-(setq explicit-shell-file-name (or (locate-file "fish" exec-path)
+(setq explicit-shell-file-name (or (locate-file "zsh" exec-path)
                                    "bash"))
 (defadvice kdb-ansi-term (before force-bash)
   "Set the default shell to bash."
@@ -1593,10 +1603,10 @@
 (use-package windmove
   :elpaca nil
   :config
-  (global-set-key (kbd "C-S-h") 'windmove-left)
-  (global-set-key (kbd "C-S-s") 'windmove-right)
-  (global-set-key (kbd "C-S-t") 'windmove-up)
-  (global-set-key (kbd "C-S-n") 'windmove-down)
+  ;; (global-set-key (kbd "C-S-h") 'windmove-left)
+  ;; (global-set-key (kbd "C-S-s") 'windmove-right)
+  ;; (global-set-key (kbd "C-S-t") 'windmove-up)
+  ;; (global-set-key (kbd "C-S-n") 'windmove-down)
   (global-set-key (kbd "C-M-S-h") 'windmove-swap-states-left)
   (global-set-key (kbd "C-M-S-s") 'windmove-swap-states-right)
   (global-set-key (kbd "C-M-S-t") 'windmove-swap-states-up)
@@ -1708,9 +1718,12 @@
 ;; Macos ========================================== ;;
 
 (when (equal system-type 'darwin)
-  (customize-set-variable mac-right-option-modifier nil)
-  (customize-set-variable mac-command-modifier 'super)
-  (customize-set-variable ns-function-modifier 'hyper)
+  ;; (customize-set-variable mac-right-option-modifier nil)
+  ;; (customize-set-variable mac-command-modifier 'super)
+  ;; (customize-set-variable mac-option-modifier 'none)
+  (setq mac-command-modifier 'none)
+  (setq mac-option-modifier 'meta)
+  ;; (customize-set-variable ns-function-modifier 'hyper)
   (setq ns-pop-up-frames nil)
   ;; Make mouse wheel / trackpad scrolling less jerky
   (setq mouse-wheel-scroll-amount '(1
