@@ -1125,13 +1125,10 @@
 
 ;; .NET ============================================ ;;
 
-(use-package dotnet
-  :hook (csharp-mode)
-  :bind ((("C-c n n" . dotnet-new)
-          ("C-c n c" . dotnet-clean)
-          ("C-c n t" . dotnet-test)
-          ("C-c n r" . dotnet-run)
-          ("C-c n b" . dotnet-build))))
+(use-package sharper
+  :demand t
+  :bind
+  ("C-c n" . sharper-main-transient))
 
 ;; XML Mode ======================================= ;;
 
