@@ -939,6 +939,11 @@
   (setq eldoc-echo-area-use-multiline-p t
         eldoc-idle-delay 0.75))
 
+(use-package eldoc-box
+  :after eldoc
+  :config
+  (add-hook 'eglot-managed-mode-hook #'eldoc-box-hover-mode t))
+
 ;; Project ============================================ ;;
 
 (use-package project
