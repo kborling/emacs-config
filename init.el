@@ -93,7 +93,7 @@
 
 ;; Elpaca ========================================== ;;
 
-(defvar elpaca-installer-version 0.6)
+(defvar elpaca-installer-version 0.7)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
 (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
 (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
@@ -130,12 +130,12 @@
 (add-hook 'after-init-hook #'elpaca-process-queues)
 (elpaca `(,@elpaca-order))
 
-(elpaca use-package :elpaca t)
+(elpaca use-package :ensure t)
 ;; Install use-package support
 (elpaca elpaca-use-package
-  ;; Enable :elpaca use-package keyword.
+  ;; Enable :ensure use-package keyword.
   (elpaca-use-package-mode)
-  ;; Assume :elpaca t unless otherwise specified.
+  ;; Assume :ensure t unless otherwise specified.
   (setq elpaca-use-package-by-default t))
 
 ;; Install by copying on Windows
@@ -149,7 +149,7 @@
 
 ;; make electric-pair-mode work on more brackets
 (use-package elec-pair
-  :elpaca nil
+  :ensure nil
   :config
   (setq
    electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit
@@ -164,7 +164,7 @@
 ;; (electric-pair-mode -1)
 
 (use-package electric
-  :elpaca nil
+  :ensure nil
   :config
   (setq
    electric-quote-context-sensitive t
@@ -222,17 +222,19 @@
 
 ;; Theming ================================================ ;;
 
+(setq-default line-spacing 2)
+
 (defvar default-font-size
   (cond
    ((eq system-type 'windows-nt) 100)
    ((eq system-type 'gnu/linux) 120)
-   ((eq system-type 'darwin) 130)))
+   ((eq system-type 'darwin) 160)))
 
 (defvar default-font-family
   (cond
    ((eq system-type 'windows-nt) "Cascadia Code")
    ((eq system-type 'gnu/linux) "Inconsolata")
-   ((eq system-type 'darwin) "Comic Code")))
+   ((eq system-type 'darwin) "Inconsolata")))
 
 (set-face-attribute 'default nil
                     :family default-font-family :weight 'regular :height default-font-size)
@@ -249,10 +251,10 @@
 (use-package haki-theme)
 
 (use-package myron-themes
-  :elpaca (myron-themes :host github :repo "neeasade/myron-themes" :files ("*.el" "themes/*.el")))
+  :ensure (myron-themes :host github :repo "neeasade/myron-themes" :files ("*.el" "themes/*.el")))
 
 (use-package uwu-theme
-  :elpaca (uwu-theme :host github :repo "kborling/uwu-theme" :files ("*.el"))
+  :ensure (uwu-theme :host github :repo "kborling/uwu-theme" :files ("*.el"))
   :config
   (setq
    uwu-distinct-line-numbers 'nil
@@ -263,19 +265,19 @@
 ;; Recent Files ====================================== ;;
 
 (use-package recentf
-  :elpaca nil
+  :ensure nil
   :config
   (setq
    recentf-save-file (locate-user-emacs-file "recentf")
    recentf-max-saved-items 50
-   recentf-exclude '(".gz" ".xz" ".zip" "/elpaca/" "/opt/" "/.rustup/" "/elpa/" "/ssh:" "/sudo:" "/node_modules/"))
+   recentf-exclude '(".gz" ".xz" ".zip" "/elpaca/" "/opt/" "/.rustup/" "/elpa/" "/ssh:" "/sudo:" "/node_modules/" "/nix/"))
   :init
   (add-hook 'after-init-hook #'recentf-mode))
 
 ;; Exec Path ========================================= ;;
 
 (use-package exec-path-from-shell
-  :elpaca t
+  :ensure t
   :config
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
@@ -374,7 +376,7 @@
 ;; Corfu ============================================= ;;
 
 (use-package corfu
-  :elpaca (:files (:defaults "extensions/*"))
+  :ensure (:files (:defaults "extensions/*"))
   :hook ((prog-mode . corfu-mode)
          (shell-mode . corfu-mode)
          (eshell-mode . corfu-mode))
@@ -474,7 +476,7 @@
 ;; Dabbrev =========================================== ;;
 
 (use-package dabbrev
-  :elpaca nil
+  :ensure nil
   :config
   (setq
    dabbrev-abbrev-char-regexp "\\sw\\|\\s_"
@@ -496,7 +498,7 @@
 ;; Completion Styles ================================= ;;
 
 (use-package minibuffer
-  :elpaca nil
+  :ensure nil
   :config
   (setq
    completion-category-defaults nil
@@ -582,7 +584,7 @@
 ;; Ibuffer ============================================== ;;
 
 (use-package ibuffer
-  :elpaca nil
+  :ensure nil
   :config
   (setq
    ibuffer-expert t
@@ -612,7 +614,7 @@
 ;; Winner =============================================== ;;
 
 (use-package winner
-  :elpaca nil
+  :ensure nil
   :config
   (let ((map global-map))
     (define-key map (kbd "C-c <") #'winner-redo)
@@ -623,7 +625,7 @@
 ;; EAT ================================================== ;;
 
 (use-package eat
-  :elpaca (eat
+  :ensure (eat
            :host codeberg
            :repo "akib/emacs-eat"
            :files ("*.el" ("term" "term/*.el") "*.texi"
@@ -658,7 +660,7 @@
 ;; Fido ================================================ ;;
 
 (use-package icomplete
-  :elpaca nil
+  :ensure nil
   :init
   (fido-mode)
   :config
@@ -671,7 +673,7 @@
 ;; Dired ============================================= ;;
 
 (use-package dired
-  :elpaca nil
+  :ensure nil
   :config
   (setq
    dired-recursive-copies 'always
@@ -705,7 +707,7 @@
 ;; Xref ============================================== ;;
 
 (use-package xref
-  :elpaca nil
+  :ensure nil
   :config
   (setq
    xref-show-definitions-function #'xref-show-definitions-completing-read
@@ -716,7 +718,7 @@
 ;; ISearch =========================================== ;;
 
 (use-package isearch
-  :elpaca nil
+  :ensure nil
   :config
   (setq
    search-highlight t
@@ -742,7 +744,7 @@
 ;; SaveHist ========================================== ;;
 
 (use-package savehist
-  :elpaca nil
+  :ensure nil
   :config
   (setq
    savehist-file (locate-user-emacs-file "savehist")
@@ -908,7 +910,7 @@
 
 ;; Speedbar ========================================== ;;
 (use-package speedbar
-  :elpaca nil
+  :ensure nil
   :config
   (setq speedbar-frame-width 40
         speedbar-use-images nil
@@ -931,7 +933,7 @@
 ;; Eldoc Box ========================================= ;;
 
 (use-package eldoc
-  :elpaca nil
+  :ensure nil
   :config
   (global-eldoc-mode 1)
   (setq eldoc-echo-area-use-multiline-p t
@@ -940,7 +942,7 @@
 ;; Project ============================================ ;;
 
 (use-package project
-  :elpaca nil
+  :ensure nil
   :config
   (setq vc-directory-exclusion-list
         (nconc vc-directory-exclusion-list
@@ -951,7 +953,7 @@
 ;; Eglot ============================================== ;;
 
 (use-package eglot
-  :elpaca nil
+  :ensure nil
   :config
   (setq eglot-sync-connect 0
         eglot-send-changes-idle-time 0
@@ -1038,9 +1040,15 @@
 (use-package consult-eglot
   :after (consult eglot))
 
+;; NOTE:Be sure to grab the latest release https://github.com/blahgeek/emacs-lsp-booster/releases
+(use-package eglot-booster
+	:after eglot
+  :ensure (eglot-booster :host github :repo "jdtsmith/eglot-booster" :files ("*.el"))
+	:config	(eglot-booster-mode))
+
 ;; Flymake ========================================= ;;
 (use-package flymake
-  :elpaca nil
+  :ensure nil
   :config
   (setq
    flymake-fringe-indicator-position 'left-fringe
@@ -1086,7 +1094,7 @@
 ;; HTML Mode ====================================== ;;
 
 (use-package html-ts-mode
-  :elpaca (html-ts-mode :host github :repo "mickeynp/html-ts-mode" :files ("*.el"))
+  :ensure (html-ts-mode :host github :repo "mickeynp/html-ts-mode" :files ("*.el"))
   :mode ("\\.html\\'")
   :custom (sgml-basic-offset 4)
   :config
@@ -1123,7 +1131,7 @@
 ;; XML Mode ======================================= ;;
 
 (use-package xml-mode
-  :elpaca nil
+  :ensure nil
   :mode ("\\.csproj\\'" "\\.xml\\'"))
 
 ;; Typescript Mode ================================= ;;
@@ -1132,7 +1140,7 @@
   :after org)
 
 (use-package typescript-ts-mode
-  :elpaca nil
+  :ensure nil
   :mode ("\\.ts\\'")
   :custom (typescript-ts-mode-indent-offset 4)
   :config
@@ -1161,7 +1169,7 @@
   (global-treesit-auto-mode))
 
 (use-package combobulate
-  :elpaca (combobulate :host github :repo "mickeynp/combobulate")
+  :ensure (combobulate :host github :repo "mickeynp/combobulate")
   :preface
   (setq combobulate-key-prefix "C-c r")
   :hook ((python-ts-mode . combobulate-mode)
@@ -1176,7 +1184,7 @@
 ;; Angular ============================================= ;;
 
 (use-package angular-mode
-  :elpaca (angular-mode :host github :repo "kborling/angular-mode" :files ("*.el"))
+  :ensure (angular-mode :host github :repo "kborling/angular-mode" :files ("*.el"))
   :config
   (defun angular-open-interface ()
     "Open an Angular interface file in the project."
@@ -1193,7 +1201,7 @@
 
 ;;https://github.com/quick-lint/quick-lint-js/tree/master/plugin/emacs
 (use-package flymake-quicklintjs
-  :elpaca (flymake-quicklintjs :host github :repo "quick-lint/quick-lint-js" :files ("plugin/emacs/flymake-quicklintjs.el"))
+  :ensure (flymake-quicklintjs :host github :repo "quick-lint/quick-lint-js" :files ("plugin/emacs/flymake-quicklintjs.el"))
   :config
   (add-hook 'flymake-diagnostic-functions #'flymake-quicklintjs nil t))
 ;; (setq flymake-quicklintjs-experimental-typescript t))
@@ -1270,7 +1278,7 @@
 ;; Copilot ======================================== ;;
 
 (use-package copilot
-  :elpaca (copilot :type git :host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
+  :ensure (copilot :type git :host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
   :config
   (global-set-key (kbd "C-c c p") 'copilot-mode)
   ;; (add-hook 'prog-mode-hook 'copilot-mode)
@@ -1288,11 +1296,11 @@
 ;; GPT ============================================ ;;
 
 (use-package shell-maker
-  :elpaca (:host github :repo "xenodium/chatgpt-shell" :files ("shell-maker.el")))
+  :ensure (:host github :repo "xenodium/chatgpt-shell" :files ("shell-maker.el")))
 
 (use-package chatgpt-shell
   :requires shell-maker
-  :elpaca (:host github :repo "xenodium/chatgpt-shell" :files ("chatgpt-shell.el"))
+  :ensure (:host github :repo "xenodium/chatgpt-shell" :files ("chatgpt-shell.el"))
   :config
   (setq chatgpt-shell-openai-key
         (lambda ()
@@ -1342,7 +1350,7 @@
 ;; Ediff ======================================== ;;
 
 (use-package ediff
-  :elpaca nil
+  :ensure nil
   :config
   (setq
    ediff-keep-variants nil
@@ -1380,7 +1388,7 @@
   (global-org-modern-mode))
 
 (use-package org
-  :elpaca nil
+  :ensure nil
   :commands (org-capture org-agenda)
   :hook (org-mode . kdb-org-mode-setup)
   :config
@@ -1487,7 +1495,7 @@
 (use-package org-roam-ui
   ;; :if (or (eq system-type 'gnu/linux)
   ;;         (eq system-type 'darwin))
-  :elpaca (org-roam-ui :host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
+  :ensure (org-roam-ui :host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
   :after org-roam
   ;;  :hook (after-init . org-roam-ui-mode)
   :config
@@ -1539,7 +1547,7 @@
 ;; (add-to-list 'ibuffer-never-show-predicates "^\\*")
 
 (use-package uniquify
-  :elpaca nil
+  :ensure nil
   :defer 1
   :config
   (setq uniquify-buffer-name-style 'forward))
@@ -1601,7 +1609,7 @@
 ;; Window Management ================================== ;;
 
 (use-package windmove
-  :elpaca nil
+  :ensure nil
   :config
   ;; (global-set-key (kbd "C-S-h") 'windmove-left)
   ;; (global-set-key (kbd "C-S-s") 'windmove-right)
@@ -1631,7 +1639,7 @@
 ;; Emacs ============================================= ;;
 
 (use-package emacs
-  :elpaca nil
+  :ensure nil
   :init
   ;; Add prompt indicator to `completing-read-multiple'.
   ;; Alternatively try `consult-completing-read-multiple'.
@@ -1657,7 +1665,7 @@
 ;; EWW =============================================== ;;
 
 (use-package eww
-  :elpaca nil
+  :ensure nil
   :config
   (setq
    browse-url-browser-function 'eww-browse-url
@@ -1757,6 +1765,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ ;; '(default ((t (:inherit nil :extend nil :stipple nil :background "honeydew" :foreground "black" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight regular :height 170 :width normal :foundry "nil" :family "Inconsolata"))))
  '(corfu-popupinfo ((t (:inherit corfu-default :height 1.0)))))
 
 ;; Local Variables:
