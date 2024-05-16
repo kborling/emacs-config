@@ -364,6 +364,13 @@
     (message "Quick magit status turned on"))
   (magit-refresh-all))
 
+  (defun magit-rev-format (format &optional rev args)
+    (let ((str (magit-git-string "log" "-1" "--no-patch"
+                                 (concat "--format=" format) args
+                                 (if rev (concat rev "^{commit}") "HEAD") "--")))
+      (unless (string-equal str "")
+        str)))
+
 ;; Marginalia ======================================== ;;
 
 (use-package marginalia
@@ -548,6 +555,7 @@
 (add-hook 'mouse-leave-buffer-hook 'stop-using-minibuffer)
 
 ;; Modeline ============================================= ;;
+
 (setq
  mode-line-compact nil
  mode-line-percent-position '(-3 "%p")
