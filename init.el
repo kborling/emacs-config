@@ -1708,7 +1708,6 @@
 (defvar-local old-mode-line-format nil)
 
 (use-package olivetti
-  :ensure
   :diminish
   :config
   (setq
@@ -1731,7 +1730,7 @@
       (unless (derived-mode-p 'prog-mode)
         (setq mode-line-format old-mode-line-format))))
 
-  :bind ("C-c t m" . kdb-olivetti-mode))
+  :bind ("C-c t v" . kdb-olivetti-mode))
 
 ;; Macos ========================================== ;;
 
