@@ -1732,6 +1732,15 @@
 
   :bind ("C-c t v" . kdb-olivetti-mode))
 
+;; Enhanced Reading =============================== ;;
+
+(use-package enhanced-reading-mode
+  :ensure (enhanced-reading-mode :host github :repo "kborling/enhanced-reading-mode" :files ("*.el"))
+  :config
+  ;; (setq enhanced-reading-highlight-length 3)
+  (setq enhanced-reading-font-weight 'ultra-bold)
+  :bind ("C-c t r" . enhanced-reading-mode))
+
 ;; Macos ========================================== ;;
 
 (when (equal system-type 'darwin)
