@@ -339,37 +339,15 @@
          ("C-c g d" . magit-diff)
          ("C-c g r" . magit-remote)
          ("C-c g z" . magit-stash)
-         ("C-c g Z" . magit-apply)
-         ("C-c g t" . #'magit-quick-status)))
-
-(defun magit-status-refresh-buffer-quick ()
-  "Refresh the current `magit-status' buffer."
-  (magit-insert-section (status)
-                        (magit-insert-heading "Quick status")
-                        (insert "\n")
-                        (magit-insert-error-header)
-                        (magit-insert-head-branch-header)
-                        (insert "\n")
-                        (magit-insert-unstaged-changes)
-                        (magit-insert-staged-changes)))
-
-(defun magit-quick-status ()
-  "Toggle quick magit status."
-  (interactive)
-  (if (advice-member-p 'magit-status-refresh-buffer-quick 'magit-status-refresh-buffer)
-      (progn
-        (advice-remove 'magit-status-refresh-buffer 'magit-status-refresh-buffer-quick)
-        (message "Quick magit status turned off"))
-    (advice-add 'magit-status-refresh-buffer :override 'magit-status-refresh-buffer-quick)
-    (message "Quick magit status turned on"))
-  (magit-refresh-all))
-
-  (defun magit-rev-format (format &optional rev args)
-    (let ((str (magit-git-string "log" "-1" "--no-patch"
-                                 (concat "--format=" format) args
-                                 (if rev (concat rev "^{commit}") "HEAD") "--")))
-      (unless (string-equal str "")
-        str)))
+         ("C-c g Z" . magit-apply))
+  :config
+  (setq magit-status-sections-hook
+        '(magit-insert-error-header
+          magit-insert-head-branch-header
+          magit-insert-unstaged-changes
+          magit-insert-staged-changes
+          magit-insert-unpushed-to-pushremote))
+  (setq magit-status-headers-hook nil))
 
 ;; Marginalia ======================================== ;;
 
@@ -1181,7 +1159,7 @@
 (use-package combobulate
   :ensure (combobulate :host github :repo "mickeynp/combobulate")
   :preface
-  (setq combobulate-key-prefix "C-c r")
+  (setq combobulate-key-prefix "C-c b")
   :hook ((python-ts-mode . combobulate-mode)
          (js-ts-mode . combobulate-mode)
          (css-ts-mode . combobulate-mode)
