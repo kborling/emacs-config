@@ -679,6 +679,7 @@
    dired-x-hands-off-my-keys t
    dired-bind-man nil
    dired-bind-info nil
+   ;; dired-use-ls-dired t
    ;; wdired-allow-to-change-permissions t
    ;; wdired-create-parent-directories t
    image-dired-thumb-size 80
@@ -878,6 +879,9 @@
   :bind
   (("C-," . embark-act)
    ("M-." . embark-dwim)
+   ("C-c C-," . embark-act)
+   ("C-c C-." . embark-act-all)
+   ("C-c C-;" . embark-collect)
    ("C-h B" . embark-bindings))
   :init
   ;; Optionally replace the key help with a completing-read interface
