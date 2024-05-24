@@ -141,7 +141,7 @@
 ;; Install by copying on Windows
 (when (eq system-type 'windows-nt)
   (elpaca-no-symlink-mode)
-  (setq elpaca-queue-limit 15))
+  (setq elpaca-queue-limit 30))
 
 (elpaca-wait)
 
@@ -1161,7 +1161,7 @@
   (global-treesit-auto-mode))
 
 (use-package combobulate
-  :ensure (combobulate :host github :main "combobulate.el" :repo "mickeynp/combobulate")
+  :ensure (combobulate :depth nil :host github :main "combobulate.el" :repo "mickeynp/combobulate" :files ("*.el" "build/*"))
   :preface
   (setq combobulate-key-prefix "C-c b")
   :hook ((python-ts-mode . combobulate-mode)
