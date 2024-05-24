@@ -1161,7 +1161,7 @@
   (global-treesit-auto-mode))
 
 (use-package combobulate
-  :ensure (combobulate :host :main "combobulate.el" github :repo "mickeynp/combobulate")
+  :ensure (combobulate :host github :main "combobulate.el" :repo "mickeynp/combobulate")
   :preface
   (setq combobulate-key-prefix "C-c b")
   :hook ((python-ts-mode . combobulate-mode)
