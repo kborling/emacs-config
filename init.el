@@ -1357,7 +1357,7 @@
   (global-org-modern-mode))
 
 (use-package org
-  :ensure nil
+  ;; :ensure nil
   :commands (org-capture org-agenda)
   :hook (org-mode . kdb-org-mode-setup)
   :config
