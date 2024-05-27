@@ -444,11 +444,8 @@
 
 (use-package multiple-cursors
   :diminish
-  :bind (
-         ("C->" . mc/mark-next-like-this)
+  :bind (("C->" . mc/mark-next-like-this)
          ("C-<" . mc/mark-previous-like-this)
-         ("C-z" . mc/mark-next-like-this)
-         ("M-C-z" . mc/mark-previous-like-this)
          ("C-c C-<" . mc/mark-all-like-this)
          ("C-S-c C-S-c" . mc/mark-edit-lines)))
 
@@ -496,7 +493,6 @@
    completions-detailed t
    completion-show-inline-help nil)
 
-  ;; Grouping of completions for Emacs 28
   (setq
    completions-group t
    completions-group-sort nil
@@ -759,7 +755,7 @@
          ("C-c i" . consult-info)
          ([remap Info-search] . consult-info)
          ;; C-x bindings (ctl-x-map)
-         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x C-z" . consult-complex-command)     ;; orig. repeat-complex-command
          ("C-x C-b" . consult-buffer)                ;; orig. switch-to-buffer
          ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
          ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
@@ -1115,10 +1111,13 @@
 
 ;; .NET ============================================ ;;
 
-(use-package sharper
-  :demand t
-  :bind
-  ("C-c n" . sharper-main-transient))
+(use-package dotnet
+  :hook (csharp-mode)
+  :bind ((("C-c n n" . dotnet-new)
+          ("C-c n c" . dotnet-clean)
+          ("C-c n t" . dotnet-test)
+          ("C-c n r" . dotnet-run)
+          ("C-c n b" . dotnet-build))))
 
 ;; XML Mode ======================================= ;;
 
@@ -1258,10 +1257,6 @@
 
 (use-package package-lint)
 
-;; Scheme ======================================== ;;
-
-(use-package geiser-guile)
-
 ;; Restclient ==================================== ;;
 
 (use-package restclient)
@@ -1284,26 +1279,6 @@
               ("<end>" . 'copilot-accept-completion-by-line)
               ("M-n" . 'copilot-next-completion)
               ("M-p" . 'copilot-previous-completion)))
-
-;; GPT ============================================ ;;
-
-(use-package shell-maker
-  :ensure (:host github :repo "xenodium/chatgpt-shell" :files ("shell-maker.el")))
-
-(use-package chatgpt-shell
-  :requires shell-maker
-  :ensure (:host github :repo "xenodium/chatgpt-shell" :files ("chatgpt-shell.el"))
-  :config
-  (setq chatgpt-shell-openai-key
-        (lambda ()
-          (auth-source-pick-first-password :host "api.openai.com")))
-  :bind (("C-c h s" . chatgpt-shell)
-         ("C-c h d" . chatgpt-shell-describe-code)
-         ("C-c h c" . chatgpt-shell-refactor-code)
-         ("C-c h t" . chatgpt-shell-generate-unit-test)
-         ("C-c h p" . chatgpt-shell-proofread-region)
-         ("C-c h x" . chatgpt-shell-restore-session-from-transcript)
-         ("C-c h r" . chatgpt-shell-send-and-review-region)))
 
 ;; Dev Docs ======================================= ;;
 
@@ -1765,7 +1740,6 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- ;; '(default ((t (:inherit nil :extend nil :stipple nil :background "honeydew" :foreground "black" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight regular :height 170 :width normal :foundry "nil" :family "Inconsolata"))))
  '(corfu-popupinfo ((t (:inherit corfu-default :height 1.0)))))
 
 ;; Local Variables:
