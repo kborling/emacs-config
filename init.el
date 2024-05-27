@@ -327,6 +327,8 @@
 
 ;; Magit =============================================== ;;
 
+(use-package transient)
+
 (use-package magit
   :bind (("C-c g g" . magit-status)
          ("C-c g s" . magit-status)
