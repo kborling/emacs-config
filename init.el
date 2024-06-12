@@ -71,8 +71,10 @@
 (setq tab-always-indent 'complete)
 
 (setq-default indent-tabs-mode nil
-              tab-stop-list    ()
-              tab-width        2)
+              tab-stop-list ()
+              tab-width 2
+              c-basic-offset 4
+              js-switch-indent-offset 4)
 
 (show-paren-mode 1)
 ;; Treat Camelcase as words
@@ -250,8 +252,7 @@
 ;; Custom themes
 (use-package haki-theme)
 
-(use-package myron-themes
-  :ensure (myron-themes :host github :repo "neeasade/myron-themes" :files ("*.el" "themes/*.el")))
+(use-package acme-theme)
 
 (use-package uwu-theme
   :ensure (uwu-theme :host github :repo "kborling/uwu-theme" :files ("*.el"))
@@ -881,6 +882,10 @@
    ("C-c C-." . embark-act-all)
    ("C-c C-;" . embark-collect)
    ("C-h B" . embark-bindings))
+  :bind
+  ([remap describe-bindings] . embark-bindings)
+  :custom
+  (prefix-help-command #'embark-prefix-help-command)
   :init
   ;; Optionally replace the key help with a completing-read interface
   (setq prefix-help-command #'embark-prefix-help-command)
@@ -1033,7 +1038,7 @@
 (use-package consult-eglot
   :after (consult eglot))
 
-;; NOTE:Be sure to grab the latest release https://github.com/blahgeek/emacs-lsp-booster/releases
+;; NOTE:Be sure to grab the latest release 'https://github.com/blahgeek/emacs-lsp-booster/releases'
 (use-package eglot-booster
 	:after eglot
   :ensure (eglot-booster :host github :repo "jdtsmith/eglot-booster" :files ("*.el"))
