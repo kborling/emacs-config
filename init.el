@@ -74,6 +74,7 @@
               tab-stop-list ()
               tab-width 2
               c-basic-offset 4
+              sgml-basic-offset 4
               js-switch-indent-offset 4)
 
 (show-paren-mode 1)
@@ -1094,12 +1095,10 @@
 (use-package html-ts-mode
   :ensure (html-ts-mode :host github :repo "mickeynp/html-ts-mode" :files ("*.el"))
   :mode ("\\.html\\'")
-  :custom (sgml-basic-offset 4)
   :config
   ;; Add indentation support
   (add-hook 'html-ts-mode-hook
             (lambda ()
-              (set (make-local-variable 'sgml-basic-offset) 4)
               (setq-local indent-line-function 'sgml-indent-line)
               (setq-local indent-region-function
                           (lambda (start end)
