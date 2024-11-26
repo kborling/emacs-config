@@ -120,7 +120,7 @@
   (require 'use-package))
 (setq use-package-always-ensure t)
 
-if (>= emacs-major-version 30)
+(if (>= emacs-major-version 30)
     ;; Use the built-in vc-use-package in Emacs 30+
     (require 'vc-use-package)
   ;; Otherwise, install and require it from GitHub
