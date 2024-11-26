@@ -71,7 +71,7 @@
 (setq frame-resize-pixelwise t)
 
 ;; Make frame transparency overridable
-(let ((frame-transparency '(96 . 96)))
+(let ((frame-transparency '(98 . 98)))
   ;; Set frame transparency
   (set-frame-parameter (selected-frame) 'alpha frame-transparency)
   (add-to-list 'default-frame-alist `(alpha . ,frame-transparency)))
@@ -81,8 +81,11 @@
 ;; (when (or (equal system-type 'darwin) (equal system-type 'gnu/linux))
 ;;           (add-to-list 'default-frame-alist '(undecorated . t)))
 
-;; disable package.el
-(setq package-enable-at-startup nil)
+
+(setq package-enable-at-startup t)
+(defvar package-quickstart)
+;; Allow loading from the package cache
+(setq package-quickstart t)
 
 ;;; Native compilation settings
 (when (featurep 'native-compile)

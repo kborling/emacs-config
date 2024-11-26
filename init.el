@@ -94,59 +94,35 @@
 (fset #'jsonrpc--log-event #'ignore)
 (add-hook 'focus-out-hook 'garbage-collect)
 
-;; Elpaca ========================================== ;;
+;; Package ============================================= ;;
 
-(defvar elpaca-installer-version 0.7)
-(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
-(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
-(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
-(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-                              :ref nil
-                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
-                              :build (:not elpaca--activate-package)))
-(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
-       (build (expand-file-name "elpaca/" elpaca-builds-directory))
-       (order (cdr elpaca-order))
-       (default-directory repo))
-  (add-to-list 'load-path (if (file-exists-p build) build repo))
-  (unless (file-exists-p repo)
-    (make-directory repo t)
-    (when (< emacs-major-version 28) (require 'subr-x))
-    (condition-case-unless-debug err
-        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-                 ((zerop (call-process "git" nil buffer t "clone"
-                                       (plist-get order :repo) repo)))
-                 ((zerop (call-process "git" nil buffer t "checkout"
-                                       (or (plist-get order :ref) "--"))))
-                 (emacs (concat invocation-directory invocation-name))
-                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-                 ((require 'elpaca))
-                 ((elpaca-generate-autoloads "elpaca" repo)))
-            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
-          (error "%s" (with-current-buffer buffer (buffer-string))))
-      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
-  (unless (require 'elpaca-autoloads nil t)
-    (require 'elpaca)
-    (elpaca-generate-autoloads "elpaca" repo)
-    (load "./elpaca-autoloads")))
-(add-hook 'after-init-hook #'elpaca-process-queues)
-(elpaca `(,@elpaca-order))
+(require 'package)
+(setq package-archives
+      '(("elpa" . "https://elpa.gnu.org/packages/")
+        ("elpa-devel" . "https://elpa.gnu.org/devel/")
+        ("org" . "https://orgmode.org/elpa/")
+        ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+        ("melpa" . "https://melpa.org/packages/")))
+;; Highest number gets priority (what is not mentioned has priority 0)
+(setq package-archive-priorities
+      '(("elpa" . 2)
+        ("nongnu" . 1)))
+;; (setq package-pinned-packages
+;; '((corfu . "elpa-devel")))
+(unless package--initialized
+  (package-initialize))
+(unless package-archive-contents
+  (package-refresh-contents))
+;; Initialize use-package on non-Linux platforms
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+(eval-when-compile
+  (require 'use-package))
+(setq use-package-always-ensure t)
 
-(elpaca use-package :ensure t)
-;; Install use-package support
-(elpaca elpaca-use-package
-  ;; Enable :ensure use-package keyword.
-  (elpaca-use-package-mode)
-  ;; Assume :ensure t unless otherwise specified.
-  (setq elpaca-use-package-by-default t))
-
-;; Install by copying on Windows
-(when (eq system-type 'windows-nt)
-  (elpaca-no-symlink-mode)
-  (setq elpaca-queue-limit 30))
-
-(elpaca-wait)
+(unless (package-installed-p 'vc-use-package)
+  (package-vc-install "https://github.com/slotThe/vc-use-package"))
+(require 'vc-use-package)
 
 ;; Electric Pairs ====================================== ;;
 
@@ -246,7 +222,7 @@
 (set-face-attribute 'italic nil
                     :family default-font-family :weight 'regular :slant 'italic)
 (set-face-attribute 'variable-pitch nil
-                    :family "Berkeley Mono Variable" :height (+ default-font-size 20) :weight 'regular)
+ "Berkeley Mono Variable" :height (+ default-font-size 20) :weight 'regular)
 (set-fontset-font t 'unicode
                   (font-spec :name "Inconsolata Light" :size 16) nil)
 
@@ -256,7 +232,7 @@
 (use-package acme-theme)
 
 (use-package uwu-theme
-  :ensure (uwu-theme :host github :repo "kborling/uwu-theme" :files ("*.el"))
+  :vc (:fetcher github :repo "kborling/uwu-theme")
   :config
   (setq
    uwu-distinct-line-numbers 'nil
@@ -272,7 +248,7 @@
   (setq
    recentf-save-file (locate-user-emacs-file "recentf")
    recentf-max-saved-items 50
-   recentf-exclude '(".gz" ".xz" ".zip" "/elpaca/" "/opt/" "/.rustup/" "/elpa/" "/ssh:" "/sudo:" "/node_modules/" "/nix/"))
+   recentf-exclude '(".gz" ".xz" ".zip" "/elpaca/" "/elpa/" "/opt/" "/.rustup/" "/elpa/" "/ssh:" "/sudo:" "/node_modules/" "/nix/"))
   :init
   (add-hook 'after-init-hook #'recentf-mode))
 
@@ -280,9 +256,10 @@
 
 (use-package exec-path-from-shell
   :ensure t
+  :if (memq window-system '(mac ns x))
   :config
-  (when (memq window-system '(mac ns x))
-    (exec-path-from-shell-initialize)))
+  (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
+  (exec-path-from-shell-initialize))
 
 ;; Diminish ========================================== ;;
 
@@ -365,7 +342,6 @@
 ;; Corfu ============================================= ;;
 
 (use-package corfu
-  :ensure (:files (:defaults "extensions/*"))
   :hook ((prog-mode . corfu-mode)
          (shell-mode . corfu-mode)
          (eshell-mode . corfu-mode))
@@ -611,14 +587,7 @@
 ;; EAT ================================================== ;;
 
 (use-package eat
-  :ensure (eat
-           :host codeberg
-           :repo "akib/emacs-eat"
-           :files ("*.el" ("term" "term/*.el") "*.texi"
-                   "*.ti" ("terminfo/e" "terminfo/e/*")
-                   ("terminfo/65" "terminfo/65/*")
-                   ("integration" "integration/*")
-                   (:exclude ".dir-locals.el" "*-tests.el")))
+  :vc (:fetcher codeberg :repo "akib/emacs-eat")
   :config
   (add-hook 'eshell-load-hook #'eat-eshell-mode))
 
@@ -1042,7 +1011,7 @@
 ;; NOTE:Be sure to grab the latest release 'https://github.com/blahgeek/emacs-lsp-booster/releases'
 (use-package eglot-booster
 	:after eglot
-  :ensure (eglot-booster :host github :repo "jdtsmith/eglot-booster" :files ("*.el"))
+  :vc (:fetcher github :repo "jdtsmith/eglot-booster")
 	:config	(eglot-booster-mode))
 
 ;; Flymake ========================================= ;;
@@ -1093,7 +1062,7 @@
 ;; HTML Mode ====================================== ;;
 
 (use-package html-ts-mode
-  :ensure (html-ts-mode :host github :repo "mickeynp/html-ts-mode" :files ("*.el"))
+  :vc (:fetcher github :repo "mickeynp/html-ts-mode")
   :mode ("\\.html\\'")
   :config
   ;; Add indentation support
@@ -1166,7 +1135,7 @@
   (global-treesit-auto-mode))
 
 (use-package combobulate
-  :ensure (combobulate :nonrecursive t :host github :main "combobulate.el" :repo "mickeynp/combobulate")
+  :vc (:fetcher github :repo "mickeynp/combobulate")
   :preface
   (setq combobulate-key-prefix "C-c b")
   :hook ((python-ts-mode . combobulate-mode)
@@ -1181,7 +1150,7 @@
 ;; Angular ============================================= ;;
 
 (use-package angular-mode
-  :ensure (angular-mode :host github :repo "kborling/angular-mode" :files ("*.el"))
+  :vc (:fetcher github :repo "kborling/angular-mode")
   :config
   (defun angular-open-interface ()
     "Open an Angular interface file in the project."
@@ -1193,15 +1162,6 @@
   "A major mode derived from 'html-ts-mode', for editing angular template files with LSP support.")
 ;; TODO Mode must manually be set
 (add-to-list 'auto-mode-alist '("\\.component\\.html\\'" . angular-template-mode))
-
-;; Quick-lint =========================================== ;;
-
-;;https://github.com/quick-lint/quick-lint-js/tree/master/plugin/emacs
-(use-package flymake-quicklintjs
-  :ensure (flymake-quicklintjs :host github :repo "quick-lint/quick-lint-js" :files ("plugin/emacs/flymake-quicklintjs.el"))
-  :config
-  (add-hook 'flymake-diagnostic-functions #'flymake-quicklintjs nil t))
-;; (setq flymake-quicklintjs-experimental-typescript t))
 
 ;; EditorConfig ======================================== ;;
 
@@ -1271,7 +1231,7 @@
 ;; Copilot ======================================== ;;
 
 (use-package copilot
-  :ensure (copilot :type git :host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
+  :vc (:fetcher github :repo "zerolfx/copilot.el")
   :config
   (global-set-key (kbd "C-c c p") 'copilot-mode)
   ;; (add-hook 'prog-mode-hook 'copilot-mode)
@@ -1468,7 +1428,7 @@
 (use-package org-roam-ui
   ;; :if (or (eq system-type 'gnu/linux)
   ;;         (eq system-type 'darwin))
-  :ensure (org-roam-ui :host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
+  :vc (:fetcher github :repo "org-roam/org-roam-ui")
   :after org-roam
   ;;  :hook (after-init . org-roam-ui-mode)
   :config
@@ -1698,7 +1658,7 @@
 ;; Enhanced Reading =============================== ;;
 
 (use-package enhanced-reading-mode
-  :ensure (enhanced-reading-mode :host github :repo "kborling/enhanced-reading-mode" :files ("*.el"))
+  :vc (:fetcher github :repo "kborling/enhanced-reading-mode")
   :config
   ;; (setq enhanced-reading-highlight-length 3)
   (setq enhanced-reading-font-weight 'ultra-bold)
@@ -1707,11 +1667,11 @@
 ;; Macos ========================================== ;;
 
 (when (equal system-type 'darwin)
-  ;; (customize-set-variable mac-right-option-modifier nil)
-  ;; (customize-set-variable mac-command-modifier 'super)
-  ;; (customize-set-variable mac-option-modifier 'none)
-  (setq mac-command-modifier 'none)
-  (setq mac-option-modifier 'meta)
+  (customize-set-variable mac-right-option-modifier nil)
+  ;; (customize-set-variable mac-command-modifier 'meta)
+  ;; (customize-set-variable mac-option-modifier 'super)
+  (setq mac-command-modifier 'meta)
+  (setq mac-option-modifier 'super)
   ;; (customize-set-variable ns-function-modifier 'hyper)
   (setq ns-pop-up-frames nil)
   ;; Make mouse wheel / trackpad scrolling less jerky
@@ -1739,14 +1699,19 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages '(eglot)))
+ '(package-selected-packages
+   '(combobulate eat enhanced-reading-mode copilot angular-mode html-ts-mode eglot-booster))
+ '(package-vc-selected-packages
+   '((combobulate :vc-backend Git :url "https://github.com/mickeynp/combobulate")
+     (eat :vc-backend Git :url "https://codeberg.org/akib/emacs-eat")
+     (vc-use-package :vc-backend Git :url "https://github.com/slotThe/vc-use-package"))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(corfu-popupinfo ((t (:inherit corfu-default :height 1.0)))))
+ )
 
 ;; Local Variables:
 ;; no-byte-compile: t
