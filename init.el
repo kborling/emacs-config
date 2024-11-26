@@ -120,9 +120,13 @@
   (require 'use-package))
 (setq use-package-always-ensure t)
 
-(unless (package-installed-p 'vc-use-package)
-  (package-vc-install "https://github.com/slotThe/vc-use-package"))
-(require 'vc-use-package)
+if (>= emacs-major-version 30)
+    ;; Use the built-in vc-use-package in Emacs 30+
+    (require 'vc-use-package)
+  ;; Otherwise, install and require it from GitHub
+  (unless (package-installed-p 'vc-use-package)
+    (package-vc-install "https://github.com/slotThe/vc-use-package"))
+  (require 'vc-use-package))
 
 ;; Electric Pairs ====================================== ;;
 
@@ -222,7 +226,7 @@
 (set-face-attribute 'italic nil
                     :family default-font-family :weight 'regular :slant 'italic)
 (set-face-attribute 'variable-pitch nil
- "Berkeley Mono Variable" :height (+ default-font-size 20) :weight 'regular)
+                    :family "Berkeley Mono Variable" :height (+ default-font-size 20) :weight 'regular)
 (set-fontset-font t 'unicode
                   (font-spec :name "Inconsolata Light" :size 16) nil)
 
