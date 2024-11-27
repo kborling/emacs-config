@@ -312,6 +312,8 @@
 
 (use-package transient)
 
+(use-package ssh-agency :vc (:fetcher github :repo "magit/ssh-agency"))
+
 (use-package magit
   :bind (("C-c g g" . magit-status)
          ("C-c g s" . magit-status)
@@ -324,24 +326,24 @@
          ("C-c g d" . magit-diff)
          ("C-c g r" . magit-remote)
          ("C-c g z" . magit-stash)
-         ("C-c g Z" . magit-apply))
-  :config
-  (setq magit-status-sections-hook
-        '(magit-insert-error-header
-          magit-insert-head-branch-header
-          magit-insert-unstaged-changes
-          magit-insert-staged-changes
-          magit-insert-unpushed-to-pushremote))
-  (setq magit-status-headers-hook nil))
+         ("C-c g Z" . magit-apply)))
+  ;; :config
+  ;; (setq magit-status-sections-hook
+  ;;       '(magit-insert-error-header
+  ;;         magit-insert-head-branch-header
+  ;;         magit-insert-unstaged-changes
+  ;;         magit-insert-staged-changes
+  ;;         magit-insert-unpushed-to-pushremote))
+  ;; (setq magit-status-headers-hook nil))
 
 ;; Marginalia ======================================== ;;
 
-(use-package marginalia
-  :bind (("M-A" . marginalia-cycle)
-         :map minibuffer-local-map
-         ("M-A" . marginalia-cycle))
-  :init
-  (marginalia-mode))
+;; (use-package marginalia
+;;   :bind (("M-A" . marginalia-cycle)
+;;          :map minibuffer-local-map
+;;          ("M-A" . marginalia-cycle))
+;;   :init
+;;   (marginalia-mode))
 
 ;; Corfu ============================================= ;;
 
@@ -1014,9 +1016,9 @@
 
 ;; NOTE:Be sure to grab the latest release 'https://github.com/blahgeek/emacs-lsp-booster/releases'
 (use-package eglot-booster
-	:after eglot
+  :after eglot
   :vc (:fetcher github :repo "jdtsmith/eglot-booster")
-	:config	(eglot-booster-mode))
+  :config	(eglot-booster-mode))
 
 ;; Flymake ========================================= ;;
 (use-package flymake
@@ -1704,9 +1706,10 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(combobulate eat enhanced-reading-mode copilot angular-mode html-ts-mode eglot-booster))
+   '(ssh-agency combobulate eat enhanced-reading-mode copilot angular-mode html-ts-mode eglot-booster))
  '(package-vc-selected-packages
-   '((combobulate :vc-backend Git :url "https://github.com/mickeynp/combobulate")
+   '((ssh-agency :vc-backend Git :url "https://github.com/magit/ssh-agency")
+     (combobulate :vc-backend Git :url "https://github.com/mickeynp/combobulate")
      (eat :vc-backend Git :url "https://codeberg.org/akib/emacs-eat")
      (vc-use-package :vc-backend Git :url "https://github.com/slotThe/vc-use-package"))))
 

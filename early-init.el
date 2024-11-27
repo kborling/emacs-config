@@ -81,11 +81,7 @@
 ;; (when (or (equal system-type 'darwin) (equal system-type 'gnu/linux))
 ;;           (add-to-list 'default-frame-alist '(undecorated . t)))
 
-
 (setq package-enable-at-startup t)
-(defvar package-quickstart)
-;; Allow loading from the package cache
-(setq package-quickstart t)
 
 ;;; Native compilation settings
 (when (featurep 'native-compile)
