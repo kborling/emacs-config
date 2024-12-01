@@ -26,8 +26,8 @@
 ;; Package ============================================= ;;
 
 (require 'package)
- ;; :url :branch :lisp-dir :main-file :vc-backend :rev
- ;;     :shell-command :make :ignored-files
+;; :url :branch :lisp-dir :main-file :vc-backend :rev
+;;     :shell-command :make :ignored-files
 (unless package--initialized
   (package-initialize))
 (unless package-archive-contents
@@ -203,6 +203,15 @@
     (push-mark (point-max) nil t)
     (copy-region-as-kill 1 (buffer-size))))
 
+(defun toggle-theme ()
+  "Toggle between available themes."
+  (interactive)
+  (let* ((current-theme (car custom-enabled-themes))
+         (available-themes (mapcar 'symbol-name (custom-available-themes)))
+         (chosen-theme (completing-read "Select a theme: " available-themes nil t nil nil current-theme)))
+    (mapc #'disable-theme custom-enabled-themes)
+    (load-theme (intern chosen-theme) t)))
+
 ;; Keybindings ======================================= ;;
 
 (let ((map global-map))
@@ -217,6 +226,7 @@
   (define-key map (kbd "C-c C-r") #'query-replace)
 
   (define-key map (kbd "C-;") #'comment-line)
+  (define-key map (kbd "C-c d") #'duplicate-line)
   (define-key map (kbd "C-x f") #'project-find-file)
 
   (define-key map (kbd "M-(") #'insert-pair)
@@ -245,6 +255,7 @@
   (define-key map (kbd "C-c e v") #'config-visit)
   (define-key map (kbd "C-c e r") #'config-reload)
   ;; Toggle stuff
+  (define-key map (kbd "C-c t t") #'toggle-theme)
   (define-key map (kbd "C-c t f") #'toggle-frame-fullscreen))
 
 (use-package savehist
@@ -320,6 +331,13 @@
   (which-key-mode)
   (setq which-key-idle-delay 1))
 
+;; EditorConfig ======================================== ;;
+
+(use-package editorconfig
+  :ensure nil
+  :config
+  (editorconfig-mode 1))
+
 ;; Orderless ========================================= ;;
 
 (use-package orderless
@@ -367,7 +385,7 @@
           (buffer (styles . (basic substring orderless)))
           (kill-ring (styles . (emacs22 orderless)))
           (eglot (styles . (emacs22 substring orderless)))))
-  
+
   ;; Up/down when completing in the minibuffer
   (define-key minibuffer-local-map (kbd "C-p") #'minibuffer-previous-completion)
   (define-key minibuffer-local-map (kbd "C-n") #'minibuffer-next-completion)
@@ -513,6 +531,9 @@
   ;; Language Servers
   (add-to-list 'eglot-server-programs '(csharp-mode . ("omnisharp" "-lsp")))
   (add-to-list 'eglot-server-programs '(typescript-ts-mode . ("typescript-language-server" "--stdio")))
+  ;; See https://github.com/olrtg/emmet-language-server
+  (add-to-list 'eglot-server-programs '(html-ts-mode . ("emmet-language-server" "--stdio")))
+  (add-to-list 'eglot-server-programs '(css-ts-mode . ("emmet-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '(rust-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '(rustic-mode . ("rls" "--stdio")))
   (add-to-list 'eglot-server-programs '((c++-mode c-mode)
@@ -528,21 +549,19 @@
                                            "--header-insertion=never"
                                            "--header-insertion-decorators=0")))
 
-  (defvar node-modules-path
-    (let* ((global-prefix (string-trim (shell-command-to-string "npm config get --global prefix")))
-           (modules-path (if (eq system-type 'windows-nt)
-                             "node_modules"
-                           "lib/node_modules")))
-      (expand-file-name modules-path global-prefix)))
-
-  (add-to-list 'eglot-server-programs
-               `(angular-template-mode . ("ngserver"
-                                          "--stdio"
-                                          "--ngProbeLocations"
-                                          ,node-modules-path
-                                          "--tsProbeLocations"
-                                          ,node-modules-path
-                                          )))
+  ;; FIXME: This doesn't always work initially (eval-buffer usually fixes it)
+  (let* ((global-prefix (string-trim (shell-command-to-string "npm config get --global prefix")))
+         (modules-path (if (eq system-type 'windows-nt)
+                           "node_modules"
+                         "lib/node_modules"))
+         (node-modules-path (expand-file-name modules-path global-prefix)))
+    (add-to-list 'eglot-server-programs
+                 `(angular-template-mode . ("ngserver"
+                                            "--stdio"
+                                            "--ngProbeLocations"
+                                            ,node-modules-path
+                                            "--tsProbeLocations"
+                                            ,node-modules-path))))
 
   ;; Show all of the available eldoc information when we want it. This way Flymake errors
   ;; don't just get clobbered by docstrings.
@@ -553,7 +572,7 @@
                           #'eldoc-documentation-compose)))
 
   (dolist (mode '(css-mode
-                  html-mode
+                  html-ts-mode
                   angular-template-mode
                   js-mode
                   typescript-ts-mode
@@ -727,7 +746,7 @@
   ;; :diminish
   :bind (("C->" . mc/mark-next-like-this)
          ("C-<" . mc/mark-previous-like-this)
-         ("C-c C-<" . mc/mark-all-like-this)
+         ("C-c m" . mc/mark-all-like-this)
          ("C-S-c C-S-c" . mc/mark-edit-lines)))
 
 ;; So Long =========================================== ;;
@@ -736,14 +755,23 @@
   :ensure nil
   :hook (after-init . global-so-long-mode))
 
-;; Node Modules ================================= ;;
+;; Node Modules ====================================== ;;
 
+;; TODO: Is this package necessary?
 ;; (use-package add-node-modules-path
 ;;   :config
 ;;   (dolist (mode '(typescript-ts-mode js-mode))
 ;;     (add-hook mode 'add-node-modules-path)))
 
-;; Angular ============================================= ;;
+;; HTML ============================================== ;;
+
+(use-package sgml-mode
+  :ensure nil
+  :config
+  (let ((map sgml-mode-map))
+    (define-key map (kbd "C-c C-d") nil))) ; disable sgml-delete-tag
+
+;; Angular =========================================== ;;
 
 (use-package angular-mode
   :vc (:url "https://github.com/kborling/angular-mode" :rev :newest)
@@ -860,13 +888,6 @@
 (use-package hyperbole
   :ensure t
   :hook (after-init . hyperbole-mode))
-
-;; Markdown ========================================== ;;
-
-(use-package markdown-mode
-  :defer t
-  :config
-  (setq markdown-fontify-code-blocks-natively t))
 
 ;; Local Variables:
 ;; no-byte-compile: t
