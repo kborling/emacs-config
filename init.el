@@ -442,6 +442,27 @@
           ("SPC" . nil)
           ("?" . nil)))
 
+;; Fussy =============================================== ;;
+
+(use-package fussy
+  :config
+  (setq fussy-use-cache t)
+  (setq fussy-filter-fn 'fussy-filter-default)
+  (setq fussy-compare-same-score-fn 'fussy-histlen->strlen<)
+  (push 'fussy completion-styles)
+
+  (advice-add 'corfu--capf-wrapper :before 'fussy-wipe-cache)
+
+  (add-hook 'corfu-mode-hook
+            (lambda ()
+              (setq-local fussy-max-candidate-limit 5000
+                          fussy-default-regex-fn 'fussy-pattern-first-letter
+                          fussy-prefer-prefix nil))))
+
+  ;; (with-eval-after-load 'eglot
+  ;;   (add-to-list 'completion-category-overrides
+  ;;                '(eglot (styles fussy basic)))))
+
 ;; Minibuffer ======================================== ;;
 
 (use-package minibuffer
@@ -458,6 +479,7 @@
         completions-max-height 20
         completion-flex-nospace nil
         completion-styles '(basic substring initials flex orderless)
+        completion-styles '(fussy basic)
         completions-header-format nil
         completions-highlight-face 'completions-highlight
         minibuffer-visible-completions nil
@@ -465,13 +487,28 @@
         read-answer-short t)
 
   (setq completion-category-overrides
-        '((file (styles . (basic partial-completion orderless)))
-          (project-file (styles . (basic partial-completion orderless)))
-          (bookmark (styles . (basic substring)))
-          (imenu (styles . (basic substring orderless)))
-          (buffer (styles . (basic substring orderless)))
-          (kill-ring (styles . (emacs22 orderless)))
-          (eglot (styles . (emacs22 substring orderless)))))
+        '((file (styles . (fussy basic partial-completion)))
+          (project-file (styles . (fussy basic partial-completion)))
+          (bookmark (styles . (fussy basic substring))))
+          (imenu (styles . (fussy basic substring)))
+          (buffer (styles . (fussy basic substring)))
+          (kill-ring (styles . (fussy emacs22)))
+          (eglot (styles . (fussy emacs22 substring))))
+  ;;   completion-styles '(basic substring initials flex orderless)
+  ;;   completions-header-format nil
+  ;;   completions-highlight-face 'completions-highlight
+  ;;   minibuffer-visible-completions nil
+  ;;   completions-sort 'historical
+  ;;   read-answer-short t)
+
+  ;; (setq completion-category-overrides
+  ;;       '((file (styles . (basic partial-completion orderless)))
+  ;;         (project-file (styles . (basic partial-completion orderless)))
+  ;;         (bookmark (styles . (basic substring)))
+  ;;         (imenu (styles . (basic substring orderless)))
+  ;;         (buffer (styles . (basic substring orderless)))
+  ;;         (kill-ring (styles . (emacs22 orderless)))
+  ;;         (eglot (styles . (emacs22 substring orderless)))))
 
   ;; Up/down when completing in the minibuffer
   (define-key minibuffer-local-map (kbd "C-p") #'minibuffer-previous-completion)
@@ -573,10 +610,11 @@
 
 ;; NOTE: Be sure to grab the latest release 'https://github.com/blahgeek/emacs-lsp-booster/releases'
 ;; and place in PATH
-(use-package eglot-booster
-  :after eglot
-  :vc (:url "https://github.com/jdtsmith/eglot-booster" :rev :newest)
-  :config (eglot-booster-mode))
+;; TODO: Is this needed?
+;; (use-package eglot-booster
+;;   :after eglot
+;;   :vc (:url "https://github.com/jdtsmith/eglot-booster" :rev :newest)
+;;   :config (eglot-booster-mode))
 
 ;; Flymake ========================================= ;;
 (use-package flymake
