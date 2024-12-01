@@ -26,8 +26,6 @@
 ;; Package ============================================= ;;
 
 (require 'package)
-;; :url :branch :lisp-dir :main-file :vc-backend :rev
-;;     :shell-command :make :ignored-files
 (unless package--initialized
   (package-initialize))
 (unless package-archive-contents
@@ -76,14 +74,6 @@
  kept-old-versions 2
  create-lockfiles nil)
 
-;; Auto Revert ====================================== ;;
-
-(use-package autorevert
-  :ensure nil
-  :hook (after-init . global-auto-revert-mode)
-  :config
-  (setq auto-revert-verbose t))
-
 ;; Defaults ========================================= ;;
 
 (setq
@@ -116,12 +106,14 @@
               typescript-ts-mode-indent-offset 4
               js-switch-indent-offset 4)
 
-;; (show-paren-mode 1)
 ;; Treat Camelcase as words
-;; (global-subword-mode 1)
+(use-package subword-mode
+  :ensure nil
+  :hook (after-init . global-subword-mode))
 
+;; Delete selection on insert
 (use-package delsel
-  :ensure nil ; no need to install it as it is built-in
+  :ensure nil
   :hook (after-init . delete-selection-mode))
 
 ;; Smooth scrolling
@@ -155,8 +147,6 @@
 
 ;; Themes ================================================= ;;
 
-(use-package acme-theme)
-
 (use-package uwu-theme
   :config
   (setq
@@ -164,6 +154,8 @@
    uwu-scale-org-headlines t
    uwu-use-variable-pitch t)
   (load-theme 'uwu t))
+
+(use-package acme-theme)
 
 ;; Custom Functions ======================================= ;;
 
@@ -219,14 +211,13 @@
   (define-key map (kbd "C-z") nil)
   (define-key map (kbd "C-x C-z") nil)
 
-  (define-key map (kbd "C-c c") #'copy-whole-buffer)
-  (define-key map (kbd "<backtab>") #'format-current-buffer)
-
   (define-key map (kbd "C-h C-r") #'restart-emacs)
-  (define-key map (kbd "C-c C-r") #'query-replace)
 
   (define-key map (kbd "C-;") #'comment-line)
+  (define-key map (kbd "C-c c") #'copy-whole-buffer)
   (define-key map (kbd "C-c d") #'duplicate-line)
+
+  (define-key map (kbd "C-x C-r") #'recentf)
   (define-key map (kbd "C-x f") #'project-find-file)
 
   (define-key map (kbd "M-(") #'insert-pair)
@@ -235,15 +226,16 @@
   (define-key map (kbd "M-[") #'insert-pair)
 
   ;; Buffer
-  (define-key map (kbd "C-x C-r") #'recentf)
-  (define-key map (kbd "C-x C-b") #'switch-to-buffer)
   (define-key map (kbd "C-x b") #'ibuffer)
   (define-key map (kbd "C-c C-p") #'previous-buffer)
   (define-key map (kbd "C-c C-n") #'next-buffer)
-  ;; (define-key map (kbd "C-o") #'other-window)
+  (define-key map (kbd "C-c C-o") #'other-window)
+  (define-key map (kbd "C-x C-b") #'switch-to-buffer)
   (define-key map (kbd "C-x k") #'kill-current-buffer)
   (define-key map (kbd "C-x M-k") #'kill-buffer-other-window)
+  (define-key map (kbd "<backtab>") #'format-current-buffer)
 
+  (define-key map (kbd "C-c C-r") #'query-replace)
   (define-key map (kbd "M-z") #'zap-up-to-char)
   (define-key map (kbd "C-z") #'zap-to-char)
   (define-key map (kbd "C-M-s") #'isearch-forward-symbol-at-point)
@@ -257,14 +249,6 @@
   ;; Toggle stuff
   (define-key map (kbd "C-c t t") #'toggle-theme)
   (define-key map (kbd "C-c t f") #'toggle-frame-fullscreen))
-
-(use-package savehist
-  :ensure nil ; it is built-in
-  :hook (after-init . savehist-mode)
-  :config
-  (setq
-   history-length 10000
-   history-delete-duplicates t))
 
 ;; TAGS ============================================== ;;
 
@@ -297,6 +281,24 @@
 ;; Paste into term
 (eval-after-load "term"
   '(define-key term-raw-map (kbd "C-c C-y") 'term-paste))
+
+;; Auto Revert ====================================== ;;
+
+(use-package autorevert
+  :ensure nil
+  :hook (after-init . global-auto-revert-mode)
+  :config
+  (setq auto-revert-verbose t))
+
+;; Save History ====================================== ;;
+
+(use-package savehist
+  :ensure nil
+  :hook (after-init . savehist-mode)
+  :config
+  (setq
+   history-length 10000
+   history-delete-duplicates t))
 
 ;; Xref ============================================== ;;
 
@@ -337,72 +339,6 @@
   :ensure nil
   :config
   (editorconfig-mode 1))
-
-;; Orderless ========================================= ;;
-
-(use-package orderless
-  :ensure t
-  :demand t
-  :after minibuffer
-  :config
-  ;; Remember to check my `completion-styles' and the
-  ;; `completion-category-overrides'.
-  (setq orderless-matching-styles '(orderless-prefixes orderless-regexp))
-
-  ;; SPC should never complete: use it for `orderless' groups.
-  ;; The `?' is a regexp construct.
-  :bind ( :map minibuffer-local-completion-map
-          ("SPC" . nil)
-          ("?" . nil)))
-
-;; Minibuffer ======================================== ;;
-
-(use-package minibuffer
-  :ensure nil
-  :demand t
-  :config
-  (setq completions-format 'one-column
-        completion-show-help nil
-        completion-show-inline-help nil
-        completion-auto-help 'always
-        completion-auto-select nil
-        completions-detailed t
-        completion-ignore-case t
-        completions-max-height 20
-        completion-flex-nospace nil
-        completion-styles '(basic substring initials flex orderless)
-        completions-header-format nil
-        completions-highlight-face 'completions-highlight
-        minibuffer-visible-completions nil
-        completions-sort 'historical
-        read-answer-short t)
-
-  (setq completion-category-overrides
-        '((file (styles . (basic partial-completion orderless)))
-          (project-file (styles . (basic partial-completion orderless)))
-          (bookmark (styles . (basic substring)))
-          (imenu (styles . (basic substring orderless)))
-          (buffer (styles . (basic substring orderless)))
-          (kill-ring (styles . (emacs22 orderless)))
-          (eglot (styles . (emacs22 substring orderless)))))
-
-  ;; Up/down when completing in the minibuffer
-  (define-key minibuffer-local-map (kbd "C-p") #'minibuffer-previous-completion)
-  (define-key minibuffer-local-map (kbd "C-n") #'minibuffer-next-completion)
-
-  ;; Up/down when competing in a normal buffer
-  (define-key completion-in-region-mode-map (kbd "C-p") #'minibuffer-previous-completion)
-  (define-key completion-in-region-mode-map (kbd "C-n") #'minibuffer-next-completion))
-
-(defun update-completions-on-typing ()
-  "Update the *Completions* buffer for typing, ignoring navigation keys."
-  (when (and (minibufferp)
-             (not (member this-command '(minibuffer-previous-completion minibuffer-next-completion))))
-    (minibuffer-completion-help)))
-
-(add-hook 'minibuffer-setup-hook
-          (lambda ()
-            (add-hook 'post-command-hook #'update-completions-on-typing nil t)))
 
 ;; ISearch =========================================== ;;
 
@@ -503,6 +439,72 @@
                  ".sl")))
   (setq project-vc-extra-root-markers '(".envrc" "package.json" ".project" ".sl")))
 
+;; Orderless ========================================= ;;
+
+(use-package orderless
+  :ensure t
+  :demand t
+  :after minibuffer
+  :config
+  ;; Remember to check my `completion-styles' and the
+  ;; `completion-category-overrides'.
+  (setq orderless-matching-styles '(orderless-prefixes orderless-regexp))
+
+  ;; SPC should never complete: use it for `orderless' groups.
+  ;; The `?' is a regexp construct.
+  :bind ( :map minibuffer-local-completion-map
+          ("SPC" . nil)
+          ("?" . nil)))
+
+;; Minibuffer ======================================== ;;
+
+(use-package minibuffer
+  :ensure nil
+  :demand t
+  :config
+  (setq completions-format 'one-column
+        completion-show-help nil
+        completion-show-inline-help nil
+        completion-auto-help 'always
+        completion-auto-select nil
+        completions-detailed t
+        completion-ignore-case t
+        completions-max-height 20
+        completion-flex-nospace nil
+        completion-styles '(basic substring initials flex orderless)
+        completions-header-format nil
+        completions-highlight-face 'completions-highlight
+        minibuffer-visible-completions nil
+        completions-sort 'historical
+        read-answer-short t)
+
+  (setq completion-category-overrides
+        '((file (styles . (basic partial-completion orderless)))
+          (project-file (styles . (basic partial-completion orderless)))
+          (bookmark (styles . (basic substring)))
+          (imenu (styles . (basic substring orderless)))
+          (buffer (styles . (basic substring orderless)))
+          (kill-ring (styles . (emacs22 orderless)))
+          (eglot (styles . (emacs22 substring orderless)))))
+
+  ;; Up/down when completing in the minibuffer
+  (define-key minibuffer-local-map (kbd "C-p") #'minibuffer-previous-completion)
+  (define-key minibuffer-local-map (kbd "C-n") #'minibuffer-next-completion)
+
+  ;; Up/down when completing in a normal buffer
+  (define-key completion-in-region-mode-map (kbd "C-p") #'minibuffer-previous-completion)
+  (define-key completion-in-region-mode-map (kbd "C-n") #'minibuffer-next-completion))
+
+(defun update-completions-on-typing ()
+  "Update the *Completions* buffer for typing, ignoring navigation keys."
+  (when (and (minibufferp)
+             (not (member this-command '(minibuffer-previous-completion minibuffer-next-completion))))
+    (minibuffer-completion-help)))
+
+(add-hook 'minibuffer-setup-hook
+          (lambda ()
+            (add-hook 'post-command-hook #'update-completions-on-typing nil t)))
+
 ;; Eglot ============================================== ;;
 
 (use-package eglot
@@ -550,6 +552,7 @@
                                            "--header-insertion-decorators=0")))
 
   ;; FIXME: This doesn't always work initially (eval-buffer usually fixes it)
+  ;; TODO: Update this to utilize the local project node_modules instead of global
   (let* ((global-prefix (string-trim (shell-command-to-string "npm config get --global prefix")))
          (modules-path (if (eq system-type 'windows-nt)
                            "node_modules"
@@ -675,6 +678,18 @@
   :config
   (setq marginalia-max-relative-age 0))
 
+;; Highlight TODOs ===================================== ;;
+
+(use-package hl-todo
+  :ensure t
+  :hook (after-init . global-hl-todo-mode)
+  :config
+  (let ((map hl-todo-mode-map))
+    (define-key map (kbd "C-c p") #'hl-todo-previous)
+    (define-key map (kbd "C-c n") #'hl-todo-next)
+    (define-key map (kbd "C-c o") #'hl-todo-occur)
+    (define-key map (kbd "C-c i") #'hl-todo-insert)))
+
 ;; Corfu ============================================== ;;
 
 (use-package corfu
@@ -754,14 +769,6 @@
 (use-package so-long
   :ensure nil
   :hook (after-init . global-so-long-mode))
-
-;; Node Modules ====================================== ;;
-
-;; TODO: Is this package necessary?
-;; (use-package add-node-modules-path
-;;   :config
-;;   (dolist (mode '(typescript-ts-mode js-mode))
-;;     (add-hook mode 'add-node-modules-path)))
 
 ;; HTML ============================================== ;;
 
