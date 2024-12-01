@@ -1,7 +1,7 @@
 ;;; init.el --- My personal emacs config  -*- lexical-binding: t; -*-
 
 ;; Author: Kevin Borling <https://github.com/kborling>
-;; Version: 1.4.0
+;; Version: 1.5.0
 ;; Keywords: configuration
 ;; URL: https://github.com/kborling/emacs.d
 ;; Homepage: https://github.com/kborling/emacs.d
@@ -126,24 +126,18 @@
 
 (setq-default line-spacing 2)
 
-(defvar default-font-size
-  (cond
-   ((eq system-type 'windows-nt) 100)
-   ((eq system-type 'gnu/linux) 120)
-   ((eq system-type 'darwin) 150)))
-
-(defvar default-font-family
-  (cond
-   ((eq system-type 'windows-nt) "Cascadia Code")
-   ((eq system-type 'gnu/linux) "Inconsolata")
-   ((eq system-type 'darwin) "Inconsolata")))
-
-(set-face-attribute 'default nil
-                    :family default-font-family :weight 'regular :height default-font-size)
-(set-face-attribute 'fixed-pitch nil
-                    :family default-font-family :height 1.0)
-(set-face-attribute 'variable-pitch nil
-                    :family "Berkeley Mono Variable" :height 1.0 :weight 'regular)
+(let* ((settings (cond
+                  ((eq system-type 'windows-nt) '(:size 100 :family "Cascadia Code"))
+                  ((eq system-type 'gnu/linux)  '(:size 120 :family "Inconsolata"))
+                  ((eq system-type 'darwin)     '(:size 150 :family "Inconsolata"))))
+       (default-font-size (plist-get settings :size))
+       (default-font-family (plist-get settings :family)))
+  (set-face-attribute 'default nil
+                      :family default-font-family :weight 'regular :height default-font-size)
+  (set-face-attribute 'fixed-pitch nil
+                      :family default-font-family :height 1.0)
+  (set-face-attribute 'variable-pitch nil
+                      :family "Berkeley Mono Variable" :height 1.0 :weight 'regular))
 
 ;; Themes ================================================= ;;
 
@@ -249,14 +243,6 @@
   ;; Toggle stuff
   (define-key map (kbd "C-c t t") #'toggle-theme)
   (define-key map (kbd "C-c t f") #'toggle-frame-fullscreen))
-
-;; TAGS ============================================== ;;
-
-(defun kdb/create-tags (dir-name)
-  "Create tags file using DIR-NAME."
-  (interactive "DDirectory: ")
-  (shell-command
-   (format "%s -f TAGS -e -R %s" (locate-file "ctags" exec-path) (directory-file-name dir-name))))
 
 ;; Ansi-term ====================================== ;;
 
@@ -552,19 +538,19 @@
                                            "--header-insertion-decorators=0")))
 
   ;; FIXME: This doesn't always work initially (eval-buffer usually fixes it)
-  ;; TODO: Update this to utilize the local project node_modules instead of global
   (let* ((global-prefix (string-trim (shell-command-to-string "npm config get --global prefix")))
          (modules-path (if (eq system-type 'windows-nt)
                            "node_modules"
                          "lib/node_modules"))
          (node-modules-path (expand-file-name modules-path global-prefix)))
+    ;; See https://v17.angular.io/guide/language-service#neovim
     (add-to-list 'eglot-server-programs
                  `(angular-template-mode . ("ngserver"
                                             "--stdio"
-                                            "--ngProbeLocations"
-                                            ,node-modules-path
                                             "--tsProbeLocations"
-                                            ,node-modules-path))))
+                                            ,(concat node-modules-path "/typescript/lib")
+                                            "--ngProbeLocations"
+                                            ,(concat node-modules-path "/@angular/language-server/bin")))))
 
   ;; Show all of the available eldoc information when we want it. This way Flymake errors
   ;; don't just get clobbered by docstrings.
@@ -650,7 +636,7 @@
 
 ;; Magit =============================================== ;;
 
-(use-package transient)
+;; (use-package transient)
 
 (use-package ssh-agency
   :if (eq system-type 'windows-nt)
@@ -770,14 +756,6 @@
   :ensure nil
   :hook (after-init . global-so-long-mode))
 
-;; HTML ============================================== ;;
-
-(use-package sgml-mode
-  :ensure nil
-  :config
-  (let ((map sgml-mode-map))
-    (define-key map (kbd "C-c C-d") nil))) ; disable sgml-delete-tag
-
 ;; Angular =========================================== ;;
 
 (use-package angular-mode
@@ -793,11 +771,6 @@
   "A major mode derived from 'html-ts-mode', for editing angular template files with LSP support.")
 ;; TODO Mode must manually be set
 (add-to-list 'auto-mode-alist '("\\.component\\.html\\'" . angular-template-mode))
-
-;; Restclient ==================================== ;;
-
-(use-package restclient)
-(use-package ob-restclient)
 
 ;; EAT ============================================ ;;
 
