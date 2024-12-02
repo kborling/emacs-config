@@ -244,6 +244,21 @@
   (define-key map (kbd "C-c t t") #'toggle-theme)
   (define-key map (kbd "C-c t f") #'toggle-frame-fullscreen))
 
+(defun kdb/keyboard-quit-dwim ()
+  "Do-What-I-Mean behaviour for a general `keyboard-quit'."
+  (interactive)
+  (cond
+   ((region-active-p)
+    (keyboard-quit))
+   ((derived-mode-p 'completion-list-mode)
+    (delete-completion-window))
+   ((> (minibuffer-depth) 0)
+    (abort-recursive-edit))
+   (t
+    (keyboard-quit))))
+
+(define-key global-map (kbd "C-g") #'kdb/keyboard-quit-dwim)
+
 ;; Ansi-term ====================================== ;;
 
 (defadvice kdb-ansi-term (before force-bash)
@@ -481,22 +496,22 @@
   (define-key completion-in-region-mode-map (kbd "C-p") #'minibuffer-previous-completion)
   (define-key completion-in-region-mode-map (kbd "C-n") #'minibuffer-next-completion))
 
-(defun update-completions-on-typing ()
-  "Show or hide the *Completions* buffer based on minibuffer input length.
-The *Completions* buffer is shown after typing at least 2 characters,
-hidden if fewer than 2 characters are present, and ignores navigation commands."
-  (when (and (minibufferp)
-             (not (member this-command '(minibuffer-previous-completion minibuffer-next-completion))))
-    (if (>= (length (minibuffer-contents)) 2)
-        ;; Show the *Completions* buffer if input length is 2 or more
-        (minibuffer-completion-help)
-      ;; Hide the *Completions* buffer if input length is less than 2
-      (when-let ((win (get-buffer-window "*Completions*")))
-        (delete-window win)))))
+;; (defun update-completions-on-typing ()
+;;   "Show or hide the *Completions* buffer based on minibuffer input length.
+;; The *Completions* buffer is shown after typing at least 2 characters,
+;; hidden if fewer than 2 characters are present, and ignores navigation commands."
+;;   (when (and (minibufferp)
+;;              (not (member this-command '(minibuffer-previous-completion minibuffer-next-completion))))
+;;     (if (>= (length (minibuffer-contents)) 2)
+;;         ;; Show the *Completions* buffer if input length is 2 or more
+;;         (minibuffer-completion-help)
+;;       ;; Hide the *Completions* buffer if input length is less than 2
+;;       (when-let ((win (get-buffer-window "*Completions*")))
+;;         (delete-window win)))))
 
-(add-hook 'minibuffer-setup-hook
-          (lambda ()
-            (add-hook 'post-command-hook #'update-completions-on-typing nil t)))
+;; (add-hook 'minibuffer-setup-hook
+;;           (lambda ()
+;;             (add-hook 'post-command-hook #'update-completions-on-typing nil t)))
 
 ;; Eglot ============================================== ;;
 
