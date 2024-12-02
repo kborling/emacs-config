@@ -442,27 +442,6 @@
           ("SPC" . nil)
           ("?" . nil)))
 
-;; Fussy =============================================== ;;
-
-(use-package fussy
-  :config
-  (setq fussy-use-cache t)
-  (setq fussy-filter-fn 'fussy-filter-default)
-  (setq fussy-compare-same-score-fn 'fussy-histlen->strlen<)
-  (push 'fussy completion-styles)
-
-  (advice-add 'corfu--capf-wrapper :before 'fussy-wipe-cache)
-
-  (add-hook 'corfu-mode-hook
-            (lambda ()
-              (setq-local fussy-max-candidate-limit 5000
-                          fussy-default-regex-fn 'fussy-pattern-first-letter
-                          fussy-prefer-prefix nil))))
-
-  ;; (with-eval-after-load 'eglot
-  ;;   (add-to-list 'completion-category-overrides
-  ;;                '(eglot (styles fussy basic)))))
-
 ;; Minibuffer ======================================== ;;
 
 (use-package minibuffer
@@ -479,7 +458,6 @@
         completions-max-height 20
         completion-flex-nospace nil
         completion-styles '(basic substring initials flex orderless)
-        completion-styles '(fussy basic)
         completions-header-format nil
         completions-highlight-face 'completions-highlight
         minibuffer-visible-completions nil
@@ -487,28 +465,13 @@
         read-answer-short t)
 
   (setq completion-category-overrides
-        '((file (styles . (fussy basic partial-completion)))
-          (project-file (styles . (fussy basic partial-completion)))
-          (bookmark (styles . (fussy basic substring))))
-          (imenu (styles . (fussy basic substring)))
-          (buffer (styles . (fussy basic substring)))
-          (kill-ring (styles . (fussy emacs22)))
-          (eglot (styles . (fussy emacs22 substring))))
-  ;;   completion-styles '(basic substring initials flex orderless)
-  ;;   completions-header-format nil
-  ;;   completions-highlight-face 'completions-highlight
-  ;;   minibuffer-visible-completions nil
-  ;;   completions-sort 'historical
-  ;;   read-answer-short t)
-
-  ;; (setq completion-category-overrides
-  ;;       '((file (styles . (basic partial-completion orderless)))
-  ;;         (project-file (styles . (basic partial-completion orderless)))
-  ;;         (bookmark (styles . (basic substring)))
-  ;;         (imenu (styles . (basic substring orderless)))
-  ;;         (buffer (styles . (basic substring orderless)))
-  ;;         (kill-ring (styles . (emacs22 orderless)))
-  ;;         (eglot (styles . (emacs22 substring orderless)))))
+        '((file (styles . (basic partial-completion orderless)))
+          (project-file (styles . (basic partial-completion orderless)))
+          (bookmark (styles . (basic substring)))
+          (imenu (styles . (basic substring orderless)))
+          (buffer (styles . (basic substring orderless)))
+          (kill-ring (styles . (emacs22 orderless)))
+          (eglot (styles . (emacs22 substring orderless)))))
 
   ;; Up/down when completing in the minibuffer
   (define-key minibuffer-local-map (kbd "C-p") #'minibuffer-previous-completion)
@@ -519,10 +482,17 @@
   (define-key completion-in-region-mode-map (kbd "C-n") #'minibuffer-next-completion))
 
 (defun update-completions-on-typing ()
-  "Update the *Completions* buffer for typing, ignoring navigation keys."
+  "Show or hide the *Completions* buffer based on minibuffer input length.
+The *Completions* buffer is shown after typing at least 2 characters,
+hidden if fewer than 2 characters are present, and ignores navigation commands."
   (when (and (minibufferp)
              (not (member this-command '(minibuffer-previous-completion minibuffer-next-completion))))
-    (minibuffer-completion-help)))
+    (if (>= (length (minibuffer-contents)) 2)
+        ;; Show the *Completions* buffer if input length is 2 or more
+        (minibuffer-completion-help)
+      ;; Hide the *Completions* buffer if input length is less than 2
+      (when-let ((win (get-buffer-window "*Completions*")))
+        (delete-window win)))))
 
 (add-hook 'minibuffer-setup-hook
           (lambda ()
