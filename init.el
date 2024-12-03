@@ -208,7 +208,7 @@
   (define-key map (kbd "C-h C-r") #'restart-emacs)
 
   (define-key map (kbd "C-;") #'comment-line)
-  (define-key map (kbd "C-c c") #'copy-whole-buffer)
+  (define-key map (kbd "C-c b") #'copy-whole-buffer)
   (define-key map (kbd "C-c d") #'duplicate-line)
 
   (define-key map (kbd "C-x C-r") #'recentf)
@@ -476,6 +476,7 @@
         completions-header-format nil
         completions-highlight-face 'completions-highlight
         minibuffer-visible-completions nil
+        enable-recursive-minibuffers t
         completions-sort 'historical
         read-answer-short t)
 
@@ -495,23 +496,6 @@
   ;; Up/down when completing in a normal buffer
   (define-key completion-in-region-mode-map (kbd "C-p") #'minibuffer-previous-completion)
   (define-key completion-in-region-mode-map (kbd "C-n") #'minibuffer-next-completion))
-
-;; (defun update-completions-on-typing ()
-;;   "Show or hide the *Completions* buffer based on minibuffer input length.
-;; The *Completions* buffer is shown after typing at least 2 characters,
-;; hidden if fewer than 2 characters are present, and ignores navigation commands."
-;;   (when (and (minibufferp)
-;;              (not (member this-command '(minibuffer-previous-completion minibuffer-next-completion))))
-;;     (if (>= (length (minibuffer-contents)) 2)
-;;         ;; Show the *Completions* buffer if input length is 2 or more
-;;         (minibuffer-completion-help)
-;;       ;; Hide the *Completions* buffer if input length is less than 2
-;;       (when-let ((win (get-buffer-window "*Completions*")))
-;;         (delete-window win)))))
-
-;; (add-hook 'minibuffer-setup-hook
-;;           (lambda ()
-;;             (add-hook 'post-command-hook #'update-completions-on-typing nil t)))
 
 ;; Eglot ============================================== ;;
 
@@ -593,13 +577,12 @@
                   csharp-mode))
     (add-hook (intern (concat (symbol-name mode) "-hook")) #'eglot-ensure)))
 
-;; NOTE: Be sure to grab the latest release 'https://github.com/blahgeek/emacs-lsp-booster/releases'
+;; NOTE: Be sure to grab the laotest release 'https://github.com/blahgeek/emacs-lsp-booster/releases'
 ;; and place in PATH
-;; TODO: Is this needed?
-;; (use-package eglot-booster
-;;   :after eglot
-;;   :vc (:url "https://github.com/jdtsmith/eglot-booster" :rev :newest)
-;;   :config (eglot-booster-mode))
+(use-package eglot-booster
+  :after eglot
+  :vc (:url "https://github.com/jdtsmith/eglot-booster" :rev :newest)
+  :config (eglot-booster-mode))
 
 ;; Flymake ========================================= ;;
 (use-package flymake
@@ -795,6 +778,30 @@
 ;; TODO Mode must manually be set
 (add-to-list 'auto-mode-alist '("\\.component\\.html\\'" . angular-template-mode))
 
+;; Embark ============================================ ;;
+
+(use-package embark
+  :ensure t
+  :bind
+  (("C-," . embark-act)
+   ("M-<return>" . embark-dwim)
+   ("C-c C-," . embark-act)
+   ("C-c C-." . embark-act-all)
+   ("C-c C-;" . embark-collect)
+   ("C-h B" . embark-bindings))
+  :bind
+  ([remap describe-bindings] . embark-bindings)
+  :custom
+  (prefix-help-command #'embark-prefix-help-command)
+  :init
+  (setq prefix-help-command #'embark-prefix-help-command)
+  :config
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none)))))
+
 ;; EAT ============================================ ;;
 
 (use-package eat
@@ -885,12 +892,6 @@
 (use-package org-modern
   :after org
   :hook (org-mode . global-org-modern-mode))
-
-;; Hyperbole ========================================= ;;
-
-(use-package hyperbole
-  :ensure t
-  :hook (after-init . hyperbole-mode))
 
 ;; Local Variables:
 ;; no-byte-compile: t
