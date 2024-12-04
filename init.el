@@ -201,48 +201,53 @@
 ;; Keybindings ======================================= ;;
 
 (let ((map global-map))
-  ;; Remove suspend
-  (define-key map (kbd "C-z") nil)
-  (define-key map (kbd "C-x C-z") nil)
+  ;; Remove suspend keys
+  (dolist (key '("C-z" "C-x C-z"))
+    (define-key map (kbd key) nil))
 
-  (define-key map (kbd "C-h C-r") #'restart-emacs)
+  ;; General keybindings
+  (dolist (binding '(("C-h C-r" . restart-emacs)
+                     ("C-;" . comment-line)
+                     ("C-c b" . copy-whole-buffer)
+                     ("C-c d" . duplicate-line)
+                     ("C-x C-r" . recentf)
+                     ("C-x f" . project-find-file)
+                     ("C-c C-r" . query-replace)
+                     ("M-z" . zap-up-to-char)
+                     ("C-z" . zap-to-char)
+                     ("C-M-s" . isearch-forward-symbol-at-point)))
+    (define-key map (kbd (car binding)) (cdr binding)))
 
-  (define-key map (kbd "C-;") #'comment-line)
-  (define-key map (kbd "C-c b") #'copy-whole-buffer)
-  (define-key map (kbd "C-c d") #'duplicate-line)
+  ;; Insert pair shortcuts
+  (dolist (key '("M-(" "M-\"" "M-{" "M-["))
+    (define-key map (kbd key) #'insert-pair))
 
-  (define-key map (kbd "C-x C-r") #'recentf)
-  (define-key map (kbd "C-x f") #'project-find-file)
+  ;; Buffer management
+  (dolist (binding '(("C-x b" . ibuffer)
+                     ("C-c C-p" . previous-buffer)
+                     ("C-c C-n" . next-buffer)
+                     ("C-c C-o" . other-window)
+                     ("C-x C-b" . switch-to-buffer)
+                     ("C-x k" . kill-current-buffer)
+                     ("C-x M-k" . kill-buffer-other-window)
+                     ("<backtab>" . format-current-buffer)))
+    (define-key map (kbd (car binding)) (cdr binding)))
 
-  (define-key map (kbd "M-(") #'insert-pair)
-  (define-key map (kbd "M-\"") #'insert-pair)
-  (define-key map (kbd "M-{") #'insert-pair)
-  (define-key map (kbd "M-[") #'insert-pair)
+  ;; Opening tools
+  (dolist (binding '(("C-c t e" . eshell)
+                     ("C-c t v" . ansi-term)
+                     ("C-c t d" . dired-jump-other-window)))
+    (define-key map (kbd (car binding)) (cdr binding)))
 
-  ;; Buffer
-  (define-key map (kbd "C-x b") #'ibuffer)
-  (define-key map (kbd "C-c C-p") #'previous-buffer)
-  (define-key map (kbd "C-c C-n") #'next-buffer)
-  (define-key map (kbd "C-c C-o") #'other-window)
-  (define-key map (kbd "C-x C-b") #'switch-to-buffer)
-  (define-key map (kbd "C-x k") #'kill-current-buffer)
-  (define-key map (kbd "C-x M-k") #'kill-buffer-other-window)
-  (define-key map (kbd "<backtab>") #'format-current-buffer)
+  ;; Configuration shortcuts
+  (dolist (binding '(("C-c e v" . config-visit)
+                     ("C-c e r" . config-reload)))
+    (define-key map (kbd (car binding)) (cdr binding)))
 
-  (define-key map (kbd "C-c C-r") #'query-replace)
-  (define-key map (kbd "M-z") #'zap-up-to-char)
-  (define-key map (kbd "C-z") #'zap-to-char)
-  (define-key map (kbd "C-M-s") #'isearch-forward-symbol-at-point)
-  ;; Open stuff
-  (define-key map (kbd "C-c t e") #'eshell)
-  (define-key map (kbd "C-c t t") #'ansi-term)
-  (define-key map (kbd "C-c t d") #'dired-jump-other-window)
-  ;; Config
-  (define-key map (kbd "C-c e v") #'config-visit)
-  (define-key map (kbd "C-c e r") #'config-reload)
-  ;; Toggle stuff
-  (define-key map (kbd "C-c t t") #'toggle-theme)
-  (define-key map (kbd "C-c t f") #'toggle-frame-fullscreen))
+  ;; Toggling features
+  (dolist (binding '(("C-c t t" . toggle-theme)
+                     ("C-c t f" . toggle-frame-fullscreen)))
+    (define-key map (kbd (car binding)) (cdr binding))))
 
 (defun kdb/keyboard-quit-dwim ()
   "Do-What-I-Mean behaviour for a general `keyboard-quit'."
@@ -316,20 +321,18 @@
 
 (use-package recentf
   :ensure nil
+  :hook (after-init . recentf-mode)
   :config
   (setq
    recentf-save-file (locate-user-emacs-file "recentf")
    recentf-max-saved-items 50
-   recentf-exclude '(".gz" ".xz" ".zip" "/elpaca/" "/elpa/" "/opt/" "/.rustup/" "/elpa/" "/ssh:" "/sudo:" "/node_modules/" "/nix/"))
-  :init
-  (add-hook 'after-init-hook #'recentf-mode))
+   recentf-exclude '(".gz" ".xz" ".zip" "/elpaca/" "/elpa/" "/opt/" "/.rustup/" "/elpa/" "/ssh:" "/sudo:" "/node_modules/" "/nix/")))
 
 ;; Which Key ========================================= ;;
 
 (use-package which-key
   :ensure nil
   :defer 0
-  ;; :diminish
   :config
   (which-key-mode)
   (setq which-key-idle-delay 1))
@@ -345,6 +348,9 @@
 
 (use-package isearch
   :ensure nil
+  :bind (:map isearch-mode-map
+              ("C-g" . isearch-cancel)
+              ("M-/" . isearch-complete))
   :config
   (setq
    search-highlight t
@@ -361,11 +367,7 @@
    lazy-highlight-initial-delay 0.5
    lazy-highlight-no-delay-length 3
    isearch-wrap-pause t)
-
-  (define-key minibuffer-local-isearch-map (kbd "M-/") #'isearch-complete-edit)
-  (let ((map isearch-mode-map))
-    (define-key map (kbd "C-g") #'isearch-cancel) ; instead of `isearch-abort'
-    (define-key map (kbd "M-/") #'isearch-complete)))
+  (define-key minibuffer-local-isearch-map (kbd "M-/") #'isearch-complete-edit))
 
 ;; Dabbrev =========================================== ;;
 
@@ -373,17 +375,18 @@
   :ensure nil
   :commands (dabbrev-expand dabbrev-completion)
   :config
-  (setq dabbrev-abbrev-char-regexp "\\sw\\|\\s_")
-  (setq dabbrev-abbrev-skip-leading-regexp "[$*/=~']")
-  (setq dabbrev-backward-only nil)
-  (setq dabbrev-case-distinction 'case-replace)
-  (setq dabbrev-case-fold-search nil)
-  (setq dabbrev-case-replace 'case-replace)
-  (setq dabbrev-check-other-buffers t)
-  (setq dabbrev-eliminate-newlines t)
-  (setq dabbrev-upcase-means-case-search t)
-  (setq dabbrev-ignored-buffer-modes
-        '(archive-mode image-mode docview-mode pdf-view-mode)))
+  (setq
+   dabbrev-abbrev-char-regexp "\\sw\\|\\s_"
+   dabbrev-abbrev-skip-leading-regexp "[$*/=~']"
+   dabbrev-backward-only nil
+   dabbrev-case-distinction 'case-replace
+   dabbrev-case-fold-search nil
+   dabbrev-case-replace 'case-replace
+   dabbrev-check-other-buffers t
+   dabbrev-eliminate-newlines t
+   dabbrev-upcase-means-case-search t
+   dabbrev-ignored-buffer-modes
+   '(archive-mode image-mode docview-mode pdf-view-mode)))
 
 ;; Ediff ======================================== ;;
 
@@ -403,21 +406,20 @@
 (use-package dired
   :ensure nil
   :commands (dired)
-  :hook
-  ((dired-mode . dired-hide-details-mode)
-   (dired-mode . hl-line-mode))
+  :hook ((dired-mode . dired-hide-details-mode)
+         (dired-mode . hl-line-mode))
   :config
-  (setq dired-recursive-copies 'always)
-  (setq dired-recursive-deletes 'always)
-  (setq delete-by-moving-to-trash t)
-  (setq dired-dwim-target t))
+  (setq
+   dired-recursive-copies 'always
+   dired-recursive-deletes 'always
+   delete-by-moving-to-trash t
+   dired-dwim-target t))
 
 ;; Ibuffer ============================================== ;;
 
 (use-package ibuffer
   :ensure nil
-  :hook
-  ((ibuffer-mode . hl-line-mode))
+  :hook (ibuffer-mode . hl-line-mode)
   :config
   (setq
    ibuffer-expert t
@@ -433,12 +435,9 @@
 (use-package project
   :ensure nil
   :config
-  (setq vc-directory-exclusion-list
-        (nconc vc-directory-exclusion-list
-               '("node_modules"
-                 "elpa"
-                 ".sl")))
-  (setq project-vc-extra-root-markers '(".envrc" "package.json" ".project" ".sl")))
+  (setq
+   vc-directory-exclusion-list (nconc vc-directory-exclusion-list '("node_modules" "elpa" ".sl"))
+   project-vc-extra-root-markers '(".envrc" "package.json" ".project" ".sl")))
 
 ;; Orderless ========================================= ;;
 
@@ -446,16 +445,11 @@
   :ensure t
   :demand t
   :after minibuffer
+  :bind (:map minibuffer-local-completion-map
+              ("SPC" . nil)
+              ("?" . nil))
   :config
-  ;; Remember to check my `completion-styles' and the
-  ;; `completion-category-overrides'.
-  (setq orderless-matching-styles '(orderless-prefixes orderless-regexp))
-
-  ;; SPC should never complete: use it for `orderless' groups.
-  ;; The `?' is a regexp construct.
-  :bind ( :map minibuffer-local-completion-map
-          ("SPC" . nil)
-          ("?" . nil)))
+  (setq orderless-matching-styles '(orderless-prefixes orderless-regexp)))
 
 ;; Minibuffer ======================================== ;;
 
@@ -463,31 +457,33 @@
   :ensure nil
   :demand t
   :config
-  (setq completions-format 'one-column
-        completion-show-help nil
-        completion-show-inline-help nil
-        completion-auto-help 'always
-        completion-auto-select nil
-        completions-detailed t
-        completion-ignore-case t
-        completions-max-height 20
-        completion-flex-nospace nil
-        completion-styles '(basic substring initials flex orderless)
-        completions-header-format nil
-        completions-highlight-face 'completions-highlight
-        minibuffer-visible-completions nil
-        enable-recursive-minibuffers t
-        completions-sort 'historical
-        read-answer-short t)
+  (setq
+   completions-format 'one-column
+   completion-show-help nil
+   completion-show-inline-help nil
+   completion-auto-help 'always
+   completion-auto-select nil
+   completions-detailed t
+   completion-ignore-case t
+   completions-max-height 20
+   completion-flex-nospace nil
+   completion-styles '(basic substring initials flex orderless)
+   completions-header-format nil
+   completions-highlight-face 'completions-highlight
+   minibuffer-visible-completions nil
+   enable-recursive-minibuffers t
+   completions-sort 'historical
+   read-answer-short t)
 
-  (setq completion-category-overrides
-        '((file (styles . (basic partial-completion orderless)))
-          (project-file (styles . (basic partial-completion orderless)))
-          (bookmark (styles . (basic substring)))
-          (imenu (styles . (basic substring orderless)))
-          (buffer (styles . (basic substring orderless)))
-          (kill-ring (styles . (emacs22 orderless)))
-          (eglot (styles . (emacs22 substring orderless)))))
+  (setq
+   completion-category-overrides
+   '((file (styles . (basic partial-completion orderless)))
+     (project-file (styles . (basic partial-completion orderless)))
+     (bookmark (styles . (basic substring)))
+     (imenu (styles . (basic substring orderless)))
+     (buffer (styles . (basic substring orderless)))
+     (kill-ring (styles . (emacs22 orderless)))
+     (eglot (styles . (emacs22 substring orderless)))))
 
   ;; Up/down when completing in the minibuffer
   (define-key minibuffer-local-map (kbd "C-p") #'minibuffer-previous-completion)
@@ -501,26 +497,27 @@
 
 (use-package eglot
   :ensure nil
+  :bind (:map eglot-mode-map
+              ("C-c c r" . eglot-rename)
+              ("C-c c f" . eglot-format-buffer)
+              ("C-c c o" . eglot-code-action-organize-imports)
+              ("C-c c a" . eglot-code-actions)
+              ("C-." . eglot-code-actions)
+              ("C-c c q" . eglot-code-action-quickfix)
+              ("C-c c e" . eglot-code-action-extract)
+              ("C-c c j" . eglot-code-action-inline)
+              ("C-c c k" . eglot-code-action-rewrite)
+              ("C-c c i" . eglot-find-implementation)
+              ("C-c c d" . eglot-find-declaration)
+              ("C-c c t" . eglot-find-typeDefinition)
+              ("C-c c h" . eldoc))
   :config
-  (setq eglot-sync-connect 0
-        eglot-send-changes-idle-time 0
-        eglot-ignored-server-capabilities '(:hoverProvider
-                                            :documentHighlightProvider)
-        eglot-autoshutdown t)
-  (let ((map eglot-mode-map))
-    (define-key map (kbd "C-c c r") #'eglot-rename)
-    (define-key map (kbd "C-c c f") #'eglot-format-buffer)
-    (define-key map (kbd "C-c c o") #'eglot-code-action-organize-imports)
-    (define-key map (kbd "C-c c a") #'eglot-code-actions)
-    (define-key map (kbd "C-.") #'eglot-code-actions)
-    (define-key map (kbd "C-c c q") #'eglot-code-action-quickfix)
-    (define-key map (kbd "C-c c e") #'eglot-code-action-extract)
-    (define-key map (kbd "C-c c j") #'eglot-code-action-inline)
-    (define-key map (kbd "C-c c k") #'eglot-code-action-rewrite)
-    (define-key map (kbd "C-c c i") #'eglot-find-implementation)
-    (define-key map (kbd "C-c c d") #'eglot-find-declaration)
-    (define-key map (kbd "C-c c t") #'eglot-find-typeDefinition)
-    (define-key map (kbd "C-c c h") #'eldoc))
+  (setq
+   eglot-sync-connect 0
+   eglot-send-changes-idle-time 0
+   eglot-autoshutdown t
+   eglot-ignored-server-capabilities '(:hoverProvider
+                                       :documentHighlightProvider))
 
   ;; Language Servers
   (add-to-list 'eglot-server-programs '(csharp-mode . ("omnisharp" "-lsp")))
@@ -603,14 +600,15 @@
      flymake-mode-line-note-counter ""))
 
   (define-key ctl-x-x-map "m" #'flymake-mode)
-  (let ((map flymake-mode-map))
-    (define-key map (kbd "C-c f s") #'flymake-start)
-    (define-key map (kbd "C-c f d") #'flymake-show-buffer-diagnostics)
-    (define-key map (kbd "C-c f D") #'flymake-show-project-diagnostics)
-    (define-key map (kbd "C-c f n") #'flymake-goto-next-error)
-    (define-key map (kbd "C-c f p") #'flymake-goto-prev-error))
+
+  :bind (:map flymake-mode-map
+              ("C-c f s" . flymake-start)
+              ("C-c f d" . flymake-show-buffer-diagnostics)
+              ("C-c f D" . flymake-show-project-diagnostics)
+              ("C-c f n" . flymake-goto-next-error)
+              ("C-c f p" . flymake-goto-prev-error))
+  :hook (flymake-mode . prog-mode-hook)
   :init
-  (add-hook 'prog-mode-hook 'flymake-mode)
   (add-hook 'flymake-mode-hook
             (lambda ()
               (setq eldoc-documentation-functions
@@ -623,13 +621,13 @@
   :ensure nil
   :config
   (global-eldoc-mode 1)
-  (setq eldoc-echo-area-use-multiline-p t
-        eldoc-idle-delay 0.75))
+  (setq
+   eldoc-echo-area-use-multiline-p t
+   eldoc-idle-delay 0.75))
 
 (use-package eldoc-box
   :after eldoc
-  :hook
-  ((eldoc-box-hover-mode . eglot-managed-mode-mode)))
+  :hook (eldoc-box-hover-mode . eglot-managed-mode-hook))
 
 ;; Exec Path ========================================= ;;
 
@@ -640,27 +638,12 @@
   ;; (setq exec-path-from-shell-variables '("PATH" "GOPATH"))
   (exec-path-from-shell-initialize))
 
-;; Magit =============================================== ;;
+;; Version Control =============================================== ;;
 
-;; (use-package transient)
-
+;; TODO: Test if this is needed for vc-mode
 (use-package ssh-agency
   :if (eq system-type 'windows-nt)
   :vc (:url "https://github.com/magit/ssh-agency" :rev :newest))
-
-(use-package magit
-  :bind (("C-c g g" . magit-status)
-         ("C-c g s" . magit-status)
-         ("C-c g i" . magit-init)
-         ("C-c g c" . magit-clone)
-         ("C-c g l" . magit-pull)
-         ("C-c g p" . magit-push)
-         ("C-c g f" . magit-fetch-all)
-         ("C-c g b" . magit-branch)
-         ("C-c g d" . magit-diff)
-         ("C-c g r" . magit-remote)
-         ("C-c g z" . magit-stash)
-         ("C-c g Z" . magit-apply)))
 
 ;; Marginalia ======================================== ;;
 
@@ -675,12 +658,11 @@
 (use-package hl-todo
   :ensure t
   :hook (after-init . global-hl-todo-mode)
-  :config
-  (let ((map hl-todo-mode-map))
-    (define-key map (kbd "C-c p") #'hl-todo-previous)
-    (define-key map (kbd "C-c n") #'hl-todo-next)
-    (define-key map (kbd "C-c o") #'hl-todo-occur)
-    (define-key map (kbd "C-c i") #'hl-todo-insert)))
+  :bind (:map hl-todo-mode-map
+              ("C-c p" . hl-todo-previous)
+              ("C-c n" . hl-todo-next)
+              ("C-c o" . hl-todo-occur)
+              ("C-c i" . hl-todo-insert)))
 
 ;; Corfu ============================================== ;;
 
@@ -689,11 +671,9 @@
   :hook (after-init . global-corfu-mode)
   :bind (:map corfu-map ("<tab>" . corfu-complete))
   :config
-  (setq tab-always-indent 'complete)
-  (setq corfu-preview-current nil)
-  (setq corfu-min-width 20)
-
-  (setq corfu-popupinfo-delay '(1.25 . 0.5))
+  (setq corfu-preview-current nil
+        corfu-min-width 20
+        corfu-popupinfo-delay '(1.25 . 0.5))
   (corfu-popupinfo-mode 1) ; shows documentation after `corfu-popupinfo-delay'
 
   ;; Sort by input history (no need to modify `corfu-sort-function').
@@ -705,11 +685,12 @@
 
 (use-package cape
   :config
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-keyword)
-  (add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
-  (add-to-list 'completion-at-point-functions #'cape-sgml)
+  (dolist (func '(cape-dabbrev
+                  cape-file
+                  cape-keyword
+                  cape-elisp-symbol
+                  cape-sgml))
+    (add-to-list 'completion-at-point-functions func))
 
   ;; https://github.com/minad/corfu/wiki#continuously-update-the-candidates
   (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
@@ -717,7 +698,7 @@
 ;; Templates =========================================== ;;
 
 (use-package tempel
-  :bind (("C-<tab>" . tempel-complete) ;; Alternative tempel-expand
+  :bind (("C-<tab>" . tempel-complete)
          ("M-+" . tempel-insert)
          ("C-1" . tempel-previous)
          ("C-2" . tempel-next)))
@@ -750,7 +731,6 @@
 ;; Multiple Cursors ================================== ;;
 
 (use-package multiple-cursors
-  ;; :diminish
   :bind (("C->" . mc/mark-next-like-this)
          ("C-<" . mc/mark-previous-like-this)
          ("C-c m" . mc/mark-all-like-this)
@@ -775,38 +755,13 @@
 
 (define-derived-mode angular-template-mode html-ts-mode "Angular Template"
   "A major mode derived from 'html-ts-mode', for editing angular template files with LSP support.")
-;; TODO Mode must manually be set
 (add-to-list 'auto-mode-alist '("\\.component\\.html\\'" . angular-template-mode))
-
-;; Embark ============================================ ;;
-
-(use-package embark
-  :ensure t
-  :bind
-  (("C-," . embark-act)
-   ("M-<return>" . embark-dwim)
-   ("C-c C-," . embark-act)
-   ("C-c C-." . embark-act-all)
-   ("C-c C-;" . embark-collect)
-   ("C-h B" . embark-bindings))
-  :bind
-  ([remap describe-bindings] . embark-bindings)
-  :custom
-  (prefix-help-command #'embark-prefix-help-command)
-  :init
-  (setq prefix-help-command #'embark-prefix-help-command)
-  :config
-  ;; Hide the mode line of the Embark live/completions buffers
-  (add-to-list 'display-buffer-alist
-               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-                 nil
-                 (window-parameters (mode-line-format . none)))))
 
 ;; EAT ============================================ ;;
 
 (use-package eat
-  :config
-  (add-hook 'eshell-load-hook #'eat-eshell-mode))
+  :ensure t
+  :hook (eshell-load-hook . eat-eshell-mode))
 
 ;; Copilot ======================================== ;;
 
@@ -834,9 +789,8 @@
   (variable-pitch-mode 1)
   (visual-line-mode 1)
   (electric-indent-local-mode -1)
-  (setq cursor-type 'bar)
   ;; (auto-fill-mode 1)
-  )
+  (setq cursor-type 'bar))
 
 (use-package org
   :ensure nil
@@ -892,6 +846,16 @@
 (use-package org-modern
   :after org
   :hook (org-mode . global-org-modern-mode))
+
+;; Hypebole ===================================== ;;
+
+(use-package hyperbole
+  :ensure t
+  :hook (after-init . hyperbole-mode)
+  :config
+  (setq
+   hbmap:dir-user org-directory
+   hbmap:filename "personal-buttons.hypb"))
 
 ;; Local Variables:
 ;; no-byte-compile: t
