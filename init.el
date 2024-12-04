@@ -607,7 +607,7 @@
               ("C-c f D" . flymake-show-project-diagnostics)
               ("C-c f n" . flymake-goto-next-error)
               ("C-c f p" . flymake-goto-prev-error))
-  :hook (flymake-mode . prog-mode-hook)
+  :hook (prog-mode-hook . flymake-mode)
   :init
   (add-hook 'flymake-mode-hook
             (lambda ()
