@@ -388,7 +388,18 @@
    dabbrev-ignored-buffer-modes
    '(archive-mode image-mode docview-mode pdf-view-mode)))
 
-;; Ediff ======================================== ;;
+;; Diff ========================================= ;;
+
+(use-package diff-mode
+  :ensure nil
+  :defer t
+  :config
+  (setq
+   diff-advance-after-apply-hunk t
+   diff-update-on-the-fly t
+   diff-refine nil
+   diff-font-lock-prettify t
+   diff-font-lock-syntax 'hunk-also))
 
 (use-package ediff
   :ensure nil
@@ -398,7 +409,7 @@
    ediff-make-buffers-readonly-at-startup nil
    ediff-merge-revisions-with-ancestor t
    ediff-show-clashes-only t
-   ediff-split-window-function 'split-window-vertically
+   ediff-split-window-function 'split-window-horizontally
    ediff-window-setup-function 'ediff-setup-windows-plain))
 
 ;; Dired ============================================= ;;
@@ -627,7 +638,7 @@
 
 (use-package eldoc-box
   :after eldoc
-  :hook (eldoc-box-hover-mode . eglot-managed-mode-hook))
+  :hook (eglot-managed-mode-hook . eldoc-box-hover-mode))
 
 ;; Exec Path ========================================= ;;
 
@@ -640,227 +651,272 @@
 
 ;; Version Control =============================================== ;;
 
-;; TODO: Test if this is needed for vc-mode
+(use-package vc
+  :ensure nil
+  :init
+  (setq vc-follow-symlinks t)
+  :config
+  (setq vc-handled-backends '(Git)))
+
 (use-package ssh-agency
   :if (eq system-type 'windows-nt)
   :vc (:url "https://github.com/magit/ssh-agency" :rev :newest))
 
-;; Marginalia ======================================== ;;
+(use-package transient
+  :defer t)
 
-(use-package marginalia
+(use-package magit
   :ensure t
-  :hook (after-init . marginalia-mode)
+  :bind ("C-c g" . magit-status)
+  :init
+  (setq magit-define-global-key-bindings nil)
   :config
-  (setq marginalia-max-relative-age 0))
+  (setq
+   magit-status-headers-hook nil
+   magit-status-sections-hook'(magit-insert-error-header
+                               magit-insert-head-branch-header
+                               magit-insert-unstaged-changes
+                               magit-insert-staged-changes
+                               magit-insert-unpushed-to-pushremote)))
 
-;; Highlight TODOs ===================================== ;;
+  ;; Marginalia ======================================== ;;
 
-(use-package hl-todo
-  :ensure t
-  :hook (after-init . global-hl-todo-mode)
-  :bind (:map hl-todo-mode-map
-              ("C-c p" . hl-todo-previous)
-              ("C-c n" . hl-todo-next)
-              ("C-c o" . hl-todo-occur)
-              ("C-c i" . hl-todo-insert)))
+  (use-package marginalia
+    :ensure t
+    :hook (after-init . marginalia-mode)
+    :config
+    (setq marginalia-max-relative-age 0))
 
-;; Corfu ============================================== ;;
+  ;; Highlight TODOs ===================================== ;;
 
-(use-package corfu
-  :ensure t
-  :hook (after-init . global-corfu-mode)
-  :bind (:map corfu-map ("<tab>" . corfu-complete))
-  :config
-  (setq corfu-preview-current nil
-        corfu-min-width 20
-        corfu-popupinfo-delay '(1.25 . 0.5))
-  (corfu-popupinfo-mode 1) ; shows documentation after `corfu-popupinfo-delay'
+  (use-package hl-todo
+    :ensure t
+    :hook (after-init . global-hl-todo-mode)
+    :bind (:map hl-todo-mode-map
+                ("C-c p" . hl-todo-previous)
+                ("C-c n" . hl-todo-next)
+                ("C-c o" . hl-todo-occur)
+                ("C-c i" . hl-todo-insert)))
 
-  ;; Sort by input history (no need to modify `corfu-sort-function').
-  (with-eval-after-load 'savehist
-    (corfu-history-mode 1)
-    (add-to-list 'savehist-additional-variables 'corfu-history)))
+  ;; Corfu ============================================== ;;
 
-;; Cape ================================================ ;;
+  (use-package corfu
+    :ensure t
+    :hook (after-init . global-corfu-mode)
+    :bind (:map corfu-map ("<tab>" . corfu-complete))
+    :config
+    (setq corfu-preview-current nil
+          corfu-min-width 20
+          corfu-popupinfo-delay '(1.25 . 0.5))
+    (corfu-popupinfo-mode 1) ; shows documentation after `corfu-popupinfo-delay'
 
-(use-package cape
-  :config
-  (dolist (func '(cape-dabbrev
-                  cape-file
-                  cape-keyword
-                  cape-elisp-symbol
-                  cape-sgml))
-    (add-to-list 'completion-at-point-functions func))
+    ;; Sort by input history (no need to modify `corfu-sort-function').
+    (with-eval-after-load 'savehist
+      (corfu-history-mode 1)
+      (add-to-list 'savehist-additional-variables 'corfu-history)))
 
-  ;; https://github.com/minad/corfu/wiki#continuously-update-the-candidates
-  (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
+  ;; Cape ================================================ ;;
 
-;; Templates =========================================== ;;
+  (use-package cape
+    :config
+    (dolist (func '(cape-dabbrev
+                    cape-file
+                    cape-keyword
+                    cape-elisp-symbol
+                    cape-sgml))
+      (add-to-list 'completion-at-point-functions func))
 
-(use-package tempel
-  :bind (("C-<tab>" . tempel-complete)
-         ("M-+" . tempel-insert)
-         ("C-1" . tempel-previous)
-         ("C-2" . tempel-next)))
+    ;; https://github.com/minad/corfu/wiki#continuously-update-the-candidates
+    (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
 
-(use-package tempel-collection
-  :after tempel)
+  ;; Templates =========================================== ;;
 
-;; Treesitter ========================================== ;;
+  (use-package tempel
+    :bind (("C-<tab>" . tempel-complete)
+           ("M-+" . tempel-insert)
+           ("C-1" . tempel-previous)
+           ("C-2" . tempel-next)))
 
-(use-package treesit-auto
-  :custom
-  (treesit-auto-install 'prompt)
-  :config
-  (treesit-auto-add-to-auto-mode-alist 'all)
-  (global-treesit-auto-mode))
+  (use-package tempel-collection
+    :after tempel)
 
-(use-package combobulate
-  :vc (:url "https://github.com/mickeynp/combobulate" :rev :newest)
-  :preface
-  (setq combobulate-key-prefix "C-c b")
-  :hook ((python-ts-mode . combobulate-mode)
-         (js-ts-mode . combobulate-mode)
-         (css-ts-mode . combobulate-mode)
-         (html-ts-mode . combobulate-mode)
-         (yaml-ts-mode . combobulate-mode)
-         (json-ts-mode . combobulate-mode)
-         (typescript-ts-mode . combobulate-mode)
-         (tsx-ts-mode . combobulate-mode)))
+  ;; Treesitter ========================================== ;;
 
-;; Multiple Cursors ================================== ;;
+  (use-package treesit
+    :ensure nil
+    :config
+    (setq treesit-font-lock-level 4))
 
-(use-package multiple-cursors
-  :bind (("C->" . mc/mark-next-like-this)
-         ("C-<" . mc/mark-previous-like-this)
-         ("C-c m" . mc/mark-all-like-this)
-         ("C-S-c C-S-c" . mc/mark-edit-lines)))
+  (use-package treesit-auto
+    :custom
+    (treesit-auto-install 'prompt)
+    :config
+    (treesit-auto-add-to-auto-mode-alist 'all)
+    (global-treesit-auto-mode))
 
-;; So Long =========================================== ;;
+  (use-package combobulate
+    :vc (:url "https://github.com/mickeynp/combobulate" :rev :newest)
+    :preface
+    (setq combobulate-key-prefix "C-c b")
+    :hook ((python-ts-mode . combobulate-mode)
+           (js-ts-mode . combobulate-mode)
+           (css-ts-mode . combobulate-mode)
+           (html-ts-mode . combobulate-mode)
+           (yaml-ts-mode . combobulate-mode)
+           (json-ts-mode . combobulate-mode)
+           (typescript-ts-mode . combobulate-mode)
+           (tsx-ts-mode . combobulate-mode)))
 
-(use-package so-long
-  :ensure nil
-  :hook (after-init . global-so-long-mode))
+  ;; Multiple Cursors ================================== ;;
 
-;; Angular =========================================== ;;
+  (use-package multiple-cursors
+    :bind (("C->" . mc/mark-next-like-this)
+           ("C-<" . mc/mark-previous-like-this)
+           ("C-c m" . mc/mark-all-like-this)
+           ("C-S-c C-S-c" . mc/mark-edit-lines)))
 
-(use-package angular-mode
-  :vc (:url "https://github.com/kborling/angular-mode" :rev :newest)
-  :config
-  (defun angular-open-interface ()
-    "Open an Angular interface file in the project."
-    (interactive)
-    (angular-open-file "interface"))
-  (global-set-key (kbd "C-c a o f") 'angular-open-interface))
+  ;; So Long =========================================== ;;
 
-(define-derived-mode angular-template-mode html-ts-mode "Angular Template"
-  "A major mode derived from 'html-ts-mode', for editing angular template files with LSP support.")
-(add-to-list 'auto-mode-alist '("\\.component\\.html\\'" . angular-template-mode))
+  (use-package so-long
+    :ensure nil
+    :hook (after-init . global-so-long-mode))
 
-;; EAT ============================================ ;;
+  ;; Angular =========================================== ;;
 
-(use-package eat
-  :ensure t
-  :hook (eshell-load-hook . eat-eshell-mode))
+  (use-package angular-mode
+    :vc (:url "https://github.com/kborling/angular-mode" :rev :newest)
+    :config
+    (defun angular-open-interface ()
+      "Open an Angular interface file in the project."
+      (interactive)
+      (angular-open-file "interface"))
+    (global-set-key (kbd "C-c a o f") 'angular-open-interface))
 
-;; Copilot ======================================== ;;
+  (define-derived-mode angular-template-mode html-ts-mode "Angular Template"
+    "A major mode derived from 'html-ts-mode', for editing angular template files with LSP support.")
+  (add-to-list 'auto-mode-alist '("\\.component\\.html\\'" . angular-template-mode))
 
-(use-package copilot
-  :vc (:url "https://github.com/zerolfx/copilot.el" :rev :newest)
-  :config
-  (global-set-key (kbd "C-c c p") 'copilot-mode)
-  :bind (:map copilot-completion-map
-              ("C-g" . 'copilot-clear-overlay)
-              ("<right>" . 'copilot-accept-completion)
-              ("C-f" . 'copilot-accept-completion)
-              ("M-<right>" . 'copilot-accept-completion-by-word)
-              ("M-f" . 'copilot-accept-completion-by-word)
-              ("C-e" . 'copilot-accept-completion-by-line)
-              ("<end>" . 'copilot-accept-completion-by-line)
-              ("M-n" . 'copilot-next-completion)
-              ("M-p" . 'copilot-previous-completion)))
+  ;; Typescript ===================================== ;;
 
-;; Org Mode ===================================== ;;
+  (use-package typescript-ts-mode
+    :ensure nil
+    :config
+    (add-hook 'typescript-ts-mode-hook
+              (lambda ()
+                (setq-local indent-line-function 'js-indent-line)
+                (setq-local indent-region-function
+                            (lambda (start end)
+                              (save-excursion
+                                (goto-char start)
+                                (while (< (point) end)
+                                  (js-indent-line)
+                                  (forward-line 1)))))))
+    (setq-local indent-line-function 'js-indent-line))
+
+  ;; EAT ============================================ ;;
+
+  (use-package eat
+    :ensure t
+    :hook (eshell-load-hook . eat-eshell-mode))
+
+  ;; Copilot ======================================== ;;
+
+  (use-package copilot
+    :vc (:url "https://github.com/zerolfx/copilot.el" :rev :newest)
+    :config
+    (global-set-key (kbd "C-c c p") 'copilot-mode)
+    :bind (:map copilot-completion-map
+                ("C-g" . 'copilot-clear-overlay)
+                ("<right>" . 'copilot-accept-completion)
+                ("C-f" . 'copilot-accept-completion)
+                ("M-<right>" . 'copilot-accept-completion-by-word)
+                ("M-f" . 'copilot-accept-completion-by-word)
+                ("C-e" . 'copilot-accept-completion-by-line)
+                ("<end>" . 'copilot-accept-completion-by-line)
+                ("M-n" . 'copilot-next-completion)
+                ("M-p" . 'copilot-previous-completion)))
+
+  ;; Org Mode ===================================== ;;
 
 ;;; Org Mode
-(defun kdb/org-mode-setup ()
-  "Setup org mode."
-  (org-indent-mode)
-  (variable-pitch-mode 1)
-  (visual-line-mode 1)
-  (electric-indent-local-mode -1)
-  ;; (auto-fill-mode 1)
-  (setq cursor-type 'bar))
+  (defun kdb/org-mode-setup ()
+    "Setup org mode."
+    (org-indent-mode)
+    (variable-pitch-mode 1)
+    (visual-line-mode 1)
+    (electric-indent-local-mode -1)
+    ;; (auto-fill-mode 1)
+    (setq cursor-type 'bar))
 
-(use-package org
-  :ensure nil
-  :commands (org-capture org-agenda)
-  :hook (org-mode . kdb/org-mode-setup)
-  :config
+  (use-package org
+    :ensure nil
+    :commands (org-capture org-agenda)
+    :hook (org-mode . kdb/org-mode-setup)
+    :config
 
-  (setq
-   org-ellipsis "…"
-   org-pretty-entities t
-   org-src-fontify-natively t
-   org-src-tab-acts-natively t
-   org-hide-emphasis-markers t
-   org-confirm-babel-evaluate nil
-   org-export-with-smart-quotes t
-   org-src-window-setup 'current-window
-   org-directory "~/org/"
-   org-todo-keyword
-   '((sequence "TODO" "IN PROGRESS" "|" "DONE" "DELEGATED" "BLOCKED" "FIXME"))
-   org-structure-template-alist
-   '(("s" . "src")
-     ("E" . "src emacs-lisp")
-     ("e" . "example")
-     ("q" . "quote")
-     ("v" . "verse")
-     ("V" . "verbatim")
-     ("c" . "center")
-     ("C" . "comment"))
-   org-confirm-babel-evaluate nil
-   org-src-window-setup 'current-window
-   org-edit-src-persistent-message nil
-   org-src-preserve-indentation t
-   org-src-tab-acts-natively t
-   org-edit-src-content-indentation 0
-   org-auto-align-tags nil
-   org-tags-column 0
-   org-catch-invisible-edits 'show-and-error
-   org-special-ctrl-a/e t
-   org-insert-heading-respect-content t
-   org-export-with-toc t
-   org-export-headline-levels 8
-   org-export-dispatch-use-expert-ui nil
-   org-html-htmlize-output-type nil
-   org-html-head-include-default-style nil
-   org-html-head-include-scripts nil
-   (org-babel-do-load-languages
-    'org-babel-load-languages
-    '((emacs-lisp . t)
-      (shell . t)
-      (restclient . t)
-      (python . t)))))
+    (setq
+     org-ellipsis "…"
+     org-pretty-entities t
+     org-src-fontify-natively t
+     org-src-tab-acts-natively t
+     org-hide-emphasis-markers t
+     org-confirm-babel-evaluate nil
+     org-export-with-smart-quotes t
+     org-src-window-setup 'current-window
+     org-directory "~/org/"
+     org-todo-keyword
+     '((sequence "TODO" "IN PROGRESS" "|" "DONE" "DELEGATED" "BLOCKED" "FIXME"))
+     org-structure-template-alist
+     '(("s" . "src")
+       ("E" . "src emacs-lisp")
+       ("e" . "example")
+       ("q" . "quote")
+       ("v" . "verse")
+       ("V" . "verbatim")
+       ("c" . "center")
+       ("C" . "comment"))
+     org-confirm-babel-evaluate nil
+     org-src-window-setup 'current-window
+     org-edit-src-persistent-message nil
+     org-src-preserve-indentation t
+     org-src-tab-acts-natively t
+     org-edit-src-content-indentation 0
+     org-auto-align-tags nil
+     org-tags-column 0
+     org-catch-invisible-edits 'show-and-error
+     org-special-ctrl-a/e t
+     org-insert-heading-respect-content t
+     org-export-with-toc t
+     org-export-headline-levels 8
+     org-export-dispatch-use-expert-ui nil
+     org-html-htmlize-output-type nil
+     org-html-head-include-default-style nil
+     org-html-head-include-scripts nil
+     (org-babel-do-load-languages
+      'org-babel-load-languages
+      '((emacs-lisp . t)
+        (shell . t)
+        (restclient . t)
+        (python . t)))))
 
-(use-package org-modern
-  :after org
-  :hook (org-mode . global-org-modern-mode))
+  (use-package org-modern
+    :after org
+    :hook (org-mode . global-org-modern-mode))
 
-;; Hypebole ===================================== ;;
+  ;; Hypebole ===================================== ;;
 
-(use-package hyperbole
-  :ensure t
-  :hook (after-init . hyperbole-mode)
-  :config
-  (setq
-   hbmap:dir-user org-directory
-   hbmap:filename "personal-buttons.hypb"))
+  (use-package hyperbole
+    :ensure t
+    :hook (after-init . hyperbole-mode)
+    :config
+    (setq
+     hbmap:dir-user org-directory
+     hbmap:filename "personal-buttons.hypb"))
 
-;; Local Variables:
-;; no-byte-compile: t
-;; no-native-compile: t
-;; no-update-autoloads: t
-;; indent-tabs-mode: nil
-;; End:
+  ;; Local Variables:
+  ;; no-byte-compile: t
+  ;; no-native-compile: t
+  ;; no-update-autoloads: t
+  ;; indent-tabs-mode: nil
+  ;; End:
 ;;; init.el ends here
