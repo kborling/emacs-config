@@ -498,6 +498,10 @@
   :init
   (fido-mode)
   :config
+  (defun fussy-fido-setup ()
+    "Use `fussy' with `fido-mode'."
+    (setq-local completion-styles '(fussy basic)))
+  (advice-add 'icomplete--fido-mode-setup :after 'fussy-fido-setup)
   (setq icomplete-tidy-shadowed-file-names t
         icomplete-show-matches-on-no-input t
         icomplete-compute-delay 0
