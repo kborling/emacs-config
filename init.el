@@ -208,6 +208,8 @@
   ;; General keybindings
   (dolist (binding '(("C-h C-r" . restart-emacs)
                      ("C-;" . comment-line)
+                     ("C-a" . back-to-indentation)
+                     ("M-m" . move-beginning-of-line)
                      ("C-c b" . copy-whole-buffer)
                      ("C-c d" . duplicate-line)
                      ("C-x C-r" . recentf)
@@ -465,18 +467,11 @@
 
 ;; Fussy =============================================== ;;
 
-(use-package fzf-native
-  :ensure
-  :vc (:url "https://github.com/dangduc/fzf-native" :rev :newest)
-  :config
-  (fzf-native-load-dyn)
-  (setq fussy-score-fn 'fussy-fzf-native-score))
-
 (use-package fussy
   :config
   (setq fussy-use-cache t
-        fussy-filter-fn 'fussy-filter-orderless-flex
         ;; fussy-filter-fn 'fussy-filter-default
+        fussy-filter-fn 'fussy-filter-orderless-flex
         fussy-score-ALL-fn 'fussy-fzf-score
         fussy-compare-same-score-fn 'fussy-histlen->strlen<)
 
@@ -491,22 +486,22 @@
                           fussy-default-regex-fn 'fussy-pattern-first-letter
                           fussy-prefer-prefix nil))))
 
-;; Icolpmete ========================================= ;;
+;; Icomplete ========================================= ;;
 
-(use-package icomplete
-  :ensure nil
-  :init
-  (fido-mode)
-  :config
-  (defun fussy-fido-setup ()
-    "Use `fussy' with `fido-mode'."
-    (setq-local completion-styles '(fussy basic)))
-  (advice-add 'icomplete--fido-mode-setup :after 'fussy-fido-setup)
-  (setq icomplete-tidy-shadowed-file-names t
-        icomplete-show-matches-on-no-input t
-        icomplete-compute-delay 0
-        icomplete-delay-completions-threshold 50)
-  (global-set-key (kbd "C-=") 'fido-vertical-mode))
+;; (use-package icomplete
+;;   :ensure nil
+;;   :init
+;;   (fido-mode)
+;;   :config
+;;   (defun fussy-fido-setup ()
+;;     "Use `fussy' with `fido-mode'."
+;;     (setq-local completion-styles '(fussy basic)))
+;;   (advice-add 'icomplete--fido-mode-setup :after 'fussy-fido-setup)
+;;   (setq icomplete-tidy-shadowed-file-names t
+;;         icomplete-show-matches-on-no-input t
+;;         icomplete-compute-delay 0
+;;         icomplete-delay-completions-threshold 50)
+;;   (global-set-key (kbd "C-=") 'fido-vertical-mode))
 
 ;; Minibuffer ======================================== ;;
 
@@ -522,6 +517,7 @@
    completion-auto-select nil
    completions-detailed t
    completion-ignore-case t
+   read-buffer-completion-ignore-case t
    completions-max-height 20
    completion-flex-nospace nil
    ;; completion-styles '(basic substring initials flex orderless)
@@ -637,11 +633,11 @@
               (setq-local eldoc-documentation-strategy
                           #'eldoc-documentation-compose)))
 
-  (dolist (mode '(css-mode
-                  html-ts-mode
+  (dolist (mode '(html-ts-mode
                   angular-template-mode
-                  js-mode
                   typescript-ts-mode
+                  css-mode
+                  js-mode
                   c-mode
                   c++-mode
                   rust-mode
