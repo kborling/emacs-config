@@ -208,8 +208,8 @@
   ;; General keybindings
   (dolist (binding '(("C-h C-r" . restart-emacs)
                      ("C-;" . comment-line)
-                     ("C-a" . back-to-indentation)
-                     ("M-m" . move-beginning-of-line)
+                     ;; ("C-a" . back-to-indentation)
+                     ;; ("M-m" . move-beginning-of-line)
                      ("C-c b" . copy-whole-buffer)
                      ("C-c d" . duplicate-line)
                      ("C-x C-r" . recentf)
@@ -425,6 +425,13 @@
   (setq
    dired-recursive-copies 'always
    dired-recursive-deletes 'always
+   dired-auto-revert-buffer #'dired-directory-changed-p
+   dired-free-space nil
+   dired-isearch-filenames 'dwim
+   dired-create-destination-dirs 'ask
+   dired-vc-rename-file t
+   dired-do-revert-buffer (lambda (dir) (not (file-remote-p dir)))
+   dired-kill-when-opening-new-dired-buffer t
    delete-by-moving-to-trash t
    dired-dwim-target t))
 
@@ -472,7 +479,6 @@
   (setq fussy-use-cache t
         ;; fussy-filter-fn 'fussy-filter-default
         fussy-filter-fn 'fussy-filter-orderless-flex
-        fussy-score-ALL-fn 'fussy-fzf-score
         fussy-compare-same-score-fn 'fussy-histlen->strlen<)
 
   (fussy-setup)
@@ -488,20 +494,20 @@
 
 ;; Icomplete ========================================= ;;
 
-;; (use-package icomplete
-;;   :ensure nil
-;;   :init
-;;   (fido-mode)
-;;   :config
-;;   (defun fussy-fido-setup ()
-;;     "Use `fussy' with `fido-mode'."
-;;     (setq-local completion-styles '(fussy basic)))
-;;   (advice-add 'icomplete--fido-mode-setup :after 'fussy-fido-setup)
-;;   (setq icomplete-tidy-shadowed-file-names t
-;;         icomplete-show-matches-on-no-input t
-;;         icomplete-compute-delay 0
-;;         icomplete-delay-completions-threshold 50)
-;;   (global-set-key (kbd "C-=") 'fido-vertical-mode))
+(use-package icomplete
+  :ensure nil
+  :init
+  (fido-mode)
+  :config
+  (defun fussy-fido-setup ()
+    "Use `fussy' with `fido-mode'."
+    (setq-local completion-styles '(fussy basic)))
+  (advice-add 'icomplete--fido-mode-setup :after 'fussy-fido-setup)
+  (setq icomplete-tidy-shadowed-file-names t
+        icomplete-show-matches-on-no-input t
+        icomplete-compute-delay 0
+        icomplete-delay-completions-threshold 50)
+  (global-set-key (kbd "C-=") 'fido-vertical-mode))
 
 ;; Minibuffer ======================================== ;;
 
