@@ -229,7 +229,7 @@ If point is at the end of the line, kill the whole line including the newline."
                      ("C-a" . kdb-move-to-beginning-of-line)
                      ("C-k" . kdb-kill-line)
                      ("C-c b" . copy-whole-buffer)
-                     ("C-c d" . duplicate-line)
+                     ("C-c C-d" . duplicate-line)
                      ("C-x C-r" . recentf)
                      ("C-x f" . project-find-file)
                      ("C-c C-r" . query-replace)
@@ -986,53 +986,23 @@ If point is at the end of the line, kill the whole line including the newline."
   :after org
   :hook (org-mode . global-org-modern-mode))
 
-;; Embark ====================================== ;;
+;; Denote ===================================== ;;
 
-(use-package embark
+(use-package denote
   :ensure t
-  :defer t
-  :bind
-  (("C-." . embark-act)
-   ("M-." . embark-dwim)
-   ("C-h B" . embark-bindings))
-  :init
-  (setq prefix-help-command #'embark-prefix-help-command)
-
-  (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
-  (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
-
   :config
-  (add-to-list 'display-buffer-alist
-               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-                 nil
-                 (window-parameters (mode-line-format . none))))
-
-  (defun embark-show-git-commit-diff (commit-id)
-    "Show the diff for the given COMMIT-ID using `vc-git-diff` or `magit-show-commit`."
-    (interactive "sCommit ID: ")
-    (if (fboundp 'magit-show-commit)
-        (magit-show-commit commit-id)
-      (vc-git-diff commit-id "^" nil)))
-
-  (add-to-list 'embark-default-action-overrides
-               '(git-commit . embark-show-git-commit-diff))
-
-  (defun embark-target-git-commit ()
-    "Identify the Git commit ID at point."
-    (when (and (derived-mode-p 'vc-git-log-view-mode) ; Ensure we are in Git log mode
-               (thing-at-point 'word t))
-      (let ((commit-id (thing-at-point 'word t)))
-        (when (string-match-p "\\`[a-f0-9]\\{7,40\\}\\'" commit-id) ; Match Git commit hash
-          `(git-commit . ,commit-id)))))
-
-  (add-to-list 'embark-target-finders 'embark-target-git-commit)
-
-  (defvar embark-git-commit-map
-    (let ((map (make-sparse-keymap)))
-      (define-key map (kbd "d") #'embark-show-git-commit-diff) ; Bind `d` to show diff
-      map))
-
-  (add-to-list 'embark-keymap-alist '(git-commit . embark-git-commit-map)))
+  (setq denote-directory (expand-file-name "~/Notes/"))
+  (setq denote-file-type 'org)
+  (setq denote-allow-multi-word-keywords t
+        denote-known-keywords '("work" "personal" "projects" "ideas" "reference"))
+  (setq denote-prompts '(title keywords))
+  (setq denote-link-fontify-backlinks t)
+  (add-hook 'dired-mode-hook #'denote-dired-mode)
+  :bind
+  (("C-c d n" . denote)
+   ("C-c d f" . denote-open-or-create)
+   ("C-c d l" . denote-link)
+   ("C-c d b" . denote-backlinks)))
 
 
 ;; Local Variables:
