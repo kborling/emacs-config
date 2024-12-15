@@ -198,6 +198,24 @@
     (mapc #'disable-theme custom-enabled-themes)
     (load-theme (intern chosen-theme) t)))
 
+(defun kdb-move-to-beginning-of-line ()
+  "Move point to the first non-whitespace character of the line.
+If point is already there, move to the true beginning of the line."
+  (interactive)
+  (let ((current-pos (point)))
+    (back-to-indentation)
+    (when (eq current-pos (point))
+      (beginning-of-line))))
+
+(defun kdb-kill-line ()
+  "Kill from point to the end of the line.
+If point is at the end of the line, kill the whole line including the newline."
+  (interactive)
+  (if (eolp)
+      (kill-whole-line)
+    (kill-line)))
+
+
 ;; Keybindings ======================================= ;;
 
 (let ((map global-map))
@@ -208,8 +226,8 @@
   ;; General keybindings
   (dolist (binding '(("C-h C-r" . restart-emacs)
                      ("C-;" . comment-line)
-                     ;; ("C-a" . back-to-indentation)
-                     ;; ("M-m" . move-beginning-of-line)
+                     ("C-a" . kdb-move-to-beginning-of-line)
+                     ("C-k" . kdb-kill-line)
                      ("C-c b" . copy-whole-buffer)
                      ("C-c d" . duplicate-line)
                      ("C-x C-r" . recentf)
@@ -509,6 +527,17 @@
         icomplete-delay-completions-threshold 50)
   (global-set-key (kbd "C-=") 'fido-vertical-mode))
 
+;; Completion Preview ================================ ;;
+
+;; (use-package completion-preview
+;;   :ensure nil
+;;   :bind (:map completion-preview-active-mode-map
+;;               ("M-p" . completion-preview-prev-candidate)
+;;               ("M-n" . completion-preview-next-candidate))
+;;   :config
+;;   (push 'org-self-insert-command completion-preview-commands)
+;;   :hook (after-init . global-completion-preview-mode))
+
 ;; Minibuffer ======================================== ;;
 
 (use-package minibuffer
@@ -526,31 +555,19 @@
    read-buffer-completion-ignore-case t
    completions-max-height 20
    completion-flex-nospace nil
-   ;; completion-styles '(basic substring initials flex orderless)
    completions-header-format nil
    completions-highlight-face 'completions-highlight
    minibuffer-visible-completions nil
    enable-recursive-minibuffers t
    completions-sort 'historical
    read-answer-short t)
-
-  ;;  completion-category-overrides
-  ;; (setq
-  ;;  '((file (styles . (basic partial-completion orderless)))
-  ;;    (project-file (styles . (basic partial-completion orderless)))
-  ;;    (bookmark (styles . (basic substring)))
-  ;;    (imenu (styles . (basic substring orderless)))
-  ;;    (buffer (styles . (basic substring orderless)))
-  ;;    (kill-ring (styles . (emacs22 orderless)))
-  ;;    (eglot (styles . (emacs22 substring orderless)))))
-
-  ;; Up/down when completing in the minibuffer
-  (define-key minibuffer-local-map (kbd "C-p") #'minibuffer-previous-completion)
-  (define-key minibuffer-local-map (kbd "C-n") #'minibuffer-next-completion)
-
-  ;; Up/down when completing in a normal buffer
-  (define-key completion-in-region-mode-map (kbd "C-p") #'minibuffer-previous-completion)
-  (define-key completion-in-region-mode-map (kbd "C-n") #'minibuffer-next-completion))
+  :bind (:map minibuffer-local-map
+              ("C-p" . minibuffer-previous-completion)
+              ("C-n" . minibuffer-next-completion))
+  :bind (:map completion-in-region-mode-map
+              ("C-p" . minibuffer-previous-completion)
+              ("C-n" . minibuffer-next-completion)
+              ("RET" . minibuffer-choose-completion)))
 
 ;; (defun update-completions-on-typing ()
 ;;   "Show or hide the *Completions* buffer based on minibuffer input length.
@@ -787,7 +804,7 @@
   (dolist (func '(cape-dabbrev
                   cape-file
                   cape-keyword
-                  cape-elisp-symbol
+                  ;; cape-elisp-symbol
                   cape-sgml))
     (add-to-list 'completion-at-point-functions func))
 
@@ -827,6 +844,7 @@
          (js-ts-mode . combobulate-mode)
          (css-ts-mode . combobulate-mode)
          (html-ts-mode . combobulate-mode)
+         (angular-template-mode . combobulate-mode)
          (yaml-ts-mode . combobulate-mode)
          (json-ts-mode . combobulate-mode)
          (typescript-ts-mode . combobulate-mode)
@@ -968,15 +986,54 @@
   :after org
   :hook (org-mode . global-org-modern-mode))
 
-;; Hypebole ===================================== ;;
+;; Embark ====================================== ;;
 
-(use-package hyperbole
+(use-package embark
   :ensure t
-  :hook (after-init . hyperbole-mode)
+  :defer t
+  :bind
+  (("C-." . embark-act)
+   ("M-." . embark-dwim)
+   ("C-h B" . embark-bindings))
+  :init
+  (setq prefix-help-command #'embark-prefix-help-command)
+
+  (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+  (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+
   :config
-  (setq
-   hbmap:dir-user org-directory
-   hbmap:filename "personal-buttons.hypb"))
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none))))
+
+  (defun embark-show-git-commit-diff (commit-id)
+    "Show the diff for the given COMMIT-ID using `vc-git-diff` or `magit-show-commit`."
+    (interactive "sCommit ID: ")
+    (if (fboundp 'magit-show-commit)
+        (magit-show-commit commit-id)
+      (vc-git-diff commit-id "^" nil)))
+
+  (add-to-list 'embark-default-action-overrides
+               '(git-commit . embark-show-git-commit-diff))
+
+  (defun embark-target-git-commit ()
+    "Identify the Git commit ID at point."
+    (when (and (derived-mode-p 'vc-git-log-view-mode) ; Ensure we are in Git log mode
+               (thing-at-point 'word t))
+      (let ((commit-id (thing-at-point 'word t)))
+        (when (string-match-p "\\`[a-f0-9]\\{7,40\\}\\'" commit-id) ; Match Git commit hash
+          `(git-commit . ,commit-id)))))
+
+  (add-to-list 'embark-target-finders 'embark-target-git-commit)
+
+  (defvar embark-git-commit-map
+    (let ((map (make-sparse-keymap)))
+      (define-key map (kbd "d") #'embark-show-git-commit-diff) ; Bind `d` to show diff
+      map))
+
+  (add-to-list 'embark-keymap-alist '(git-commit . embark-git-commit-map)))
+
 
 ;; Local Variables:
 ;; no-byte-compile: t
