@@ -25,20 +25,6 @@
 
 ;; Package ============================================= ;;
 
-(require 'package)
-(unless package--initialized
-  (package-initialize))
-(unless package-archive-contents
-  (package-refresh-contents))
-
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
-(eval-when-compile
-  (require 'use-package))
-(setq use-package-always-ensure t)
-
-(add-hook 'package-menu-mode-hook #'hl-line-mode)
-
 (setq package-archives
       '(("gnu-elpa" . "https://elpa.gnu.org/packages/")
         ("gnu-elpa-devel" . "https://elpa.gnu.org/devel/")
@@ -49,6 +35,21 @@
       '(("gnu-elpa" . 3)
         ("melpa" . 2)
         ("nongnu" . 1)))
+
+(require 'package)
+(unless package--initialized
+  (package-initialize))
+(unless package-archive-contents
+  (package-refresh-contents))
+
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+
+(use-package use-package
+  :custom
+  (use-package-always-ensure t)
+  (package-native-compile t)
+  (warning-minimum-level :emergency))
 
 (setq package-install-upgrade-built-in t
       package-vc-register-as-project nil)
@@ -124,8 +125,6 @@
 
 ;; Fonts ================================================ ;;
 
-(setq-default line-spacing 2)
-
 (let* ((settings (cond
                   ((eq system-type 'windows-nt) '(:size 100 :family "Cascadia Code"))
                   ((eq system-type 'gnu/linux)  '(:size 120 :family "Inconsolata"))
@@ -137,7 +136,7 @@
   (set-face-attribute 'fixed-pitch nil
                       :family default-font-family :height 1.0)
   (set-face-attribute 'variable-pitch nil
-                      :family "Berkeley Mono Variable" :height 1.0 :weight 'regular))
+                      :family "Roboto" :height 1.0 :weight 'regular))
 
 ;; Themes ================================================= ;;
 
@@ -150,6 +149,17 @@
   (load-theme 'uwu t))
 
 (use-package acme-theme)
+
+(use-package standard-themes)
+
+;; UI Enhancements ======================================== ;;
+
+(use-package spacious-padding
+  :custom
+  (line-spacing 3)
+  (spacious-padding-subtle-mode-line t)
+  :init
+  (spacious-padding-mode 1))
 
 ;; Custom Functions ======================================= ;;
 
@@ -214,7 +224,6 @@ If point is at the end of the line, kill the whole line including the newline."
   (if (eolp)
       (kill-whole-line)
     (kill-line)))
-
 
 ;; Keybindings ======================================= ;;
 
@@ -526,17 +535,6 @@ If point is at the end of the line, kill the whole line including the newline."
         icomplete-compute-delay 0
         icomplete-delay-completions-threshold 50)
   (global-set-key (kbd "C-=") 'fido-vertical-mode))
-
-;; Completion Preview ================================ ;;
-
-;; (use-package completion-preview
-;;   :ensure nil
-;;   :bind (:map completion-preview-active-mode-map
-;;               ("M-p" . completion-preview-prev-candidate)
-;;               ("M-n" . completion-preview-next-candidate))
-;;   :config
-;;   (push 'org-self-insert-command completion-preview-commands)
-;;   :hook (after-init . global-completion-preview-mode))
 
 ;; Minibuffer ======================================== ;;
 
@@ -939,6 +937,7 @@ If point is at the end of the line, kill the whole line including the newline."
 
   (setq
    org-ellipsis "…"
+   org-use-sub-superscripts "{}"
    org-pretty-entities t
    org-src-fontify-natively t
    org-src-tab-acts-natively t
@@ -969,7 +968,11 @@ If point is at the end of the line, kill the whole line including the newline."
    org-catch-invisible-edits 'show-and-error
    org-special-ctrl-a/e t
    org-insert-heading-respect-content t
-   org-export-with-toc t
+   org-export-with-drawers nil
+   org-export-with-todo-keywords nil
+   org-export-with-broken-links t
+   org-export-with-toc nil
+   org-export-with-smart-quotes t
    org-export-headline-levels 8
    org-export-dispatch-use-expert-ui nil
    org-html-htmlize-output-type nil
@@ -984,26 +987,31 @@ If point is at the end of the line, kill the whole line including the newline."
 
 (use-package org-modern
   :after org
-  :hook (org-mode . global-org-modern-mode))
+  :hook (org-mode . org-modern-mode))
 
 ;; Denote ===================================== ;;
 
 (use-package denote
-  :ensure t
-  :config
-  (setq denote-directory (expand-file-name "~/Notes/"))
-  (setq denote-file-type 'org)
-  (setq denote-allow-multi-word-keywords t
-        denote-known-keywords '("work" "personal" "projects" "ideas" "reference"))
-  (setq denote-prompts '(title keywords))
-  (setq denote-link-fontify-backlinks t)
-  (add-hook 'dired-mode-hook #'denote-dired-mode)
+  :defer t
+  :custom
+  (denote-directory (expand-file-name "~/Notes/"))
+  (denote-sort-keywords t)
+  :hook
+  (dired-mode . denote-dired-mode)
+  :custom-face
+  (denote-faces-link ((t (:slant italic))))
+  :init
+  (require 'denote-org-extras)
   :bind
-  (("C-c d n" . denote)
-   ("C-c d f" . denote-open-or-create)
-   ("C-c d l" . denote-link)
-   ("C-c d b" . denote-backlinks)))
-
+  (("C-c d b" . denote-find-backlink)
+   ("C-c d d" . denote-date)
+   ("C-c d l" . denote-find-link)
+   ("C-c d h" . denote-org-extras-link-to-heading)
+   ("C-c d i" . denote-link-or-create)
+   ("C-c d k" . denote-rename-file-keywords)
+   ("C-c d n" . denote)
+   ("C-c d r" . denote-rename-file)
+   ("C-c d R" . denote-rename-file-using-front-matter)))
 
 ;; Local Variables:
 ;; no-byte-compile: t
