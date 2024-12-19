@@ -1015,56 +1015,57 @@ If point is at the end of the line, kill the whole line including the newline."
 
 ;; Redacted ===================================== ;;
 
-(use-package redacted
+(use-package obfuscate-mode
+  :vc (:url "https://github.com/kborling/obfuscate-mode.el" :rev :newest)
   :ensure t
   :config
- (global-set-key (kbd "C-c t r") 'redacted-mode)
+ (global-set-key (kbd "C-c t r") 'obfuscate-mode)
  
   (defvar kdb-idle-timer nil
-    "Timer to toggle `redacted-mode` on inactivity for all windows.")
+    "Timer to toggle `obfuscate-mode` on inactivity for all windows.")
 
   (defvar kdb-idle-timeout 300
-    "Number of seconds of inactivity before toggling `redacted-mode` in all buffers.")
+    "Number of seconds of inactivity before toggling `obfuscate-mode` in all buffers.")
 
-  (defvar kdb-redacted-active nil
-    "Track whether `redacted-mode` is currently active in all windows.")
+  (defvar kdb-obfuscate-active nil
+    "Track whether `obfuscate-mode` is currently active in all windows.")
 
-  (defun kdb-enable-redacted-mode-for-all-windows ()
-    "Enable `redacted-mode` for all visible buffers."
-    (unless kdb-redacted-active
-      (message "Enabling redacted-mode for all windows due to inactivity")
-      (setq kdb-redacted-active t)
+  (defun kdb-enable-obfuscate-mode-for-all-windows ()
+    "Enable `obfuscate-mode` for all visible buffers."
+    (unless kdb-obfuscate-active
+      (message "Enabling obfuscate-mode for all windows due to inactivity")
+      (setq kdb-obfuscate-active t)
       (dolist (window (window-list))
         (with-current-buffer (window-buffer window)
-          (redacted-mode 1)))))
+          (obfuscate-mode 1)))))
 
-  (defun kdb-disable-redacted-mode-for-all-windows ()
-    "Disable `redacted-mode` for all visible buffers."
-    (when kdb-redacted-active
-      (message "Disabling redacted-mode for all windows due to activity")
-      (setq kdb-redacted-active nil)
+  (defun kdb-disable-obfuscate-mode-for-all-windows ()
+    "Disable `obfuscate-mode` for all visible buffers."
+    (when kdb-obfuscate-active
+      (message "Disabling obfuscate-mode for all windows due to activity")
+      (setq kdb-obfuscate-active nil)
       (dolist (window (window-list))
         (with-current-buffer (window-buffer window)
-          (redacted-mode -1)))))
+          (obfuscate-mode -1)))))
 
-  (defun kdb-setup-idle-redacted-mode-for-all-windows ()
-    "Set up idle toggling for `redacted-mode` across all windows."
+  (defun kdb-setup-idle-obfuscate-mode-for-all-windows ()
+    "Set up idle toggling for `obfuscate-mode` across all windows."
     (setq kdb-idle-timer
-          (run-with-idle-timer kdb-idle-timeout t #'kdb-enable-redacted-mode-for-all-windows))
-    (add-hook 'post-command-hook #'kdb-disable-redacted-mode-for-all-windows))
+          (run-with-idle-timer kdb-idle-timeout t #'kdb-enable-obfuscate-mode-for-all-windows))
+    (add-hook 'post-command-hook #'kdb-disable-obfuscate-mode-for-all-windows))
 
-  (defun kdb-disable-idle-redacted-mode-for-all-windows ()
-    "Remove idle toggling for `redacted-mode` across all windows."
+  (defun kdb-disable-idle-obfuscate-mode-for-all-windows ()
+    "Remove idle toggling for `obfuscate-mode` across all windows."
     (when kdb-idle-timer
       (cancel-timer kdb-idle-timer)
       (setq kdb-idle-timer nil))
-    (remove-hook 'post-command-hook #'kdb-disable-redacted-mode-for-all-windows))
+    (remove-hook 'post-command-hook #'kdb-disable-obfuscate-mode-for-all-windows))
 
   ;; Enable the setup
-  (kdb-setup-idle-redacted-mode-for-all-windows)
+  (kdb-setup-idle-obfuscate-mode-for-all-windows)
 
   ;; To disable the functionality, call:
-  ;; (kdb-disable-idle-redacted-mode-for-all-windows)
+  ;; (kdb-disable-idle-obfuscate-mode-for-all-windows)
   )
 
 ;; Meow ========================================= ;;
