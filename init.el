@@ -1013,13 +1013,67 @@ If point is at the end of the line, kill the whole line including the newline."
    ("C-c d r" . denote-rename-file)
    ("C-c d R" . denote-rename-file-using-front-matter)))
 
+;; Redacted ===================================== ;;
+
+(use-package redacted
+  :ensure t
+  :config
+ (global-set-key (kbd "C-c t r") 'redacted-mode)
+ 
+  (defvar kdb-idle-timer nil
+    "Timer to toggle `redacted-mode` on inactivity for all windows.")
+
+  (defvar kdb-idle-timeout 300
+    "Number of seconds of inactivity before toggling `redacted-mode` in all buffers.")
+
+  (defvar kdb-redacted-active nil
+    "Track whether `redacted-mode` is currently active in all windows.")
+
+  (defun kdb-enable-redacted-mode-for-all-windows ()
+    "Enable `redacted-mode` for all visible buffers."
+    (unless kdb-redacted-active
+      (message "Enabling redacted-mode for all windows due to inactivity")
+      (setq kdb-redacted-active t)
+      (dolist (window (window-list))
+        (with-current-buffer (window-buffer window)
+          (redacted-mode 1)))))
+
+  (defun kdb-disable-redacted-mode-for-all-windows ()
+    "Disable `redacted-mode` for all visible buffers."
+    (when kdb-redacted-active
+      (message "Disabling redacted-mode for all windows due to activity")
+      (setq kdb-redacted-active nil)
+      (dolist (window (window-list))
+        (with-current-buffer (window-buffer window)
+          (redacted-mode -1)))))
+
+  (defun kdb-setup-idle-redacted-mode-for-all-windows ()
+    "Set up idle toggling for `redacted-mode` across all windows."
+    (setq kdb-idle-timer
+          (run-with-idle-timer kdb-idle-timeout t #'kdb-enable-redacted-mode-for-all-windows))
+    (add-hook 'post-command-hook #'kdb-disable-redacted-mode-for-all-windows))
+
+  (defun kdb-disable-idle-redacted-mode-for-all-windows ()
+    "Remove idle toggling for `redacted-mode` across all windows."
+    (when kdb-idle-timer
+      (cancel-timer kdb-idle-timer)
+      (setq kdb-idle-timer nil))
+    (remove-hook 'post-command-hook #'kdb-disable-redacted-mode-for-all-windows))
+
+  ;; Enable the setup
+  (kdb-setup-idle-redacted-mode-for-all-windows)
+
+  ;; To disable the functionality, call:
+  ;; (kdb-disable-idle-redacted-mode-for-all-windows)
+  )
+
 ;; Meow ========================================= ;;
 
 (use-package meow
   :hook ((after-init . meow-global-mode)
          (meow-mode . meow-setup))
   :config
-  (global-set-key (kbd "C-c t m") 'meow-global-mode))
+  (global-set-key (kbd "C-c t m") 'meow-global-mode)
   (defun meow-setup ()
     (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvorak)
     (meow-leader-define-key
@@ -1037,7 +1091,7 @@ If point is at the end of the line, kill the whole line including the newline."
      '("?" . meow-cheatsheet))
     (meow-motion-overwrite-define-key
      '("<escape>" . ignore))
-     ;; custom keybinding for motion state
+    ;; custom keybinding for motion state
     (meow-normal-define-key
      '("0" . meow-expand-0)
      '("9" . meow-expand-9)
